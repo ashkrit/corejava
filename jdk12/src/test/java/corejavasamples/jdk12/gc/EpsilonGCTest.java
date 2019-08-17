@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import static java.util.Arrays.asList;
+import static java.util.List.of;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,14 +28,14 @@ public class EpsilonGCTest {
     @DisplayName("Pass when default GC is used")
     void should_pass_when_default_gc_is_used() throws IOException {
 
-        var command = new String[]{
+        var command = of(
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
                 "-cp target/classes/;",
-                "corejavasamples.jdk12.gc.MemoryAllocator"};
+                "corejavasamples.jdk12.gc.MemoryAllocator");
 
-        var runCommand = asList(command)
+        var runCommand = command
                 .stream()
                 .collect(joining(" "));
 
@@ -58,16 +58,16 @@ public class EpsilonGCTest {
     void should_fail_when_epsilon_gc_is_used__and_memory_exhausted() throws IOException {
 
 
-        var command = new String[]{
+        var command = of(
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
                 "-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -Xmx2g",
                 "-Dmb=5000",
                 "-cp target/classes/;",
-                "corejavasamples.jdk12.gc.MemoryAllocator"};
+                "corejavasamples.jdk12.gc.MemoryAllocator");
 
-        var runCommand = asList(command)
+        var runCommand = command
                 .stream()
                 .collect(joining(" "));
 
@@ -91,17 +91,16 @@ public class EpsilonGCTest {
     void epsilon_gc_is_used_but_memory_not_exhausted() throws IOException {
 
 
-        var command = new String[]{
+        var command = of(
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
                 "-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -Xmx2g",
                 "-Dmb=1000",
                 "-cp target/classes/;",
-                "corejavasamples.jdk12.gc.MemoryAllocator"};
+                "corejavasamples.jdk12.gc.MemoryAllocator");
 
-        var runCommand = asList(command)
-                .stream()
+        var runCommand = command.stream()
                 .collect(joining(" "));
 
 
@@ -124,16 +123,16 @@ public class EpsilonGCTest {
     void multiple_thread_allocation_using_epsilon_gc() throws IOException {
 
 
-        var command = new String[]{
+        var command = of(
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
                 "-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -Xmx2g",
                 "-Dmb=5000",
                 "-cp target/classes/;",
-                "corejavasamples.jdk12.gc.MultiThreadMemoryAllocator"};
+                "corejavasamples.jdk12.gc.MultiThreadMemoryAllocator");
 
-        var runCommand = asList(command)
+        var runCommand = command
                 .stream()
                 .collect(joining(" "));
 
