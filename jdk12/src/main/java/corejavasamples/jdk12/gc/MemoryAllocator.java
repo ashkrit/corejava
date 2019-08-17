@@ -15,8 +15,8 @@ public class MemoryAllocator {
     public static void main(String[] args) {
         System.out.println(String.format("Start allocation of %s MBs", mbToAllocate));
 
-        for (int i = 0; i < mbToAllocate; i++) {
-            Object garbage = new byte[KB * KB];
+        for (var i = 0; i < mbToAllocate; i++) {
+            var garbage = new byte[KB * KB];
         }
 
         System.out.println("I was Alive after allocation");

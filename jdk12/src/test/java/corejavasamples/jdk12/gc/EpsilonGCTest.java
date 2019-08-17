@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
@@ -29,18 +28,18 @@ public class EpsilonGCTest {
     @DisplayName("Pass when default GC is used")
     void should_pass_when_default_gc_is_used() throws IOException {
 
-        String[] command = new String[]{
+        var command = new String[]{
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
                 "-cp target/classes/;",
                 "corejavasamples.jdk12.gc.MemoryAllocator"};
 
-        String runCommand = asList(command)
+        var runCommand = asList(command)
                 .stream()
                 .collect(joining(" "));
 
-        List<String> errors = new ArrayList<>();
+        var errors = new ArrayList<>();
         Consumer<String> outputConsumer = line -> {
             System.out.println(line);
             if (isOutOfMemory(line)) {
@@ -59,7 +58,7 @@ public class EpsilonGCTest {
     void should_fail_when_epsilon_gc_is_used__and_memory_exhausted() throws IOException {
 
 
-        String[] command = new String[]{
+        var command = new String[]{
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
@@ -68,12 +67,12 @@ public class EpsilonGCTest {
                 "-cp target/classes/;",
                 "corejavasamples.jdk12.gc.MemoryAllocator"};
 
-        String runCommand = asList(command)
+        var runCommand = asList(command)
                 .stream()
                 .collect(joining(" "));
 
 
-        List<String> errors = new ArrayList<>();
+        var errors = new ArrayList<>();
         Consumer<String> outputConsumer = line -> {
             System.out.println(line);
             if (isOutOfMemory(line)) {
@@ -92,7 +91,7 @@ public class EpsilonGCTest {
     void epsilon_gc_is_used_but_memory_not_exhausted() throws IOException {
 
 
-        String[] command = new String[]{
+        var command = new String[]{
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
@@ -101,12 +100,12 @@ public class EpsilonGCTest {
                 "-cp target/classes/;",
                 "corejavasamples.jdk12.gc.MemoryAllocator"};
 
-        String runCommand = asList(command)
+        var runCommand = asList(command)
                 .stream()
                 .collect(joining(" "));
 
 
-        List<String> errors = new ArrayList<>();
+        var errors = new ArrayList<>();
         Consumer<String> outputConsumer = line -> {
             System.out.println(line);
             if (isOutOfMemory(line)) {
@@ -125,7 +124,7 @@ public class EpsilonGCTest {
     void multiple_thread_allocation_using_epsilon_gc() throws IOException {
 
 
-        String[] command = new String[]{
+        var command = new String[]{
                 "java",
                 "--enable-preview",
                 "-Xlog:gc",
@@ -134,12 +133,12 @@ public class EpsilonGCTest {
                 "-cp target/classes/;",
                 "corejavasamples.jdk12.gc.MultiThreadMemoryAllocator"};
 
-        String runCommand = asList(command)
+        var runCommand = asList(command)
                 .stream()
                 .collect(joining(" "));
 
 
-        List<String> errors = new ArrayList<>();
+        var errors = new ArrayList<>();
         Consumer<String> outputConsumer = line -> {
             System.out.println(line);
             if (isOutOfMemory(line)) {
@@ -160,7 +159,7 @@ public class EpsilonGCTest {
     public static void execute(String runCommand, Consumer<String> outputStreamConsumer, Consumer<String> errorConsumer) throws IOException {
 
         System.out.println(String.format("Running %s", runCommand));
-        Process process = Runtime.getRuntime().exec(runCommand);
+        var process = Runtime.getRuntime().exec(runCommand);
         System.out.println("Launched and PID is " + process.pid());
 
         read(process.getInputStream(), outputStreamConsumer);
@@ -170,7 +169,7 @@ public class EpsilonGCTest {
 
     private static void read(InputStream in, Consumer<String> processor) throws IOException {
         if (in != null) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            var reader = new BufferedReader(new InputStreamReader(in));
             String line;
             while ((line = reader.readLine()) != null) {
                 processor.accept(line);

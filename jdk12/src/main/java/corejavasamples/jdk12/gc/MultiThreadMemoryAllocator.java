@@ -1,8 +1,9 @@
 package corejavasamples.jdk12.gc;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.concurrent.CompletableFuture.runAsync;
 
 /*
 JEP 318: Epsilon: A No-Op Garbage Collector
@@ -19,22 +20,28 @@ public class MultiThreadMemoryAllocator {
     public static void main(String[] args) throws InterruptedException {
         System.out.println(String.format("Start allocation of %s MBs", mbToAllocate));
 
-        AtomicInteger counter = new AtomicInteger(0);
-        CountDownLatch latch = new CountDownLatch(Runtime.getRuntime().availableProcessors());
-        for (int x = 0; x < Runtime.getRuntime().availableProcessors(); x++) {
-            CompletableFuture.runAsync(() -> {
-                while (true) {
-                    if (counter.get() > mbToAllocate) {
-                        latch.countDown();
-                        break;
-                    }
-                    byte[] b = new byte[KB * KB];
-                    counter.incrementAndGet();
-                }
-            });
+        var counter = new AtomicInteger(0);
+        var noOfThreads = Runtime.getRuntime().availableProcessors();
+        var latch = new CountDownLatch(noOfThreads);
+
+        for (var x = 0; x < noOfThreads; x++) {
+            runAsync(() -> allocate(counter, latch));
         }
 
         latch.await();
         System.out.println("I was Alive after allocation");
+    }
+
+    private static void allocate(AtomicInteger counter, CountDownLatch latch) {
+        while (true) {
+
+            if (counter.get() > mbToAllocate) {
+                latch.countDown();
+                break;
+            }
+
+            var b = new byte[KB * KB];
+            counter.incrementAndGet();
+        }
     }
 }
