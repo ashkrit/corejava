@@ -29,7 +29,6 @@ public class EpsilonGCTest {
     @DisplayName("Pass when default GC is used")
     void should_pass_when_default_gc_is_used() throws IOException {
 
-
         String[] command = new String[]{
                 "java",
                 "--enable-preview",
@@ -56,8 +55,8 @@ public class EpsilonGCTest {
     }
 
     @Test
-    @DisplayName("Fail when epsilon GC is used and memory requirement is more than allocated ")
-    void should_fail_when_epsilon_gc_is_used_with_5G_allocation() throws IOException {
+    @DisplayName("Fail when epsilon GC is used and memory is exhausted")
+    void should_fail_when_epsilon_gc_is_used__and_memory_exhausted() throws IOException {
 
 
         String[] command = new String[]{
@@ -89,8 +88,8 @@ public class EpsilonGCTest {
     }
 
     @Test
-    @DisplayName("Pass when epsilon GC is used and memory requirement is less than allocated ")
-    void should_pass_when_epsilon_gc_is_used_but_memory_req_is_less_than_allocated() throws IOException {
+    @DisplayName("Pass when epsilon GC is used and memory is not exhausted")
+    void epsilon_gc_is_used_but_memory_not_exhausted() throws IOException {
 
 
         String[] command = new String[]{
@@ -118,6 +117,39 @@ public class EpsilonGCTest {
 
         execute(runCommand, outputConsumer, errorConsumer);
         assertTrue(errors.isEmpty());
+
+    }
+
+    @Test
+    @DisplayName("fail when memory is exhausted using multiple thread")
+    void multiple_thread_allocation_using_epsilon_gc() throws IOException {
+
+
+        String[] command = new String[]{
+                "java",
+                "--enable-preview",
+                "-Xlog:gc",
+                "-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC -Xmx2g",
+                "-Dmb=5000",
+                "-cp target/classes/;",
+                "corejavasamples.jdk12.gc.MultiThreadMemoryAllocator"};
+
+        String runCommand = asList(command)
+                .stream()
+                .collect(joining(" "));
+
+
+        List<String> errors = new ArrayList<>();
+        Consumer<String> outputConsumer = line -> {
+            System.out.println(line);
+            if (isOutOfMemory(line)) {
+                errors.add(line);
+            }
+        };
+        Consumer<String> errorConsumer = line -> System.err.println(line);
+
+        execute(runCommand, outputConsumer, errorConsumer);
+        assertFalse(errors.isEmpty());
 
     }
 
