@@ -1,4 +1,6 @@
-import validator.ExtensionValidator;
+package loganalyser;
+
+import loganalyser.validator.ExtensionValidator;
 
 public class LogAnalyserBuilder {
 

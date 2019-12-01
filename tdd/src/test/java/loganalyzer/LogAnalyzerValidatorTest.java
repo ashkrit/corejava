@@ -1,3 +1,8 @@
+package loganalyzer;
+
+import loganalyser.LogAnalyserBuilder;
+import loganalyser.LogAnalyzer;
+import loganalyser.validator.FileBasedExtensionValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -6,12 +11,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-import validator.FileBasedExtensionValidator;
 
 import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 //Testing with real implementation
 public class LogAnalyzerValidatorTest {
@@ -31,14 +32,14 @@ public class LogAnalyzerValidatorTest {
     @Test
     public void isvalid_returns_true_when_extension_is_valid() {
 
-        assertTrue(logAnalyzer.isValidLogFile("filewithbadextension.SLF"));
+        Assertions.assertTrue(logAnalyzer.isValidLogFile("filewithbadextension.SLF"));
     }
 
     @DisplayName("Test for good lower case extension")
     @Test
     public void isvalid_returns_true_when_extension_lower_case_is_valid() {
 
-        assertTrue(logAnalyzer.isValidLogFile("filewithbadextension.slf"));
+        Assertions.assertTrue(logAnalyzer.isValidLogFile("filewithbadextension.slf"));
     }
 
 
@@ -52,7 +53,7 @@ public class LogAnalyzerValidatorTest {
     public void should_test_multiple_files(String fileName, boolean expected) {
 
 
-        assertEquals(expected, logAnalyzer.isValidLogFile(fileName));
+        Assertions.assertEquals(expected, logAnalyzer.isValidLogFile(fileName));
     }
 
 

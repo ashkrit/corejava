@@ -1,3 +1,7 @@
+package loganalyzer;
+
+import loganalyser.LogAnalyserBuilder;
+import loganalyser.LogAnalyzer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

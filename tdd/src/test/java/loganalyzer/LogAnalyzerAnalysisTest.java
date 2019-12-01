@@ -1,6 +1,10 @@
+package loganalyzer;
+
+import loganalyser.LogAnalyserBuilder;
+import loganalyser.LogAnalyzer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import validator.FileBasedExtensionValidator;
+import loganalyser.validator.FileBasedExtensionValidator;
 
 //Testing with real implementation + Mock
 public class LogAnalyzerAnalysisTest {

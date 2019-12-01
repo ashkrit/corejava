@@ -1,4 +1,4 @@
-package validator;
+package loganalyser.validator;
 
 public class FileBasedExtensionValidator implements ExtensionValidator {
     @Override
