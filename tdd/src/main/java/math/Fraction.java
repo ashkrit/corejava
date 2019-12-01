@@ -1,6 +1,7 @@
 package math;
 
 public class Fraction {
+    private int nominator;
     private int denominator;
     private int value;
 
@@ -9,6 +10,8 @@ public class Fraction {
     }
 
     public Fraction(int nominator, int denominator) {
+        this.nominator = nominator;
+        this.value = nominator;
         this.denominator = denominator;
     }
 
