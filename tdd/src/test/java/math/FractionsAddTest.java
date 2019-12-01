@@ -40,5 +40,12 @@ public class FractionsAddTest {
         assertEquals(-2, result.intValue());
     }
 
+    @Test
+    public void add_values_with_non_zero_denominator() {
+        Fraction result = new Fraction(1, 5).plus(new Fraction(2, 5));
+        assertEquals(3, result.getNominator());
+        assertEquals(5, result.getDenominator());
+    }
+
 
 }
