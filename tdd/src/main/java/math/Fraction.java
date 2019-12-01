@@ -8,7 +8,10 @@ public class Fraction {
     }
 
     public Fraction plus(Fraction that) {
-        return this;
+        if (that.value != 0)
+            return new Fraction(this.value + that.value);
+        else
+            return this;
     }
 
     public int intValue() {

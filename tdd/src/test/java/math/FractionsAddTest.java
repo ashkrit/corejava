@@ -21,4 +21,17 @@ public class FractionsAddTest {
     }
 
 
+    @Test
+    public void add_zero_and_non_zero_value() {
+        Fraction result = new Fraction(0).plus(new Fraction(5));
+        assertEquals(5, result.intValue());
+    }
+
+    @Test
+    public void add_both_non_zero_value() {
+        Fraction result = new Fraction(10).plus(new Fraction(5));
+        assertEquals(15, result.intValue());
+    }
+
+
 }
