@@ -6,7 +6,7 @@ public class Fraction {
     private int value;
 
     public Fraction(int value) {
-        this.value = value;
+        this(value, 1);
     }
 
     public Fraction(int nominator, int denominator) {
@@ -16,15 +16,15 @@ public class Fraction {
     }
 
     public Fraction plus(Fraction that) {
-        return new Fraction(this.value + that.value, this.denominator);
+        return new Fraction(this.nominator + that.nominator, this.denominator);
     }
 
     public int intValue() {
-        return value;
+        return nominator;
     }
 
     public int getNominator() {
-        return 3;
+        return nominator;
     }
 
     public int getDenominator() {
