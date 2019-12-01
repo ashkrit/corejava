@@ -34,4 +34,11 @@ public class FractionsAddTest {
     }
 
 
+    @Test
+    public void add_negative_value_test() {
+        Fraction result = new Fraction(-4).plus(new Fraction(2));
+        assertEquals(-2, result.intValue());
+    }
+
+
 }
