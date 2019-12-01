@@ -1,9 +1,8 @@
 package math;
 
 public class Fraction {
-    private int nominator;
-    private int denominator;
-
+    private final int nominator;
+    private final int denominator;
 
     public Fraction(int value) {
         this(value, 1);
