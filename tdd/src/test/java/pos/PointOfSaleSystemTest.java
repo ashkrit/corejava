@@ -16,4 +16,23 @@ public class PointOfSaleSystemTest {
         assertEquals("scan again", display.message());
     }
 
+
+    @Test
+    public void empty_barcode_scan() {
+        DisplayDevice display = new ScreenDisplay();
+
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode("");
+        assertEquals("scan again", display.message());
+    }
+
+    @Test
+    public void whitespace_barcode_scan() {
+        DisplayDevice display = new ScreenDisplay();
+
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode("   ");
+        assertEquals("scan again", display.message());
+    }
+
 }
