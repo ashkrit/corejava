@@ -26,6 +26,9 @@ public class FractionMultiply {
     public void multiply_fraction_values_with_whole() {
         assertEquals(new Fraction(10, 3),
                 new Fraction(2, 3).multiply(new Fraction(5)));
+
+        assertEquals(new Fraction(2, 3),
+                new Fraction(3).multiply(new Fraction(2, 9)));
     }
 
 }
