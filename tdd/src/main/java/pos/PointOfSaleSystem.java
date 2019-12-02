@@ -1,24 +1,30 @@
 package pos;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class PointOfSaleSystem {
+    public static final String MISSING_PRICE = "-1";
     private final Map<String, Double> productPrice;
-    private Double currentProduct;
+
+    private Optional<Double> currentProduct;
 
     public PointOfSaleSystem(Map<String, Double> productPrice) {
         this.productPrice = productPrice;
     }
 
-    public String message() {
-        return displayMessage();
+    public void onBarCode(String barCode) {
+        this.currentProduct = lookupPrice(barCode);
     }
 
-    public void onBarCode(String barCode) {
-        this.currentProduct = productPrice.get(barCode);
+    private Optional<Double> lookupPrice(String barCode) {
+        Double price = productPrice.get(barCode);
+        return price == null ? Optional.empty() : Optional.of(price);
     }
 
     public String displayMessage() {
-        return currentProduct == null ? "-1" : String.format("$%.2f", currentProduct);
+        return currentProduct
+                .map(price -> String.format("$%.2f", price))
+                .orElse(MISSING_PRICE);
     }
 }
