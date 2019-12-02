@@ -1,5 +1,6 @@
 package pos;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -9,20 +10,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PointOfSaleSystemTest {
 
+    private final Map<String, Double> productPrice = new HashMap<>();
+
+    @BeforeEach
+    public void init() {
+        productPrice.put("1000001", 20d);
+        productPrice.put("1000002", 30d);
+    }
+
     @Test
-    public void return_message_to_display() {
+    public void handles_missing_barcode_price() {
         PointOfSaleSystem pos = new PointOfSaleSystem(new HashMap<>());
         pos.onBarCode("1000000");
         assertEquals("-1", pos.displayMessage());
     }
 
-
     @Test
     public void handles_multiple_scans_price() {
-        Map<String, Double> productPrice = new HashMap<>();
-        productPrice.put("1000001", 20.0d);
-        productPrice.put("1000002", 30.0d);
-
         PointOfSaleSystem pos = new PointOfSaleSystem(productPrice);
 
         pos.onBarCode("1000001");
