@@ -1,5 +1,7 @@
 package math;
 
+import static math.GreaterCommonDivisor.gcd;
+
 public class Fraction {
     private final int nominator;
     private final int denominator;
@@ -9,19 +11,15 @@ public class Fraction {
     }
 
     public Fraction(int nominator, int denominator) {
-        int gcd = GreaterCommonDivisor.gcd(nominator, denominator);
+        int gcd = gcd(nominator, denominator);
         this.nominator = nominator / gcd;
         this.denominator = denominator / gcd;
     }
 
     public Fraction plus(Fraction that) {
-        if (that.denominator != this.denominator) {
-            int n = this.nominator * that.denominator + that.nominator * this.denominator;
-            int d = this.denominator * that.denominator;
-            return new Fraction(n, d);
-        } else {
-            return new Fraction(this.nominator + that.nominator, this.denominator);
-        }
+        int n = this.nominator * that.denominator + that.nominator * this.denominator;
+        int d = this.denominator * that.denominator;
+        return new Fraction(n, d);
     }
 
     @Override
