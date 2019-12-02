@@ -17,16 +17,9 @@ public class Fraction {
         return new Fraction(this.nominator + that.nominator, this.denominator);
     }
 
-    public int intValue() {
-        return nominator;
-    }
-
-    public int getNominator() {
-        return nominator;
-    }
-
-    public int getDenominator() {
-        return denominator;
+    @Override
+    public int hashCode() {
+        return nominator * 37 + denominator;
     }
 
     @Override
