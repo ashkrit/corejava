@@ -11,4 +11,9 @@ public class FractionsReduceTest extends GreaterCommonDivisor {
         assertEquals(new Fraction(4, 1), new Fraction(4, 1));
     }
 
+    @Test
+    public void value_should_be_reduced_by_gcd() {
+        assertEquals(new Fraction(6, 4), new Fraction(3, 2));
+    }
+
 }

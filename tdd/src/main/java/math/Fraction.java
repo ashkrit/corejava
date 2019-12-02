@@ -9,8 +9,9 @@ public class Fraction {
     }
 
     public Fraction(int nominator, int denominator) {
-        this.nominator = nominator;
-        this.denominator = denominator;
+        int gcd = GreaterCommonDivisor.gcd(nominator, denominator);
+        this.nominator = nominator / gcd;
+        this.denominator = denominator / gcd;
     }
 
     public Fraction plus(Fraction that) {

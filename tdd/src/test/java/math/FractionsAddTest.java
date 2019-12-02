@@ -53,5 +53,4 @@ public class FractionsAddTest {
         Fraction result = new Fraction(1, 2).plus(new Fraction(1, 3));
         assertEquals(new Fraction(5, 6), result);
     }
-
 }
