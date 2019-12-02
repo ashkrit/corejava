@@ -13,7 +13,7 @@ public class PointOfSaleSystemTest {
     public void return_message_to_display() {
         PointOfSaleSystem pos = new PointOfSaleSystem(new HashMap<>());
         pos.onBarCode("1000000");
-        assertEquals("$10", pos.message());
+        assertEquals("-1", pos.displayMessage());
     }
 
 

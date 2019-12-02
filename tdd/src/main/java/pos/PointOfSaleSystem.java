@@ -11,7 +11,7 @@ public class PointOfSaleSystem {
     }
 
     public String message() {
-        return "$10";
+        return displayMessage();
     }
 
     public void onBarCode(String barCode) {
@@ -19,6 +19,6 @@ public class PointOfSaleSystem {
     }
 
     public String displayMessage() {
-        return String.format("$%.2f", currentProduct);
+        return currentProduct == null ? "-1" : String.format("$%.2f", currentProduct);
     }
 }
