@@ -47,4 +47,11 @@ public class FractionsAddTest {
         assertEquals(new Fraction(3, 5), result);
     }
 
+
+    @Test
+    public void different_denominators() {
+        Fraction result = new Fraction(1, 2).plus(new Fraction(1, 3));
+        assertEquals(new Fraction(5, 6), result);
+    }
+
 }
