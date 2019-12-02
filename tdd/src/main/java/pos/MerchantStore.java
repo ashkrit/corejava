@@ -8,5 +8,8 @@ public class MerchantStore {
     }
 
     public void onBarCode(String barCode) {
+        if (barCode != null && barCode.trim().length() > 0) {
+            this.display.onMessage("invalid barcode");
+        }
     }
 }

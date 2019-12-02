@@ -35,4 +35,13 @@ public class PointOfSaleSystemTest {
         assertEquals("scan again", display.message());
     }
 
+    @Test
+    public void valid_barcode_scan_but_barcode_does_not_exists() {
+        DisplayDevice display = new ScreenDisplay();
+
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode("123000");
+        assertEquals("invalid barcode", display.message());
+    }
+
 }
