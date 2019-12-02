@@ -28,4 +28,18 @@ public class Fraction {
     public int getDenominator() {
         return denominator;
     }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that instanceof Fraction) {
+            Fraction thatValue = (Fraction) that;
+            return thatValue.nominator == this.nominator && thatValue.denominator == this.denominator;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s/%s", nominator, denominator);
+    }
 }
