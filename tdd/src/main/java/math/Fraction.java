@@ -42,6 +42,10 @@ public class Fraction {
     }
 
     public Fraction multiply(Fraction that) {
-        return new Fraction(that.nominator * this.nominator);
+        if (that.denominator > 1) {
+            return new Fraction(this.nominator * that.nominator, this.denominator * that.denominator);
+        } else {
+            return new Fraction(that.nominator * this.nominator);
+        }
     }
 }

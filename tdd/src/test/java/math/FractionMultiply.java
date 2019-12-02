@@ -16,4 +16,10 @@ public class FractionMultiply {
         assertEquals(new Fraction(5), new Fraction(1).multiply(new Fraction(5)));
     }
 
+    @Test
+    public void multiply_fraction_values_with_same_denominator() {
+        assertEquals(new Fraction(1, 5),
+                new Fraction(1, 2).multiply(new Fraction(2, 5)));
+    }
+
 }
