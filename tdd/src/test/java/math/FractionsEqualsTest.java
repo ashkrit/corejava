@@ -3,6 +3,7 @@ package math;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class FractionsEqualsTest {
 
@@ -14,7 +15,7 @@ public class FractionsEqualsTest {
 
     @Test
     public void different_fraction_should_not_be_equals() {
-        assertEquals(new Fraction(5, 10), new Fraction(5, 10));
+        assertNotEquals(new Fraction(5, 10), new Fraction(6, 10));
     }
 
     @Test
