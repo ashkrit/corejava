@@ -23,5 +23,4 @@ public class GCDTest {
         assertEquals(6, gcd(24, -54));
     }
 
-
 }
