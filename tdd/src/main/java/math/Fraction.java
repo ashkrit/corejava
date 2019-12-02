@@ -42,6 +42,6 @@ public class Fraction {
     }
 
     public Fraction multiply(Fraction that) {
-        return this;
+        return new Fraction(that.nominator * this.nominator);
     }
 }
