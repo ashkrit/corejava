@@ -8,8 +8,8 @@ public class PointOfSaleSystemTest {
 
     @Test
     public void return_message_to_display() {
-
         PointOfSaleSystem pos = new PointOfSaleSystem();
-        assertEquals("Price of product is $10", pos.message());
+        pos.onBarCode("1000000");
+        assertEquals("$10", pos.message());
     }
 }

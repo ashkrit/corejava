@@ -2,6 +2,10 @@ package pos;
 
 public class PointOfSaleSystem {
     public String message() {
-        return "Price of product is $10";
+        return "$10";
+    }
+
+    public void onBarCode(String barCode) {
+
     }
 }
