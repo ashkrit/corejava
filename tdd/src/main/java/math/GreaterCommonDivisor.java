@@ -7,6 +7,6 @@ public class GreaterCommonDivisor {
             b = a % t;
             a = t;
         }
-        return a;
+        return Math.abs(a);
     }
 }

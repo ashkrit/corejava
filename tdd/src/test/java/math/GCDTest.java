@@ -16,4 +16,12 @@ public class GCDTest {
         assertEquals(6, gcd(24, 54));
     }
 
+    @Test
+    public void negative_gcd_examples() {
+        assertEquals(6, gcd(-24, 54));
+        assertEquals(6, gcd(-24, -54));
+        assertEquals(6, gcd(24, -54));
+    }
+
+
 }
