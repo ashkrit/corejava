@@ -17,10 +17,11 @@ public class MerchantStore {
             return;
         }
 
-        if (productPrice.containsKey(barCode)) {
-            display.displayProductPrice(productPrice(barCode));
-        } else {
+        String priceAsText = productPrice(barCode);
+        if (priceAsText == null) {
             display.displayProductNotFund(barCode);
+        } else {
+            display.displayProductPrice(priceAsText);
         }
 
     }
