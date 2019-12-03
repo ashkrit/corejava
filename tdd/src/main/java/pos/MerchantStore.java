@@ -1,6 +1,7 @@
 package pos;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class MerchantStore {
     private final Display display;
@@ -17,17 +18,18 @@ public class MerchantStore {
             return;
         }
 
-        String priceAsText = productPrice(barCode);
-        if (priceAsText == null) {
+        Optional<String> priceAsText = productPrice(barCode);
+        if (!priceAsText.isPresent()) {
             display.displayProductNotFund(barCode);
         } else {
-            display.displayProductPrice(priceAsText);
+            display.displayProductPrice(priceAsText.get());
         }
 
     }
 
-    private String productPrice(String barCode) {
-        return productPrice.get(barCode);
+    private Optional<String> productPrice(String barCode) {
+        String priceAsText = productPrice.get(barCode);
+        return Optional.ofNullable(priceAsText);
     }
 
     private boolean isNullOrEmpty(String barCode) {
