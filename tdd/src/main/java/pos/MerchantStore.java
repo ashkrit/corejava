@@ -1,19 +1,14 @@
 package pos;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class MerchantStore {
     private final Display display;
-    private final Map<String, String> productPrice = new HashMap<String, String>() {
-        {
-            put("1234567", "10.99");
-            put("234567", "11.99");
-        }
-    };
+    private final Map<String, String> productPrice;
 
-    public MerchantStore(Display display) {
+    public MerchantStore(Display display, Map<String, String> productToPrice) {
         this.display = display;
+        this.productPrice = productToPrice;
     }
 
     public void onBarCode(String barCode) {

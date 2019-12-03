@@ -2,6 +2,8 @@ package pos;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PointOfSaleSystemTest {
@@ -10,7 +12,12 @@ public class PointOfSaleSystemTest {
     public void show_price_for_product() {
 
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display);
+        MerchantStore store = new MerchantStore(display, new HashMap<String, String>() {
+            {
+                put("1234567", "10.99");
+                put("234567", "11.99");
+            }
+        });
         store.onBarCode("1234567");
 
         assertEquals("10.99", display.getText());
@@ -20,7 +27,12 @@ public class PointOfSaleSystemTest {
     public void another_product_scan() {
 
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display);
+        MerchantStore store = new MerchantStore(display, new HashMap<String, String>() {
+            {
+                put("1234567", "10.99");
+                put("234567", "11.99");
+            }
+        });
         store.onBarCode("234567");
 
         assertEquals("11.99", display.getText());
@@ -29,7 +41,12 @@ public class PointOfSaleSystemTest {
     @Test
     public void invalid_product_scan() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display);
+        MerchantStore store = new MerchantStore(display, new HashMap<String, String>() {
+            {
+                put("1234567", "10.99");
+                put("234567", "11.99");
+            }
+        });
         store.onBarCode("888888");
 
         assertEquals("product not found 888888", display.getText());
@@ -38,7 +55,12 @@ public class PointOfSaleSystemTest {
     @Test
     public void null_product_scan() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display);
+        MerchantStore store = new MerchantStore(display, new HashMap<String, String>() {
+            {
+                put("1234567", "10.99");
+                put("234567", "11.99");
+            }
+        });
         store.onBarCode(null);
 
         assertEquals("invalid scan", display.getText());
@@ -47,7 +69,12 @@ public class PointOfSaleSystemTest {
     @Test
     public void empty_product_scan() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display);
+        MerchantStore store = new MerchantStore(display, new HashMap<String, String>() {
+            {
+                put("1234567", "10.99");
+                put("234567", "11.99");
+            }
+        });
         store.onBarCode("");
 
         assertEquals("invalid scan", display.getText());
