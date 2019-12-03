@@ -50,8 +50,10 @@ public class PointOfSaleSystemTest {
     @Test
     public void shows_price_based_on_barcode_scan() {
         DisplayDevice display = new ScreenDisplay();
-
-        MerchantStore store = new MerchantStore(display);
+        Map<String, Double> productPrice = new HashMap<>();
+        productPrice.put("123001", 10.99);
+        productPrice.put("123002", 11.99);
+        MerchantStore store = new MerchantStore(productPrice, display);
         store.onBarCode("123001");
         assertEquals("$10.99", display.message());
     }

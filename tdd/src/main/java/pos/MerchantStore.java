@@ -1,5 +1,6 @@
 package pos;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class MerchantStore {
@@ -8,6 +9,7 @@ public class MerchantStore {
 
     public MerchantStore(DisplayDevice display) {
         this.display = display;
+        this.productPrice = new HashMap<>();
     }
 
     public MerchantStore(Map<String, Double> productPrice, DisplayDevice display) {
@@ -17,17 +19,13 @@ public class MerchantStore {
 
     public void onBarCode(String barCode) {
         if (barCode != null && barCode.trim().length() > 0) {
-
-            if (productPrice != null) {
-                Double price = productPrice.get(barCode);
+            Double price = productPrice.get(barCode);
+            if (price != null) {
                 this.display.onMessage(String.format("$%.2f", price));
             } else {
-                if (barCode.equals("123001")) {
-                    this.display.onMessage("$10.99");
-                } else {
-                    this.display.onMessage("invalid barcode");
-                }
+                this.display.onMessage("invalid barcode");
             }
+
         }
     }
 }
