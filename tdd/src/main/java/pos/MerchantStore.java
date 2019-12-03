@@ -32,13 +32,11 @@ public class MerchantStore {
     }
 
     private String priceToText(Double price) {
-        String text;
         if (price != null) {
-            text = String.format("$%.2f", price);
-        } else {
-            text = ERROR_INVALID_BARCODE;
+            return String.format("$%.2f", price);
         }
-        return text;
+        return ERROR_INVALID_BARCODE;
+
     }
 
     private boolean isNotNull(String barCode) {
