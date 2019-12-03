@@ -2,6 +2,9 @@ package pos;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PointOfSaleSystemTest {
@@ -51,6 +54,21 @@ public class PointOfSaleSystemTest {
         MerchantStore store = new MerchantStore(display);
         store.onBarCode("123001");
         assertEquals("$10.99", display.message());
+    }
+
+    @Test
+    public void handle_multiple_barcode_scan() {
+        DisplayDevice display = new ScreenDisplay();
+        Map<String, Double> productPrice = new HashMap<>();
+        productPrice.put("123001", 10.99);
+        productPrice.put("123002", 11.99);
+        MerchantStore store = new MerchantStore(productPrice, display);
+
+        store.onBarCode("123001");
+        assertEquals("$10.99", display.message());
+
+        store.onBarCode("123002");
+        assertEquals("$11.99", display.message());
     }
 
 }
