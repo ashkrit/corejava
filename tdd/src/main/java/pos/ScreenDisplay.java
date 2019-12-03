@@ -6,10 +6,7 @@ public class ScreenDisplay implements DisplayDevice {
 
     @Override
     public String message() {
-        if (messageText != null) {
-            return messageText;
-        }
-        return "scan again";
+        return messageText;
     }
 
     @Override

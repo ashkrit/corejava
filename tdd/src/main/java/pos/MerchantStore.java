@@ -18,14 +18,19 @@ public class MerchantStore {
     }
 
     public void onBarCode(String barCode) {
-        if (barCode != null && barCode.trim().length() > 0) {
+        if (isNotNull(barCode)) {
             Double price = productPrice.get(barCode);
             if (price != null) {
                 this.display.onMessage(String.format("$%.2f", price));
             } else {
                 this.display.onMessage("invalid barcode");
             }
-
+        } else {
+            this.display.onMessage("scan again");
         }
+    }
+
+    private boolean isNotNull(String barCode) {
+        return barCode != null && barCode.trim().length() > 0;
     }
 }
