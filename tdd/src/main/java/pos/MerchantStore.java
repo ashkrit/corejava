@@ -8,12 +8,18 @@ public class MerchantStore {
     }
 
     public void onBarCode(String barCode) {
-        if ("1234567".equals(barCode)) {
-            this.display.setText("10.99");
-        } else if ("234567".equals(barCode)) {
-            this.display.setText("11.99");
+        if (barCode == null) {
+            this.display.setText("invalid scan");
+        } else if ("".equals(barCode)) {
+            this.display.setText("empty barcode");
         } else {
-            this.display.setText("product not found " + (barCode == null ? "" : barCode));
+            if ("1234567".equals(barCode)) {
+                this.display.setText("10.99");
+            } else if ("234567".equals(barCode)) {
+                this.display.setText("11.99");
+            } else {
+                this.display.setText("product not found " + barCode);
+            }
         }
     }
 }
