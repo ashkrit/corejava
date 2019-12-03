@@ -50,6 +50,6 @@ public class PointOfSaleSystemTest {
         MerchantStore store = new MerchantStore(display);
         store.onBarCode("");
 
-        assertEquals("empty barcode", display.getText());
+        assertEquals("invalid scan", display.getText());
     }
 }

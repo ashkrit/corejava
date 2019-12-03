@@ -8,10 +8,8 @@ public class MerchantStore {
     }
 
     public void onBarCode(String barCode) {
-        if (barCode == null) {
+        if (barCode == null || barCode.trim().length() == 0) {
             this.display.setText("invalid scan");
-        } else if ("".equals(barCode)) {
-            this.display.setText("empty barcode");
         } else {
             if ("1234567".equals(barCode)) {
                 this.display.setText("10.99");
