@@ -41,7 +41,7 @@ public class PointOfSaleSystemTest {
         MerchantStore store = new MerchantStore(display);
         store.onBarCode(null);
 
-        assertEquals("product not found 888888", display.getText());
+        assertEquals("product not found ", display.getText());
     }
 
     @Test
@@ -50,6 +50,6 @@ public class PointOfSaleSystemTest {
         MerchantStore store = new MerchantStore(display);
         store.onBarCode("");
 
-        assertEquals("product not found 888888", display.getText());
+        assertEquals("product not found ", display.getText());
     }
 }
