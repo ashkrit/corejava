@@ -9,7 +9,11 @@ public class MerchantStore {
 
     public void onBarCode(String barCode) {
         if (barCode != null && barCode.trim().length() > 0) {
-            this.display.onMessage("invalid barcode");
+            if (barCode.equals("123001")) {
+                this.display.onMessage("$10.99");
+            } else {
+                this.display.onMessage("invalid barcode");
+            }
         }
     }
 }

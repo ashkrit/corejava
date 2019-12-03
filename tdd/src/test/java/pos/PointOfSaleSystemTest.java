@@ -44,4 +44,13 @@ public class PointOfSaleSystemTest {
         assertEquals("invalid barcode", display.message());
     }
 
+    @Test
+    public void shows_price_based_on_barcode_scan() {
+        DisplayDevice display = new ScreenDisplay();
+
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode("123001");
+        assertEquals("$10.99", display.message());
+    }
+
 }
