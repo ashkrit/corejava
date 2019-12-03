@@ -24,6 +24,32 @@ public class PointOfSaleSystemTest {
         store.onBarCode("234567");
 
         assertEquals("11.99", display.getText());
+    }
 
+    @Test
+    public void invalid_product_scan() {
+        Display display = new Display();
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode("888888");
+
+        assertEquals("product not found 888888", display.getText());
+    }
+
+    @Test
+    public void null_product_scan() {
+        Display display = new Display();
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode(null);
+
+        assertEquals("product not found 888888", display.getText());
+    }
+
+    @Test
+    public void empty_product_scan() {
+        Display display = new Display();
+        MerchantStore store = new MerchantStore(display);
+        store.onBarCode("");
+
+        assertEquals("product not found 888888", display.getText());
     }
 }
