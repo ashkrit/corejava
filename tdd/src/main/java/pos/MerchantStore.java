@@ -8,6 +8,10 @@ public class MerchantStore {
     }
 
     public void onBarCode(String barCode) {
-        this.display.setText("10.99");
+        if ("1234567".equals(barCode)) {
+            this.display.setText("10.99");
+        } else if ("234567".equals(barCode)) {
+            this.display.setText("11.99");
+        }
     }
 }

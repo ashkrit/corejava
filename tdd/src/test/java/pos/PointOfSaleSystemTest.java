@@ -1,6 +1,5 @@
 package pos;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,7 +17,6 @@ public class PointOfSaleSystemTest {
     }
 
     @Test
-    @Ignore("Wait for refactor")
     public void another_product_scan() {
 
         Display display = new Display();
