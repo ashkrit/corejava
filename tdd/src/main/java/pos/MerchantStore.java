@@ -13,28 +13,20 @@ public class MerchantStore {
 
     public void onBarCode(String barCode) {
         if (isNullOrEmpty(barCode)) {
-            displayInvalidScan();
+            display.displayInvalidScan();
             return;
         }
 
         if (productPrice.containsKey(barCode)) {
-            displayProductPrice(barCode);
+            display.displayProductPrice(productPrice(barCode));
         } else {
-            displayProductNotFund(barCode);
+            display.displayProductNotFund(barCode);
         }
 
     }
 
-    private void displayProductNotFund(String barCode) {
-        this.display.setText("product not found " + barCode);
-    }
-
-    private void displayProductPrice(String barCode) {
-        this.display.setText(productPrice.get(barCode));
-    }
-
-    private void displayInvalidScan() {
-        this.display.setText("invalid scan");
+    private String productPrice(String barCode) {
+        return productPrice.get(barCode);
     }
 
     private boolean isNullOrEmpty(String barCode) {

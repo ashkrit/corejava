@@ -7,7 +7,15 @@ public class Display {
         return text;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void displayProductNotFund(String barCode) {
+        this.text = "product not found " + barCode;
+    }
+
+    public void displayInvalidScan() {
+        this.text = "invalid scan";
+    }
+
+    public void displayProductPrice(String priceAsText) {
+        this.text = priceAsText;
     }
 }
