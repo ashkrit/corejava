@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MerchantStore {
+    public static final String ERROR_INVALID_BARCODE = "invalid barcode";
+    public static final String ERROR_SCAN_AGAIN = "scan again";
+
     private final DisplayDevice display;
-    private Map<String, Double> productPrice;
+    private final Map<String, Double> productPrice;
 
     public MerchantStore(DisplayDevice display) {
-        this.display = display;
-        this.productPrice = new HashMap<>();
+        this(new HashMap<>(), display);
     }
 
     public MerchantStore(Map<String, Double> productPrice, DisplayDevice display) {
@@ -23,7 +25,7 @@ public class MerchantStore {
             Double price = productPrice.get(barCode);
             text = priceToText(price);
         } else {
-            text = "scan again";
+            text = ERROR_SCAN_AGAIN;
         }
 
         this.display.onMessage(text);
@@ -34,7 +36,7 @@ public class MerchantStore {
         if (price != null) {
             text = String.format("$%.2f", price);
         } else {
-            text = "invalid barcode";
+            text = ERROR_INVALID_BARCODE;
         }
         return text;
     }
