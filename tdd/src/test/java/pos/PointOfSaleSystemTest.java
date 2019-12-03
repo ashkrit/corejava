@@ -35,7 +35,6 @@ public class PointOfSaleSystemTest {
     public void another_product_scan() {
 
         store.onBarCode("234567");
-
         assertEquals("11.99", display.getText());
     }
 
@@ -61,6 +60,7 @@ public class PointOfSaleSystemTest {
     public void empty_product_scan() {
         Display display = new Display();
         MerchantStore store = new MerchantStore(display, null);
+
         store.onBarCode("");
 
         assertEquals("invalid scan", display.getText());
