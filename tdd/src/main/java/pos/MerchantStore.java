@@ -21,9 +21,7 @@ public class MerchantStore {
             this.display.setText("invalid scan");
         } else {
 
-            if ("1234567".equals(barCode)) {
-                this.display.setText(productPrice.get(barCode));
-            } else if ("234567".equals(barCode)) {
+            if (productPrice.containsKey(barCode)) {
                 this.display.setText(productPrice.get(barCode));
             } else {
                 this.display.setText("product not found " + barCode);
