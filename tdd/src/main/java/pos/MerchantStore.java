@@ -1,15 +1,14 @@
 package pos;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class MerchantStore {
     private final Display display;
-    private final Map<String, String> productPrice;
+    private final ProductCatalog productCatalog;
 
-    public MerchantStore(Display display, Map<String, String> productPrice) {
+    public MerchantStore(Display display, ProductCatalog productCatalog) {
         this.display = display;
-        this.productPrice = productPrice;
+        this.productCatalog = productCatalog;
     }
 
     public void onBarCode(String barCode) {
@@ -18,18 +17,13 @@ public class MerchantStore {
             return;
         }
 
-        Optional<String> priceAsText = productPrice(barCode);
+        Optional<String> priceAsText = productCatalog.productPrice(barCode);
         if (!priceAsText.isPresent()) {
             display.displayProductNotFund(barCode);
         } else {
             display.displayProductPrice(priceAsText.get());
         }
 
-    }
-
-    private Optional<String> productPrice(String barCode) {
-        String priceAsText = productPrice.get(barCode);
-        return Optional.ofNullable(priceAsText);
     }
 
     private boolean isNullOrEmpty(String barCode) {

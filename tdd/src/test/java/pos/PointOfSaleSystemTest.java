@@ -15,12 +15,12 @@ public class PointOfSaleSystemTest {
     @BeforeEach
     public void setup() {
         this.display = new Display();
-        this.store = new MerchantStore(display, new HashMap<String, String>() {
+        this.store = new MerchantStore(display, new ProductCatalog(new HashMap<String, String>() {
             {
                 put("1234567", "10.99");
                 put("234567", "11.99");
             }
-        });
+        }));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class PointOfSaleSystemTest {
     @Test
     public void null_product_scan() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display, null);
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(null));
 
         store.onBarCode(null);
 
@@ -59,7 +59,7 @@ public class PointOfSaleSystemTest {
     @Test
     public void empty_product_scan() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display, null);
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(null));
 
         store.onBarCode("");
         assertEquals("invalid scan", display.getText());
