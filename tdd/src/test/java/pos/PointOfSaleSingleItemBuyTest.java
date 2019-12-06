@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PointOfSaleSystemTest {
+public class PointOfSaleSingleItemBuyTest {
 
     private Display display;
     private MerchantStore store;
