@@ -18,4 +18,8 @@ public class Display {
     public void displayProductPrice(String priceAsText) {
         this.text = priceAsText;
     }
+
+    public void noItemsSelected() {
+        this.text = "No items selected. Scan again!!!!";
+    }
 }

@@ -29,4 +29,8 @@ public class MerchantStore {
     private boolean isNullOrEmpty(String barCode) {
         return barCode == null || barCode.trim().length() == 0;
     }
+
+    public void onTotal() {
+        display.noItemsSelected();
+    }
 }
