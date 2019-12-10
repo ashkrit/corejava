@@ -6,9 +6,8 @@ import java.util.Optional;
 
 public class MerchantStore {
 
-    private Display display;
-    private ProductCatalog productCatalog;
-    private Optional<Integer> priceInCents = Optional.empty();
+    private final Display display;
+    private final ProductCatalog productCatalog;
     private Collection<Integer> productPrices = new ArrayList<>();
 
     public MerchantStore(Display display, ProductCatalog productCatalog) {
@@ -22,7 +21,7 @@ public class MerchantStore {
             return;
         }
 
-        priceInCents = productCatalog.productPriceCents(barCode);
+        Optional<Integer> priceInCents = productCatalog.productPriceCents(barCode);
         if (priceInCents.isPresent()) {
             display.displayProductPrice(formatPrice(priceInCents.get()));
             productPrices.add(priceInCents.get());
@@ -42,7 +41,8 @@ public class MerchantStore {
     }
 
     public void onTotal() {
-        if (priceInCents.isPresent()) {
+        boolean productScanned = !productPrices.isEmpty();
+        if (productScanned) {
             int totalValue = productPrices.stream().reduce(0, (x, y) -> x + y);
             display.displayTotal(formatPrice(totalValue));
         } else {
