@@ -32,12 +32,34 @@ public class SellOneProductTest {
 
     }
 
+    @Test
+    public void product_not_found() {
+
+        ProductCatalog catalog = context.mock(ProductCatalog.class);
+        Display display = context.mock(Display.class);
+
+        context.checking(new Expectations() {{
+
+            allowing(catalog).findPrice(with("$invalid_bar_code$"));
+            will(returnValue(null));
+
+            oneOf(display).displayProductNotFound("$invalid_bar_code$");
+        }});
+
+        SalesController salesController = new SalesController(display, catalog);
+
+        salesController.onBarCode("$invalid_bar_code$");
+
+    }
+
     interface ProductCatalog {
         String findPrice(String barCode);
     }
 
     interface Display {
         void displayPrice(String priceAsText);
+
+        void displayProductNotFound(String missingBarCode);
     }
 
 }

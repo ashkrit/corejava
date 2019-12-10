@@ -11,7 +11,11 @@ public class SalesController {
 
     public void onBarCode(String barCode) {
 
-        display.displayPrice(catalog.findPrice(barCode));
-
+        String price = catalog.findPrice(barCode);
+        if (price == null) {
+            display.displayProductNotFound(barCode);
+        } else {
+            display.displayPrice(price);
+        }
     }
 }
