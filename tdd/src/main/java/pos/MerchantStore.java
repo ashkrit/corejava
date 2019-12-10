@@ -20,11 +20,15 @@ public class MerchantStore {
 
         priceAsText = productCatalog.productPrice(barCode);
         if (priceAsText.isPresent()) {
-            display.displayProductPrice(priceAsText.get());
+            display.displayProductPrice(formatPrice(priceAsText.get()));
         } else {
             display.displayProductNotFund(barCode);
         }
 
+    }
+
+    private String formatPrice(String priceAsText) {
+        return priceAsText;
     }
 
     private boolean isNullOrEmpty(String barCode) {
@@ -33,7 +37,7 @@ public class MerchantStore {
 
     public void onTotal() {
         if (priceAsText.isPresent()) {
-            display.displayTotal(priceAsText.get());
+            display.displayTotal(formatPrice(priceAsText.get()));
         } else {
             display.noItemsSelected();
         }
