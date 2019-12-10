@@ -8,7 +8,7 @@ public class MerchantStore {
 
     private final Display display;
     private final ProductCatalog productCatalog;
-    private Collection<Integer> productPrices = new ArrayList<>();
+    private final Collection<Integer> productPrices = new ArrayList<>();
 
     public MerchantStore(Display display, ProductCatalog productCatalog) {
         this.display = display;
@@ -36,8 +36,8 @@ public class MerchantStore {
     }
 
     public void onTotal() {
-        boolean productScanned = !productPrices.isEmpty();
-        if (productScanned) {
+        boolean hasSomeProducts = !productPrices.isEmpty();
+        if (hasSomeProducts) {
             int totalValue = productPrices.stream().reduce(0, (x, y) -> x + y);
             display.displayTotal(totalValue);
         } else {

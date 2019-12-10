@@ -8,7 +8,7 @@ import java.util.HashMap;
 import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PointOfSaleMultiItemBuy {
+public class PointOfSaleMultiItemBuyTest {
 
     @Test
     public void zero_items_buy() {
