@@ -52,6 +52,36 @@ public class SellOneProductTest {
 
     }
 
+    @Test
+    public void null_bar_code_scan() {
+
+        ProductCatalog catalog = context.mock(ProductCatalog.class);
+        Display display = context.mock(Display.class);
+        context.checking(new Expectations() {{
+            ignoring(catalog);
+
+            oneOf(display).displayScanAgain();
+        }});
+
+        SalesController salesController = new SalesController(display, catalog);
+        salesController.onBarCode(null);
+    }
+
+    @Test
+    public void empty_bar_code_scan() {
+
+        ProductCatalog catalog = context.mock(ProductCatalog.class);
+        Display display = context.mock(Display.class);
+        context.checking(new Expectations() {{
+            ignoring(catalog);
+
+            oneOf(display).displayScanAgain();
+        }});
+
+        SalesController salesController = new SalesController(display, catalog);
+        salesController.onBarCode("    ");
+    }
+
     interface ProductCatalog {
         String findPrice(String barCode);
     }
@@ -60,6 +90,8 @@ public class SellOneProductTest {
         void displayPrice(String priceAsText);
 
         void displayProductNotFound(String missingBarCode);
+
+        void displayScanAgain();
     }
 
 }
