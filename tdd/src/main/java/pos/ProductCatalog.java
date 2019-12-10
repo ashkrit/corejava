@@ -3,6 +3,8 @@ package pos;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Optional.ofNullable;
+
 public class ProductCatalog {
     private Map<String, Integer> priceAsCents;
 
@@ -12,6 +14,6 @@ public class ProductCatalog {
 
     public Optional<Integer> priceAsCents(String barCode) {
         Integer priceAsCents = this.priceAsCents.get(barCode);
-        return Optional.ofNullable(priceAsCents);
+        return ofNullable(priceAsCents);
     }
 }

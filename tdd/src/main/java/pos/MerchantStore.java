@@ -8,7 +8,7 @@ public class MerchantStore {
 
     private final Display display;
     private final ProductCatalog productCatalog;
-    private final Collection<Integer> productPrices = new ArrayList<>();
+    private final Collection<Integer> basketItems = new ArrayList<>();
 
     public MerchantStore(Display display, ProductCatalog productCatalog) {
         this.display = display;
@@ -22,13 +22,18 @@ public class MerchantStore {
         }
 
         Optional<Integer> priceInCents = productCatalog.priceAsCents(barCode);
-        if (priceInCents.isPresent()) {
-            display.displayProductPrice(priceInCents.get());
-            productPrices.add(priceInCents.get());
-        } else {
+
+        priceInCents.ifPresent(this::addToBasketAndShowProduct);
+
+        if (!priceInCents.isPresent()) {
             display.displayProductNotFund(barCode);
         }
 
+    }
+
+    private void addToBasketAndShowProduct(Integer price) {
+        basketItems.add(price);
+        display.displayProductPrice(price);
     }
 
     private boolean isNullOrEmpty(String barCode) {
@@ -36,12 +41,14 @@ public class MerchantStore {
     }
 
     public void onTotal() {
-        boolean hasSomeProducts = !productPrices.isEmpty();
-        if (hasSomeProducts) {
-            int totalValue = productPrices.stream().reduce(0, (x, y) -> x + y);
-            display.displayTotal(totalValue);
-        } else {
+        if (basketItems.isEmpty()) {
             display.noItemsSelected();
+        } else {
+            display.displayTotal(calculateTotal(basketItems));
         }
+    }
+
+    private int calculateTotal(Collection<Integer> productPrices) {
+        return productPrices.stream().reduce(0, Integer::sum);
     }
 }
