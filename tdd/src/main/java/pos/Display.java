@@ -22,4 +22,8 @@ public class Display {
     public void noItemsSelected() {
         this.text = "No items selected. Scan again!!!!";
     }
+
+    public void displayTotal(String priceAsText) {
+        this.text = "Total: " + priceAsText;
+    }
 }

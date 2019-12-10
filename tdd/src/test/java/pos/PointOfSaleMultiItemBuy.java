@@ -2,6 +2,7 @@ package pos;
 
 import org.junit.jupiter.api.Test;
 
+import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PointOfSaleMultiItemBuy {
@@ -14,6 +15,17 @@ public class PointOfSaleMultiItemBuy {
 
         store.onTotal();
         assertEquals("No items selected. Scan again!!!!", display.getText());
+
+    }
+
+    @Test
+    public void single_item_buy() {
+        Display display = new Display();
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(singletonMap("100", "$20")));
+
+        store.onBarCode("100");
+        store.onTotal();
+        assertEquals("Total: $20", display.getText());
 
     }
 }
