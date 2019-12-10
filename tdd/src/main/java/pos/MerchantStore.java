@@ -23,17 +23,12 @@ public class MerchantStore {
 
         Optional<Integer> priceInCents = productCatalog.productPriceCents(barCode);
         if (priceInCents.isPresent()) {
-            display.displayProductPrice(formatPrice(priceInCents.get()));
+            display.displayProductPrice(priceInCents.get());
             productPrices.add(priceInCents.get());
         } else {
             display.displayProductNotFund(barCode);
         }
 
-    }
-
-    private String formatPrice(Integer priceAsText) {
-        float priceIn$ = priceAsText / 100f;
-        return String.format("$%.2f", priceIn$);
     }
 
     private boolean isNullOrEmpty(String barCode) {
@@ -44,7 +39,7 @@ public class MerchantStore {
         boolean productScanned = !productPrices.isEmpty();
         if (productScanned) {
             int totalValue = productPrices.stream().reduce(0, (x, y) -> x + y);
-            display.displayTotal(formatPrice(totalValue));
+            display.displayTotal(totalValue);
         } else {
             display.noItemsSelected();
         }
