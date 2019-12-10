@@ -53,7 +53,7 @@ public class PointOfSaleMultiItemBuy {
         }}, new HashMap<String, Integer>() {{
             put("1", 555);
             put("2", 600);
-        }}), true);
+        }}));
 
         store.onBarCode("1");
         store.onBarCode("2");
