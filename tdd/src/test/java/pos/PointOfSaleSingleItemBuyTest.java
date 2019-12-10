@@ -13,8 +13,8 @@ public class PointOfSaleSingleItemBuyTest {
     private MerchantStore store;
     private ProductCatalog productCatalog = new ProductCatalog(new HashMap<String, String>() {
         {
-            put("1234567", "10.99");
-            put("234567", "11.99");
+            put("1234567", "$10.99");
+            put("234567", "$11.99");
         }
     },new HashMap<String, Integer>() {
         {
@@ -34,14 +34,14 @@ public class PointOfSaleSingleItemBuyTest {
 
         store.onBarCode("1234567");
 
-        assertEquals("10.99", display.getText());
+        assertEquals("$10.99", display.getText());
     }
 
     @Test
     public void another_product_scan() {
 
         store.onBarCode("234567");
-        assertEquals("11.99", display.getText());
+        assertEquals("$11.99", display.getText());
     }
 
     @Test

@@ -22,4 +22,9 @@ public class ProductCatalog {
         String priceAsText = this.priceAsText.get(barCode);
         return Optional.ofNullable(priceAsText);
     }
+
+    public Optional<Integer> productPriceCents(String barCode) {
+        Integer priceAsCents = this.priceAsCents.get(barCode);
+        return Optional.ofNullable(priceAsCents);
+    }
 }

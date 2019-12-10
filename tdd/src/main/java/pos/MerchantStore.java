@@ -6,6 +6,7 @@ public class MerchantStore {
     private final Display display;
     private final ProductCatalog productCatalog;
     private Optional<String> priceAsText = Optional.empty();
+    private Optional<Integer> priceInCents = Optional.empty();
 
     public MerchantStore(Display display, ProductCatalog productCatalog) {
         this.display = display;
@@ -19,6 +20,7 @@ public class MerchantStore {
         }
 
         priceAsText = productCatalog.productPrice(barCode);
+        priceInCents = productCatalog.productPriceCents(barCode);
         if (priceAsText.isPresent()) {
             display.displayProductPrice(formatPrice(priceAsText.get()));
         } else {
@@ -29,6 +31,10 @@ public class MerchantStore {
 
     private String formatPrice(String priceAsText) {
         return priceAsText;
+    }
+
+    private String formatPrice(Integer priceAsText) {
+        return String.valueOf(priceAsText / 100);
     }
 
     private boolean isNullOrEmpty(String barCode) {
