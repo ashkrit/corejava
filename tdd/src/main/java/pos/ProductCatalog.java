@@ -10,7 +10,7 @@ public class ProductCatalog {
         this.priceAsCents = priceAsCents;
     }
 
-    public Optional<Integer> productPriceCents(String barCode) {
+    public Optional<Integer> priceAsCents(String barCode) {
         Integer priceAsCents = this.priceAsCents.get(barCode);
         return Optional.ofNullable(priceAsCents);
     }

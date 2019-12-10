@@ -21,7 +21,7 @@ public class MerchantStore {
             return;
         }
 
-        Optional<Integer> priceInCents = productCatalog.productPriceCents(barCode);
+        Optional<Integer> priceInCents = productCatalog.priceAsCents(barCode);
         if (priceInCents.isPresent()) {
             display.displayProductPrice(priceInCents.get());
             productPrices.add(priceInCents.get());
