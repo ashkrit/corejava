@@ -46,7 +46,7 @@ public class MerchantStore {
 
     private String formatPrice(Integer priceAsText) {
         float priceIn$ = priceAsText / 100f;
-        return String.format("$%s", priceIn$);
+        return String.format("$%.2f", priceIn$);
     }
 
     private boolean isNullOrEmpty(String barCode) {
@@ -55,13 +55,8 @@ public class MerchantStore {
 
     public void onTotal() {
         if (priceAsText.isPresent()) {
-            if (newAlgo) {
-                int totalValue = productPrices.stream().reduce(0, (x, y) -> x + y);
-
-                display.displayTotal(formatPrice(totalValue));
-            } else {
-                display.displayTotal(formatPrice(priceAsText.get()));
-            }
+            int totalValue = productPrices.stream().reduce(0, (x, y) -> x + y);
+            display.displayTotal(formatPrice(totalValue));
         } else {
             display.noItemsSelected();
         }
