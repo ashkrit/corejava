@@ -25,6 +25,7 @@ public class PointOfSaleMultiItemBuy {
 
         store.onBarCode("100");
         store.onTotal();
+
         assertEquals("Total: $20", display.getText());
 
     }
