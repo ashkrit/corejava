@@ -16,6 +16,11 @@ public class PointOfSaleSingleItemBuyTest {
             put("1234567", "10.99");
             put("234567", "11.99");
         }
+    },new HashMap<String, Integer>() {
+        {
+            put("1234567", 1099);
+            put("234567", 1199);
+        }
     });
 
     @BeforeEach
