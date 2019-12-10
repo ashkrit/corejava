@@ -5,7 +5,7 @@ import java.util.Optional;
 public class MerchantStore {
     private final Display display;
     private final ProductCatalog productCatalog;
-    private Optional<String> priceAsText=Optional.empty();
+    private Optional<String> priceAsText = Optional.empty();
 
     public MerchantStore(Display display, ProductCatalog productCatalog) {
         this.display = display;
@@ -19,10 +19,10 @@ public class MerchantStore {
         }
 
         priceAsText = productCatalog.productPrice(barCode);
-        if (!priceAsText.isPresent()) {
-            display.displayProductNotFund(barCode);
-        } else {
+        if (priceAsText.isPresent()) {
             display.displayProductPrice(priceAsText.get());
+        } else {
+            display.displayProductNotFund(barCode);
         }
 
     }
