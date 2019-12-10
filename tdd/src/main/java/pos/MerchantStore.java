@@ -32,12 +32,8 @@ public class MerchantStore {
         priceAsText = productCatalog.productPrice(barCode);
         priceInCents = productCatalog.productPriceCents(barCode);
         if (priceAsText.isPresent()) {
-            if (newAlgo) {
-                display.displayProductPrice(formatPrice(priceInCents.get()));
-                productPrices.add(priceInCents.get());
-            } else {
-                display.displayProductPrice(formatPrice(priceAsText.get()));
-            }
+            display.displayProductPrice(formatPrice(priceInCents.get()));
+            productPrices.add(priceInCents.get());
         } else {
             display.displayProductNotFund(barCode);
         }

@@ -24,12 +24,12 @@ public class PointOfSaleMultiItemBuy {
     @Test
     public void single_item_buy() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display, new ProductCatalog(singletonMap("100", "$20"), singletonMap("100", 2000)));
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(singletonMap("100", "$20.00"), singletonMap("100", 2000)));
 
         store.onBarCode("100");
         store.onTotal();
 
-        assertEquals("Total: $20", display.getText());
+        assertEquals("Total: $20.00", display.getText());
 
     }
 
