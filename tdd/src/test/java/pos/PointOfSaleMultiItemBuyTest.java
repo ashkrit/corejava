@@ -24,7 +24,7 @@ public class PointOfSaleMultiItemBuyTest {
     @Test
     public void single_item_buy() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display, new ProductCatalog(singletonMap("100", "$20.00"), singletonMap("100", 2000)));
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(singletonMap("100", 2000)));
 
         store.onBarCode("100");
         store.onTotal();
@@ -36,7 +36,7 @@ public class PointOfSaleMultiItemBuyTest {
     @Test
     public void single_item_but_invalid_scan() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display, new ProductCatalog(Collections.emptyMap(), Collections.emptyMap()));
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(Collections.emptyMap()));
 
         store.onBarCode("someinvalid");
         store.onTotal();
@@ -47,10 +47,7 @@ public class PointOfSaleMultiItemBuyTest {
     @Test
     public void multiple_items_buy() {
         Display display = new Display();
-        MerchantStore store = new MerchantStore(display, new ProductCatalog(new HashMap<String, String>() {{
-            put("1", "$5.55");
-            put("2", "$6.00");
-        }}, new HashMap<String, Integer>() {{
+        MerchantStore store = new MerchantStore(display, new ProductCatalog(new HashMap<String, Integer>() {{
             put("1", 555);
             put("2", 600);
         }}));

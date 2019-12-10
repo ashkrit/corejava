@@ -11,12 +11,7 @@ public class PointOfSaleSingleItemBuyTest {
 
     private Display display;
     private MerchantStore store;
-    private ProductCatalog productCatalog = new ProductCatalog(new HashMap<String, String>() {
-        {
-            put("1234567", "$10.99");
-            put("234567", "$11.99");
-        }
-    },new HashMap<String, Integer>() {
+    private ProductCatalog productCatalog = new ProductCatalog(new HashMap<String, Integer>() {
         {
             put("1234567", 1099);
             put("234567", 1199);
