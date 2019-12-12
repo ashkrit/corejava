@@ -14,7 +14,6 @@ public class ProductCatalogTest {
         assertEquals(100, catalog.findPrice("P1"));
     }
 
-
     @Test
     public void product_not_found() {
         InMemoryProductCatalog catalog = makeEmptyCatalog();
