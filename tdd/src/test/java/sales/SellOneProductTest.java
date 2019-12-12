@@ -79,10 +79,6 @@ public class SellOneProductTest {
         salesController.onBarCode("    ");
     }
 
-    interface ProductCatalog {
-        String findPrice(String barCode);
-    }
-
     interface Display {
         void displayPrice(String priceAsText);
 
