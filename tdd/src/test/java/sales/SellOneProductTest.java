@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import sales.catalog.ProductCatalog;
 import sales.controller.SalesController;
+import sales.display.Display;
 
 public class SellOneProductTest {
     @RegisterExtension
@@ -79,14 +80,6 @@ public class SellOneProductTest {
 
         SalesController salesController = new SalesController(display, null);
         salesController.onBarCode("    ");
-    }
-
-    public interface Display {
-        void displayPrice(float price);
-
-        void displayProductNotFound(String missingBarCode);
-
-        void displayScanAgain();
     }
 
 }

@@ -1,13 +1,13 @@
 package sales.controller;
 
-import sales.SellOneProductTest;
 import sales.catalog.ProductCatalog;
+import sales.display.Display;
 
 public class SalesController {
-    private final SellOneProductTest.Display display;
+    private final Display display;
     private final ProductCatalog catalog;
 
-    public SalesController(SellOneProductTest.Display display, ProductCatalog catalog) {
+    public SalesController(Display display, ProductCatalog catalog) {
         this.display = display;
         this.catalog = catalog;
     }
