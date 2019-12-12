@@ -10,8 +10,8 @@ public class ProductCatalogTest {
 
     @Test
     public void product_found() {
-        InMemoryProductCatalog catalog = makeProductCatalog("P1", "100");
-        assertEquals("100", catalog.findPrice("P1"));
+        InMemoryProductCatalog catalog = makeProductCatalog("P1", 100);
+        assertEquals(100, catalog.findPrice("P1"));
     }
 
 
@@ -25,7 +25,7 @@ public class ProductCatalogTest {
         return new InMemoryProductCatalog(Collections.EMPTY_MAP);
     }
 
-    private InMemoryProductCatalog makeProductCatalog(String barCode, String price) {
+    private InMemoryProductCatalog makeProductCatalog(String barCode, float price) {
         return new InMemoryProductCatalog(Collections.singletonMap(barCode, price));
     }
 }

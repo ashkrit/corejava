@@ -3,13 +3,13 @@ package sales;
 import java.util.Map;
 
 public class InMemoryProductCatalog {
-    private final Map<String, String> barCodeToPrice;
+    private final Map<String, Float> barCodeToPrice;
 
-    public InMemoryProductCatalog(Map<String, String> barCodeToPrice) {
+    public InMemoryProductCatalog(Map<String, Float> barCodeToPrice) {
         this.barCodeToPrice = barCodeToPrice;
     }
 
-    public String findPrice(String barCode) {
+    public Float findPrice(String barCode) {
         return barCodeToPrice.get(barCode);
     }
 }
