@@ -1,12 +1,11 @@
 package sales;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
+import sales.catalog.ProductCatalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ProductCatalogTest {
+abstract public class ProductCatalogSpecification {
 
     @Test
     public void product_found() {
@@ -20,11 +19,7 @@ public class ProductCatalogTest {
         assertEquals(null, catalog.findPrice("P1"));
     }
 
-    private ProductCatalog makeEmptyCatalog() {
-        return new InMemoryProductCatalog(Collections.EMPTY_MAP);
-    }
+    abstract protected ProductCatalog makeEmptyCatalog();
 
-    private ProductCatalog makeProductCatalog(String barCode, float price) {
-        return new InMemoryProductCatalog(Collections.singletonMap(barCode, price));
-    }
+    abstract protected ProductCatalog makeProductCatalog(String barCode, float price);
 }

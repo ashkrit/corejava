@@ -1,4 +1,4 @@
-package sales;
+package sales.catalog;
 
 import java.util.Map;
 

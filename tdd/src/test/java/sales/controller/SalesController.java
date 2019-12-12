@@ -1,4 +1,7 @@
-package sales;
+package sales.controller;
+
+import sales.SellOneProductTest;
+import sales.catalog.ProductCatalog;
 
 public class SalesController {
     private final SellOneProductTest.Display display;

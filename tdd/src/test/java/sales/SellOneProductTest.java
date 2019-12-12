@@ -5,6 +5,8 @@ import org.jmock.Expectations;
 import org.jmock.junit5.JUnit5Mockery;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import sales.catalog.ProductCatalog;
+import sales.controller.SalesController;
 
 public class SellOneProductTest {
     @RegisterExtension
@@ -79,7 +81,7 @@ public class SellOneProductTest {
         salesController.onBarCode("    ");
     }
 
-    interface Display {
+    public interface Display {
         void displayPrice(float price);
 
         void displayProductNotFound(String missingBarCode);
