@@ -16,7 +16,7 @@ public class SellOneProductTest {
         ProductCatalog catalog = context.mock(ProductCatalog.class);
         Display display = context.mock(Display.class);
 
-        String price = "$10.99";
+        float price = 10.99f;
 
         context.checking(new Expectations() {{
 
@@ -80,7 +80,7 @@ public class SellOneProductTest {
     }
 
     interface Display {
-        void displayPrice(String priceAsText);
+        void displayPrice(float price);
 
         void displayProductNotFound(String missingBarCode);
 

@@ -16,7 +16,7 @@ public class SalesController {
             return;
         }
 
-        String price = catalog.findPrice(barCode);
+        Float price = catalog.findPrice(barCode);
         if (price == null) {
             display.displayProductNotFound(barCode);
         } else {
