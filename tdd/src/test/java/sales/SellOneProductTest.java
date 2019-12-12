@@ -70,15 +70,12 @@ public class SellOneProductTest {
     @Test
     public void empty_bar_code_scan() {
 
-        ProductCatalog catalog = context.mock(ProductCatalog.class);
         Display display = context.mock(Display.class);
         context.checking(new Expectations() {{
-            ignoring(catalog);
-
             oneOf(display).displayScanAgain();
         }});
 
-        SalesController salesController = new SalesController(display, catalog);
+        SalesController salesController = new SalesController(display, null);
         salesController.onBarCode("    ");
     }
 
