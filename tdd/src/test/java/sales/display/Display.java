@@ -6,4 +6,6 @@ public interface Display {
     void displayProductNotFound(String missingBarCode);
 
     void displayScanAgain();
+
+    String getText();
 }
