@@ -7,7 +7,7 @@ import sales.display.Display;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class DisplayTest {
+public abstract class DisplaySpecification {
 
     @Test
     public void display_price() {
@@ -33,7 +33,5 @@ public class DisplayTest {
         assertEquals("scan again!", display.getText());
     }
 
-    private ConsoleDisplay createDisplayDevice() {
-        return new ConsoleDisplay();
-    }
+    abstract ConsoleDisplay createDisplayDevice();
 }
