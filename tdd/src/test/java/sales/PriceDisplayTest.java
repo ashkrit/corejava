@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static sales.PriceFormatProvider.format;
 
 public class PriceDisplayTest {
 
@@ -20,10 +21,6 @@ public class PriceDisplayTest {
         assertEquals(expected, format(value));
     }
 
-
-    private String format(Price price) {
-        return String.format("$%,.2f", price.toDollar());
-    }
 
     static class PriceFormatProvider implements ArgumentsProvider {
 
