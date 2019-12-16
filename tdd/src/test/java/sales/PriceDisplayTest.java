@@ -17,11 +17,15 @@ public class PriceDisplayTest {
     @ArgumentsSource(PriceFormatProvider.class)
     @DisplayName("Format price to string")
     public void format_price_to_string(int price, String expected, Price value) {
-        assertEquals(expected, format(price));
+        assertEquals(expected, format(toDollar(price), value));
     }
 
-    private String format(int value) {
-        return String.format("$%,.2f", value / 100d);
+    private double toDollar(int price) {
+        return price / 100d;
+    }
+
+    private String format(double value, Price price) {
+        return String.format("$%,.2f", price.toDollar());
     }
 
     static class PriceFormatProvider implements ArgumentsProvider {

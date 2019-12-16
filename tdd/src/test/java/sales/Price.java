@@ -11,6 +11,10 @@ public class Price {
         return new Price(cents);
     }
 
+    public double toDollar() {
+        return this.cents / 100d;
+    }
+
     @Override
     public String toString() {
         return String.valueOf(cents);
