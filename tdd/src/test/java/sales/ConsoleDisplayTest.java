@@ -46,6 +46,18 @@ public class ConsoleDisplayTest {
     }
 
     @Test
+    public void display_value_using_price_object() {
+        ByteArrayOutputStream sink = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(sink));
+
+        Display display = createDisplayDevice();
+        display.displayPrice(Price.cents(1099));
+
+        String sinkText = sink.toString();
+        assertEquals(Arrays.asList("Total $10.99"), lines(sinkText));
+    }
+
+    @Test
     public void display_product_not_found() {
 
         ByteArrayOutputStream sink = new ByteArrayOutputStream();

@@ -1,5 +1,7 @@
 package sales.display;
 
+import sales.Price;
+
 public interface Display {
     void displayPrice(float price);
 
@@ -8,4 +10,6 @@ public interface Display {
     void displayScanAgain();
 
     String getText();
+
+    void displayPrice(Price price);
 }
