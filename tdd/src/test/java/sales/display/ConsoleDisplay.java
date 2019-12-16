@@ -6,16 +6,23 @@ public class ConsoleDisplay implements Display {
     @Override
     public void displayPrice(float price) {
         this.text = "Total $" + price;
+        writeToConsole(this.text);
+    }
+
+    private void writeToConsole(String text) {
+        System.out.println(text);
     }
 
     @Override
     public void displayProductNotFound(String missingBarCode) {
         this.text = String.format("Product %s not found. Scan again!", missingBarCode);
+        writeToConsole(this.text);
     }
 
     @Override
     public void displayScanAgain() {
         this.text = "scan again!";
+        writeToConsole(this.text);
     }
 
     @Override
