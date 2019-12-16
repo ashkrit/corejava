@@ -19,14 +19,14 @@ public class SellOneProductTest {
         ProductCatalog catalog = context.mock(ProductCatalog.class);
         Display display = context.mock(Display.class);
 
-        float price = 10.99f;
+        Price priceCents = Price.cents(1099);
 
         context.checking(new Expectations() {{
 
-            allowing(catalog).findPrice(with("100"));
-            will(returnValue(price));
+            allowing(catalog).findPriceAsCents(with("100"));
+            will(returnValue(priceCents));
 
-            oneOf(display).displayPrice(with(price));
+            oneOf(display).displayPrice(with(priceCents));
         }});
 
         SalesController salesController = new SalesController(display, catalog);
@@ -43,7 +43,7 @@ public class SellOneProductTest {
 
         context.checking(new Expectations() {{
 
-            allowing(catalog).findPrice(with("$invalid_bar_code$"));
+            allowing(catalog).findPriceAsCents(with("$invalid_bar_code$"));
             will(returnValue(null));
 
             oneOf(display).displayProductNotFound("$invalid_bar_code$");

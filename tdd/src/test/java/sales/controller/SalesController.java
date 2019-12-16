@@ -1,5 +1,6 @@
 package sales.controller;
 
+import sales.Price;
 import sales.catalog.ProductCatalog;
 import sales.display.Display;
 
@@ -19,7 +20,7 @@ public class SalesController {
             return;
         }
 
-        Float price = catalog.findPrice(barCode);
+        Price price = catalog.findPriceAsCents(barCode);
         if (price == null) {
             display.displayProductNotFound(barCode);
         } else {
