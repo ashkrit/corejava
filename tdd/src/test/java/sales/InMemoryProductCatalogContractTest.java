@@ -16,7 +16,7 @@ public class InMemoryProductCatalogContractTest extends ProductCatalogSpecificat
     }
 
     @Override
-    protected ProductCatalog makeProductCatalog(String barCode, float price, Price cents) {
+    protected ProductCatalog makeProductCatalog(String barCode, Price cents) {
         return new InMemoryProductCatalog(singletonMap(barCode, cents));
     }
 }

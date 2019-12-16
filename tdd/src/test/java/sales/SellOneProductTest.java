@@ -23,7 +23,7 @@ public class SellOneProductTest {
 
         context.checking(new Expectations() {{
 
-            allowing(catalog).findPriceAsCents(with("100"));
+            allowing(catalog).findPrice(with("100"));
             will(returnValue(priceCents));
 
             oneOf(display).displayPrice(with(priceCents));
@@ -43,7 +43,7 @@ public class SellOneProductTest {
 
         context.checking(new Expectations() {{
 
-            allowing(catalog).findPriceAsCents(with("$invalid_bar_code$"));
+            allowing(catalog).findPrice(with("$invalid_bar_code$"));
             will(returnValue(null));
 
             oneOf(display).displayProductNotFound("$invalid_bar_code$");

@@ -6,12 +6,6 @@ import sales.PriceFormatProvider;
 public class ConsoleDisplay implements Display {
     private String text;
 
-    @Override
-    public void displayPrice(float price) {
-        this.text = "Total $" + price;
-        writeToConsole(this.text);
-    }
-
     private void writeToConsole(String text) {
         System.out.println(text);
     }
@@ -28,10 +22,6 @@ public class ConsoleDisplay implements Display {
         writeToConsole(this.text);
     }
 
-    @Override
-    public String getText() {
-        return text;
-    }
 
     @Override
     public void displayPrice(Price price) {

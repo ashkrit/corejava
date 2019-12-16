@@ -20,7 +20,7 @@ public class SalesController {
             return;
         }
 
-        Price price = catalog.findPriceAsCents(barCode);
+        Price price = catalog.findPrice(barCode);
         if (price == null) {
             display.displayProductNotFound(barCode);
         } else {

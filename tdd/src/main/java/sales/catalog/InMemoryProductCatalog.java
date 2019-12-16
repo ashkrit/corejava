@@ -13,7 +13,7 @@ public class InMemoryProductCatalog implements ProductCatalog {
 
 
     @Override
-    public Price findPriceAsCents(String barCode) {
+    public Price findPrice(String barCode) {
         return productPriceInCents.get(barCode);
     }
 }
