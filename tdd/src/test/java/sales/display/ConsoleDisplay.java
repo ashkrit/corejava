@@ -1,6 +1,7 @@
 package sales.display;
 
 import sales.Price;
+import sales.PriceFormatProvider;
 
 public class ConsoleDisplay implements Display {
     private String text;
@@ -34,7 +35,7 @@ public class ConsoleDisplay implements Display {
 
     @Override
     public void displayPrice(Price price) {
-        this.text = "Total $10.99";
+        this.text = "Total " + PriceFormatProvider.format(price);
         writeToConsole(this.text);
     }
 }

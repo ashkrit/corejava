@@ -51,10 +51,10 @@ public class ConsoleDisplayTest {
         System.setOut(new PrintStream(sink));
 
         Display display = createDisplayDevice();
-        display.displayPrice(Price.cents(1099));
+        display.displayPrice(Price.cents(1098));
 
         String sinkText = sink.toString();
-        assertEquals(Arrays.asList("Total $10.99"), lines(sinkText));
+        assertEquals(Arrays.asList("Total $10.98"), lines(sinkText));
     }
 
     @Test
