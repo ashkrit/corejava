@@ -9,8 +9,15 @@ abstract public class ProductCatalogSpecification {
 
     @Test
     public void product_found() {
-        ProductCatalog catalog = makeProductCatalog("P1", 100);
+        ProductCatalog catalog = makeProductCatalog("P1", 100, Price.cents(100));
         assertEquals(100, catalog.findPrice("P1"));
+    }
+
+    @Test
+    public void product_found_cents() {
+        Price cents = Price.cents(100);
+        ProductCatalog catalog = makeProductCatalog("P1", 100, cents);
+        assertEquals(cents, catalog.findPriceAsCents("P1"));
     }
 
     @Test
@@ -21,5 +28,5 @@ abstract public class ProductCatalogSpecification {
 
     abstract protected ProductCatalog makeEmptyCatalog();
 
-    abstract protected ProductCatalog makeProductCatalog(String barCode, float price);
+    abstract protected ProductCatalog makeProductCatalog(String barCode, float price, Price cents);
 }

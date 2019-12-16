@@ -5,6 +5,8 @@ import sales.catalog.ProductCatalog;
 
 import java.util.Collections;
 
+import static java.util.Collections.singletonMap;
+
 public class InMemoryProductCatalogContractTest extends ProductCatalogSpecification {
 
 
@@ -14,7 +16,7 @@ public class InMemoryProductCatalogContractTest extends ProductCatalogSpecificat
     }
 
     @Override
-    protected ProductCatalog makeProductCatalog(String barCode, float price) {
-        return new InMemoryProductCatalog(Collections.singletonMap(barCode, price));
+    protected ProductCatalog makeProductCatalog(String barCode, float price, Price cents) {
+        return new InMemoryProductCatalog(singletonMap(barCode, price), singletonMap(barCode, cents));
     }
 }

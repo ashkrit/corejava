@@ -31,20 +31,6 @@ public class ConsoleDisplayTest {
         return Arrays.asList(sinkText.split(System.lineSeparator()));
     }
 
-
-    @Test
-    public void display_price() {
-
-        ByteArrayOutputStream sink = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(sink));
-
-        Display display = createDisplayDevice();
-        display.displayPrice(10.99f);
-
-        String sinkText = sink.toString();
-        assertEquals(Arrays.asList("Total $10.99"), lines(sinkText));
-    }
-
     @Test
     public void display_value_using_price_object() {
         ByteArrayOutputStream sink = new ByteArrayOutputStream();
