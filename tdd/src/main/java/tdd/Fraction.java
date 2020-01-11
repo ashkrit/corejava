@@ -8,14 +8,7 @@ public class Fraction {
     }
 
     public Fraction plus(Fraction fraction) {
-        if (value > 0 && fraction.value > 0) {
-            return new Fraction(value + fraction.value);
-        } else {
-            if (fraction.value != 0)
-                return new Fraction(value + fraction.value);
-            else
-                return new Fraction(value + fraction.value);
-        }
+        return new Fraction(value + fraction.value);
     }
 
     public int intValue() {
