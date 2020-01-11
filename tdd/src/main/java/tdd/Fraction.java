@@ -12,9 +12,9 @@ public class Fraction {
             return new Fraction(value + fraction.value);
         } else {
             if (fraction.value != 0)
-                return fraction;
+                return new Fraction(value + fraction.value);
             else
-                return this;
+                return new Fraction(value + fraction.value);
         }
     }
 
