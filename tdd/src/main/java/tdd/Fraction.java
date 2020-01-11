@@ -1,8 +1,10 @@
 package tdd;
 
 public class Fraction {
-    public Fraction(int value) {
+    private final int value;
 
+    public Fraction(int value) {
+        this.value = value;
     }
 
     public Fraction plus(Fraction fraction) {
@@ -10,6 +12,6 @@ public class Fraction {
     }
 
     public int intValue() {
-        return 0;
+        return value;
     }
 }
