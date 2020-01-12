@@ -3,10 +3,10 @@ package tdd;
 public class Fraction {
     private int nominator;
     private int denominator;
-    private int value;
+
 
     public Fraction(int value) {
-        this.value = value;
+        this(value, 1);
     }
 
     public Fraction(int nominator, int denominator) {
@@ -18,12 +18,12 @@ public class Fraction {
         if (fraction.denominator > 1) {
             return new Fraction(fraction.nominator + this.nominator, this.denominator);
         } else {
-            return new Fraction(value + fraction.value);
+            return new Fraction(fraction.nominator + this.nominator);
         }
     }
 
     public int intValue() {
-        return value;
+        return nominator;
     }
 
     public int denominator() {
