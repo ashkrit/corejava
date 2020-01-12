@@ -38,4 +38,11 @@ public class AddFractionsTest {
         Fraction value = new Fraction(1).plus(new Fraction(-6));
         assertEquals(-5, value.intValue());
     }
+
+    @Test
+    public void sameDenominatorPlusDifferentNominator() {
+        Fraction value = new Fraction(1,5).plus(new Fraction(2,5));
+        assertEquals(3, value.nominator());
+        assertEquals(5, value.denominator());
+    }
 }
