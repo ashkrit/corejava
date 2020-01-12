@@ -1,8 +1,8 @@
 package tdd;
 
 public class Fraction {
-    private int nominator;
-    private int denominator;
+    private final int nominator;
+    private final int denominator;
 
 
     public Fraction(int value) {
@@ -15,11 +15,7 @@ public class Fraction {
     }
 
     public Fraction plus(Fraction fraction) {
-        if (fraction.denominator > 1) {
-            return new Fraction(fraction.nominator + this.nominator, this.denominator);
-        } else {
-            return new Fraction(fraction.nominator + this.nominator);
-        }
+        return new Fraction(fraction.nominator + this.nominator, this.denominator);
     }
 
     public int intValue() {
