@@ -32,4 +32,10 @@ public class AddFractionsTest {
         Fraction value = new Fraction(3).plus(new Fraction(2));
         assertEquals(5, value.intValue());
     }
+
+    @Test
+    public void negativePlusPositive() {
+        Fraction value = new Fraction(1).plus(new Fraction(-6));
+        assertEquals(-5, value.intValue());
+    }
 }
