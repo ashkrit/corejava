@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AddFractionsTest {
 
     @Test
-    public void addZeroValue() {
+    public void zeroPlusZero() {
 
         Fraction value = new Fraction(0).plus(new Fraction(0));
         assertEquals(0, value.intValue());
