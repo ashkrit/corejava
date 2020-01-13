@@ -40,4 +40,9 @@ public class Fraction {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return (this.nominator + this.denominator) * 31;
+    }
 }
