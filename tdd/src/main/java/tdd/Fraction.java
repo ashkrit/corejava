@@ -29,4 +29,15 @@ public class Fraction {
     public int nominator() {
         return nominator;
     }
+
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof Fraction) {
+            Fraction that = (Fraction) other;
+
+            return this.nominator == that.nominator && this.denominator == that.denominator;
+        }
+        return false;
+    }
 }

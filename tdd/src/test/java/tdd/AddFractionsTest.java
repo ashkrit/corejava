@@ -41,7 +41,7 @@ public class AddFractionsTest {
 
     @Test
     public void sameDenominatorPlusDifferentNominator() {
-        Fraction value = new Fraction(1,5).plus(new Fraction(2,5));
+        Fraction value = new Fraction(1, 5).plus(new Fraction(2, 5));
         assertEquals(3, value.nominator());
         assertEquals(5, value.denominator());
     }
