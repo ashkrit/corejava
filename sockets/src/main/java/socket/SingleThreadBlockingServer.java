@@ -1,5 +1,6 @@
 package socket;
 
+import socket.handler.IOExceptionHandler;
 import socket.handler.MagicHandler;
 import socket.handler.PrintingHandler;
 
@@ -10,7 +11,7 @@ public class SingleThreadBlockingServer {
 
     public static void main(String... args) throws IOException {
 
-        var handler = new PrintingHandler<>(new MagicHandler());
+        var handler = new IOExceptionHandler(new PrintingHandler<>(new MagicHandler()));
 
         var server = new ServerSocket(8080);
         while (true) {
