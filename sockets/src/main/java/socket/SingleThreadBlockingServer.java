@@ -13,7 +13,15 @@ public class SingleThreadBlockingServer {
             var in = clientSocket.getInputStream();
             var out = clientSocket.getOutputStream();
 
-            in.transferTo(out);
+            //in.transferTo(out);
+            var b = -1;
+            while ((b = in.read()) != -1) {
+                out.write(magic(b));
+            }
         }
+    }
+
+    private static int magic(int b) {
+        return Character.isLetter(b) ? b ^ ' ' : b;
     }
 }
