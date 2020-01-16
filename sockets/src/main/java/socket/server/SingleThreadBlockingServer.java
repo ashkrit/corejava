@@ -1,4 +1,4 @@
-package socket;
+package socket.server;
 
 import socket.handler.IOExceptionHandler;
 import socket.handler.MagicHandler;
