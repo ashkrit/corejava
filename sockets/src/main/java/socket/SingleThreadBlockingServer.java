@@ -9,8 +9,9 @@ public class SingleThreadBlockingServer {
         var server = new ServerSocket(8080);
         while (true) {
             var clientSocket = server.accept();
-
-            try (var in = clientSocket.getInputStream();
+            System.out.println(String.format("Connected to client %s", clientSocket));
+            try (clientSocket;
+                 var in = clientSocket.getInputStream();
                  var out = clientSocket.getOutputStream()) {
 
                 //in.transferTo(out);
@@ -18,6 +19,8 @@ public class SingleThreadBlockingServer {
                 while ((b = in.read()) != -1) {
                     out.write(magic(b));
                 }
+            } finally {
+                System.out.println(String.format("Disconnected from client %s", clientSocket));
             }
         }
     }
