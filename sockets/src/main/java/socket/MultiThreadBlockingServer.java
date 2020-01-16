@@ -1,5 +1,7 @@
 package socket;
 
+import socket.handler.MagicHandler;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.ServerSocket;
@@ -17,26 +19,19 @@ public class MultiThreadBlockingServer {
             var clientSocket = server.accept();
             noOfConnection.incrementAndGet();
             activeConnection.incrementAndGet();
-            System.out.println(String.format("Connected to client %s, connection so far %s, active %s", clientSocket, noOfConnection, activeConnection));
+            System.out.println(String.format("Connected to client %s, connection so far %s, active %s",
+                    clientSocket, noOfConnection, activeConnection));
+
             handleClient(clientSocket);
         }
     }
 
     private static void handleClient(Socket clientSocket) {
         Runnable task = () -> {
-            try (clientSocket;
-                 var in = clientSocket.getInputStream();
-                 var out = clientSocket.getOutputStream()) {
-
-                var b = -1;
-                while ((b = in.read()) != -1) {
-                    out.write(magic(b));
-                }
+            try {
+                new MagicHandler().handle(clientSocket);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
-            } finally {
-                activeConnection.decrementAndGet();
-                System.out.println(String.format("Disconnected from client %s , active %s", clientSocket, activeConnection));
             }
         };
 
@@ -44,7 +39,5 @@ public class MultiThreadBlockingServer {
 
     }
 
-    private static int magic(int b) {
-        return Character.isLetter(b) ? b ^ ' ' : b;
-    }
+
 }
