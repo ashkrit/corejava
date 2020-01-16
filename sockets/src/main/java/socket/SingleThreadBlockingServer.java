@@ -1,6 +1,7 @@
 package socket;
 
 import socket.handler.MagicHandler;
+import socket.handler.PrintingHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,11 +9,13 @@ import java.net.ServerSocket;
 public class SingleThreadBlockingServer {
 
     public static void main(String... args) throws IOException {
+
+        var handler = new PrintingHandler<>(new MagicHandler());
+
         var server = new ServerSocket(8080);
         while (true) {
             var clientSocket = server.accept();
-            System.out.println(String.format("Connected to client %s", clientSocket));
-            new MagicHandler().handle(clientSocket);
+            handler.handle(clientSocket);
         }
     }
 
