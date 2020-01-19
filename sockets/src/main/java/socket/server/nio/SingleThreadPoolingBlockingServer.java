@@ -8,7 +8,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
-public class SingleThreadNonBlockingServer {
+public class SingleThreadPoolingBlockingServer {
 
     public static void main(String... args) throws IOException {
         var server = ServerSocketChannel.open();
@@ -18,7 +18,7 @@ public class SingleThreadNonBlockingServer {
         var handler = new MagicChannelHandler();
         var connections = new ArrayList<SocketChannel>();
 
-        System.out.println(String.format("Welcome to %s", SingleThreadNonBlockingServer.class));
+        System.out.println(String.format("Welcome to %s", SingleThreadPoolingBlockingServer.class));
 
         while (true) {
             var clientSocket = server.accept();
