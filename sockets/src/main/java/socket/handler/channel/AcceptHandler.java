@@ -22,8 +22,8 @@ public class AcceptHandler implements ClientHandler<SelectionKey> {
     public void handle(SelectionKey selectionKey) throws IOException {
         var serverChannel = (ServerSocketChannel) selectionKey.channel();
         var sc = serverChannel.accept();
-        if (sc == null) return;
         System.out.println("Connected to " + sc);
+        if (sc == null) return;
         sc.configureBlocking(false);
 
         pendingData.put(sc, new ArrayDeque<>());
