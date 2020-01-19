@@ -1,4 +1,4 @@
-package socket.server;
+package socket.server.thread;
 
 import socket.handler.*;
 

@@ -1,4 +1,4 @@
-package socket.server;
+package socket.server.nio;
 
 import socket.handler.*;
 import socket.handler.channel.BlockingChannelHandler;
@@ -19,6 +19,8 @@ public class BlockingNIOServer {
                 new IOExceptionHandler(new PrintingHandler<>(new BlockingChannelHandler(new MagicChannelHandler()))),
                 Executors.newCachedThreadPool(),
                 (thread, e) -> System.out.println("Error " + thread + " Message " + e));
+
+        System.out.println(String.format("Welcome to %s", BlockingNIOServer.class));
         while (true) {
             var clientSocket = server.accept();
             handler.handle(clientSocket);
