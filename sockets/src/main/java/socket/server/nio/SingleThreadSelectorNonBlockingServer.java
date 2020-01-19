@@ -39,16 +39,16 @@ public class SingleThreadSelectorNonBlockingServer {
             var keys = selector.selectedKeys();
             for (var keyItr = keys.iterator(); keyItr.hasNext(); ) {
                 var key = keyItr.next();
-                if (key.isValid()) {
-                    if (key.isAcceptable()) {
-                        acceptHandler.handle(key);
-                    }
-                    if (key.isReadable()) {
-                        readHandler.handle(key);
-                    }
-                    if (key.isWritable()) {
-                        writeHandler.handle(key);
-                    }
+                if (!key.isValid()) continue;
+
+                if (key.isAcceptable()) {
+                    acceptHandler.handle(key);
+                }
+                if (key.isReadable()) {
+                    readHandler.handle(key);
+                }
+                if (key.isWritable()) {
+                    writeHandler.handle(key);
                 }
             }
         }
