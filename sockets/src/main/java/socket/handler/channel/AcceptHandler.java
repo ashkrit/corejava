@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AcceptHandler implements ClientHandler<SelectionKey> {
     private final Map<SocketChannel, Queue<ByteBuffer>> pendingData;
@@ -22,11 +23,12 @@ public class AcceptHandler implements ClientHandler<SelectionKey> {
     public void handle(SelectionKey selectionKey) throws IOException {
         var serverChannel = (ServerSocketChannel) selectionKey.channel();
         var sc = serverChannel.accept();
-        System.out.println("Connected to " + sc);
         if (sc == null) return;
+        System.out.println("Connected to " + sc);
+
         sc.configureBlocking(false);
 
-        pendingData.put(sc, new ArrayDeque<>());
+        pendingData.put(sc, new ConcurrentLinkedQueue<>());
 
         sc.register(selectionKey.selector(), SelectionKey.OP_READ);
     }

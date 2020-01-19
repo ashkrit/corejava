@@ -9,6 +9,7 @@ public class MessageTransformer {
     }
 
     public static void magic(ByteBuffer buffer) {
+        System.out.println("Processing done by " + Thread.currentThread());
         buffer.flip(); // Switch to read mode
         for (int i = 0; i < buffer.limit(); i++) {
             buffer.put(i, (byte) magic(buffer.get(i)));
