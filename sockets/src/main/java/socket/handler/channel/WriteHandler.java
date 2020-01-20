@@ -1,6 +1,5 @@
 package socket.handler.channel;
 
-import socket.MessageTransformer;
 import socket.handler.ClientHandler;
 
 import java.io.IOException;
@@ -40,7 +39,7 @@ public class WriteHandler implements ClientHandler<SelectionKey> {
             }
             values.remove();
         }
-
+        pendingData.remove(channel);
         selectionKey.interestOps(SelectionKey.OP_READ);
     }
 }

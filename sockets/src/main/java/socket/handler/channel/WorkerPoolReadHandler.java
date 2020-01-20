@@ -28,6 +28,7 @@ public class WorkerPoolReadHandler implements ClientHandler<SelectionKey> {
     public void handle(SelectionKey selectionKey) throws IOException {
         var channel = (SocketChannel) selectionKey.channel();
         var buffer = ByteBuffer.allocate(80);
+
         var read = channel.read(buffer);
         if (read == -1) {
             pendingData.remove(channel);
