@@ -7,6 +7,8 @@ import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class FibonacciTest {
 
     @Test
@@ -21,7 +23,7 @@ public class FibonacciTest {
         var values = new ArrayList<>();
         stream.take(10).subscribe(values::add);
 
-        Assertions.assertEquals(34L, values.get(values.size() - 1));
+        assertEquals(34L, values.get(values.size() - 1));
 
     }
 }

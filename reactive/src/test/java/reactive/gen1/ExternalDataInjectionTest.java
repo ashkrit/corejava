@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CustomDataInjection {
+public class ExternalDataInjectionTest {
 
     @Test
     public void push_custom_data_with_complete_signal() {
