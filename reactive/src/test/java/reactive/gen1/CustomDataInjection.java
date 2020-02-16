@@ -1,6 +1,5 @@
 package reactive.gen1;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.DirectProcessor;
 
@@ -45,5 +44,23 @@ public class CustomDataInjection {
 
         assertEquals(List.of(100, 200), values);
         assertEquals(true, error.get());
+    }
+
+
+    @Test
+    public void back_pressure() {
+
+        var stream = DirectProcessor.<Integer>create();
+
+        var values = new ArrayList<Integer>();
+
+
+        stream.subscribe(values::add, e -> e.printStackTrace(), () -> System.out.println("Done"),
+                subscription -> subscription.request(1));
+
+        stream.onNext(100);
+        stream.onNext(200);
+
+        assertEquals(List.of(100), values);
     }
 }
