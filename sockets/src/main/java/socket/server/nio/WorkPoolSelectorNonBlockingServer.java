@@ -1,7 +1,6 @@
 package socket.server.nio;
 
 import socket.handler.channel.AcceptHandler;
-import socket.handler.channel.ReadHandler;
 import socket.handler.channel.WorkerPoolReadHandler;
 import socket.handler.channel.WriteHandler;
 
@@ -15,7 +14,6 @@ import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class WorkPoolSelectorNonBlockingServer {

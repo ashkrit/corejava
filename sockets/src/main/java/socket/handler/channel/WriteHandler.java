@@ -26,7 +26,13 @@ public class WriteHandler implements ClientHandler<SelectionKey> {
 
         while (values.hasNext()) {
             var buffer = values.next();
-            int bytesWritten = channel.write(buffer);
+            int bytesWritten = -1;
+
+            try {
+                bytesWritten = channel.write(buffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (bytesWritten == -1) {
                 channel.close();
                 pendingData.remove(channel);
@@ -39,7 +45,7 @@ public class WriteHandler implements ClientHandler<SelectionKey> {
             }
             values.remove();
         }
-        pendingData.remove(channel);
+        //pendingData.remove(channel);
         selectionKey.interestOps(SelectionKey.OP_READ);
     }
 }

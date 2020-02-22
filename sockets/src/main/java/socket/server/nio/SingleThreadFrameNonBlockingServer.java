@@ -18,6 +18,7 @@ import java.util.Queue;
 public class SingleThreadFrameNonBlockingServer {
 
     public static void main(String... args) throws IOException {
+
         var server = ServerSocketChannel.open();
         server.bind(new InetSocketAddress(8080));
         server.configureBlocking(false);

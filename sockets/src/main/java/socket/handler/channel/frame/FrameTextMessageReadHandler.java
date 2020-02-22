@@ -66,7 +66,6 @@ public class FrameTextMessageReadHandler implements ClientHandler<SelectionKey> 
         if (data.isCompleteMessage()) {
 
             //Do some processing
-
             pendingOutputData.put(channel, new ArrayDeque<>());
             pendingOutputData.get(channel).add(data.asBuffer());
             data.reset();
