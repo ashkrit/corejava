@@ -22,97 +22,98 @@ import static java.util.Map.ofEntries;
 
 public class NonBlockingServer {
 
-    static int port = 8080;
+    private final Map<SocketEvent, ClientHandler<SelectionKey>> handlers;
+    private final int serverPort;
 
-    enum SocketEvent {
-        Accept,
-        Read,
-        Write,
-        NotSupported;
+    public NonBlockingServer(Map<SocketEvent, ClientHandler<SelectionKey>> handlers, int serverPort) {
+        this.handlers = handlers;
+        this.serverPort = serverPort;
     }
 
-    public static void main(String[] args) throws Exception {
+    public void start() {
+        var selector = createSocketSelector(serverPort);
+        System.out.println(String.format("Welcome to %s", this.getClass()));
+        startEventLoop(selector);
+    }
 
-        ServerSocketChannel server = startServer(port);
-
-        Selector selector = Selector.open();
-        server.register(selector, SelectionKey.OP_ACCEPT);
-
-        var pendingData = new HashMap<SocketChannel, Queue<ByteBuffer>>();
-
-        var handlers = ofEntries(
-                entry(SocketEvent.Accept, new AcceptConnectionHandler(pendingData)),
-                entry(SocketEvent.Read, new MessageReadHandler(pendingData)),
-                entry(SocketEvent.Write, new MessageReplyHandler(pendingData))
-        );
-
-        System.out.println(String.format("Welcome to %s", NonBlockingServer.class));
-
+    private void startEventLoop(Selector selector) {
         while (true) {
             try {
                 selector.select();
 
-                var keys = selector.selectedKeys();
-                for (var keyItr = keys.iterator(); keyItr.hasNext(); ) {
+                var keyItr = selector.selectedKeys().iterator();
+                while (keyItr.hasNext()) {
                     var key = keyItr.next();
-                    if (!key.isValid()) continue;
-                    keyItr.remove(); // This is must to clean old keys otherwise keeps getting it back
-
-                    if (key.isAcceptable()) {
-                        handlers.get(SocketEvent.Accept).handle(key);
-                    }
-                    if (key.isReadable()) {
-                        handlers.get(SocketEvent.Read).handle(key);
-                    }
-                    if (key.isWritable()) {
-                        handlers.get(SocketEvent.Write).handle(key);
+                    if (key.isValid()) {
+                        keyItr.remove(); // This is must to clean old keys otherwise keeps getting it back
+                        processEvent(key);
                     }
                 }
-
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
     }
 
-    private static void processEvent(Map<SocketEvent, ClientHandler<SelectionKey>> handlers, SelectionKey event) {
-        var handler = handlers.get(toEventType(event));
-        try {
-            handler.handle(event);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Unable to process event" );
-        }
-    }
-
-    private static SocketEvent toEventType(SelectionKey selectionKey) {
-        var value = SocketEvent.Accept;
-        if (selectionKey.isAcceptable()) {
-            value = SocketEvent.Accept;
-        }
-        if (selectionKey.isReadable()) {
-            value = SocketEvent.Read;
-        }
-        if (selectionKey.isWritable()) {
-            value = SocketEvent.Write;
-        }
-
-        return value;
-    }
-
-
-    private static ServerSocketChannel startServer(int port) {
-
+    private Selector createSocketSelector(int port) {
         try {
             var server = ServerSocketChannel.open();
             server.bind(new InetSocketAddress(port));
             server.configureBlocking(false);
-            return server;
+
+            Selector selector = Selector.open();
+            server.register(selector, SelectionKey.OP_ACCEPT);
+            return selector;
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    enum SocketEvent {
+        Accept,
+        Read,
+        Write,
+        NotSupported
+    }
+
+    private void processEvent(SelectionKey event) {
+        var handler = handlers.get(toEventType(event));
+        consumeException(event, handler);
+    }
+
+    private static void consumeException(SelectionKey t, ClientHandler<SelectionKey> function) {
+        try {
+            function.handle(t);
+        } catch (Exception oops) {
+            oops.printStackTrace();
+        }
+    }
+
+    private SocketEvent toEventType(SelectionKey selectionKey) {
+        var value = SocketEvent.NotSupported;
+        if (selectionKey.isAcceptable()) {
+            return SocketEvent.Accept;
+        } else if (selectionKey.isReadable()) {
+            return SocketEvent.Read;
+        } else if (selectionKey.isWritable()) {
+            return SocketEvent.Write;
+        }
+        return value;
+    }
+
+
+    public static void main(String[] args) {
+
+        var pendingData = new HashMap<SocketChannel, Queue<ByteBuffer>>();
+        var handlers = ofEntries(
+                entry(SocketEvent.Accept, new AcceptConnectionHandler(pendingData)),
+                entry(SocketEvent.Read, new MessageReadHandler(pendingData)),
+                entry(SocketEvent.Write, new MessageReplyHandler(pendingData))
+        );
+        new NonBlockingServer(handlers, 8080).start();
+
     }
 
 }
