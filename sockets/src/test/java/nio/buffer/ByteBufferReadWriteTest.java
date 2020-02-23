@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
 
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -85,7 +86,6 @@ public class ByteBufferReadWriteTest {
         buffer.flip();//Make it ready for write
         buffer.clear();
         range(0, 10).forEach(b -> buffer.put((byte) b));
-
         buffer.flip();
         byte b = 0;
         while (buffer.hasRemaining()) {
