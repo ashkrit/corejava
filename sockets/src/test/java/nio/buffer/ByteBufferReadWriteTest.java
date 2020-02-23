@@ -83,7 +83,7 @@ public class ByteBufferReadWriteTest {
         }
 
         buffer.flip();//Make it ready for write
-        buffer.limit(10); // Expand to make full buffer available
+        buffer.clear();
         range(0, 10).forEach(b -> buffer.put((byte) b));
 
         buffer.flip();
