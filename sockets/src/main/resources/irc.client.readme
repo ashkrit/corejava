@@ -1,0 +1,6 @@
+telnet irc.freenode.net 6667
+NICK anirav
+USER anirav 8 * : IRC Hacks Bot
+JOIN #something
+PONG PING
+PRIVMSG #irchacks : Got this message
