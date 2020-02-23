@@ -106,11 +106,11 @@ public class NonBlockingServer {
 
     public static void main(String[] args) {
 
-        var pendingData = new HashMap<SocketChannel, Queue<ByteBuffer>>();
+        var buffer = new HashMap<SocketChannel, Queue<ByteBuffer>>();
         var handlers = ofEntries(
-                entry(SocketEvent.Accept, new AcceptConnectionHandler(pendingData)),
-                entry(SocketEvent.Read, new MessageReadHandler(pendingData)),
-                entry(SocketEvent.Write, new MessageReplyHandler(pendingData))
+                entry(SocketEvent.Accept, new AcceptConnectionHandler(buffer)),
+                entry(SocketEvent.Read, new MessageReadHandler(buffer)),
+                entry(SocketEvent.Write, new MessageReplyHandler(buffer))
         );
         new NonBlockingServer(handlers, 8080).start();
 
