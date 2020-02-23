@@ -15,10 +15,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AcceptConnectionHandler implements ClientHandler<SelectionKey> {
 
-    private final Map<SocketChannel, Queue<ByteBuffer>> pendingData;
+    private final Map<SocketChannel, Queue<ByteBuffer>> buffer;
 
-    public AcceptConnectionHandler(Map<SocketChannel, Queue<ByteBuffer>> pendingData) {
-        this.pendingData = pendingData;
+    public AcceptConnectionHandler(Map<SocketChannel, Queue<ByteBuffer>> buffer) {
+        this.buffer = buffer;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class AcceptConnectionHandler implements ClientHandler<SelectionKey> {
             System.out.println("Connected to " + channel);
             channel.configureBlocking(false);
 
-            pendingData.put(channel, new ConcurrentLinkedQueue<>());
+            buffer.put(channel, new ConcurrentLinkedQueue<>());
 
             channel.register(selectionKey.selector(), SelectionKey.OP_READ);
 
