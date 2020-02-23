@@ -1,5 +1,6 @@
 package socket.server.nio.v2;
 
+import socket.handler.ClientHandler;
 import socket.server.nio.v2.handlers.AcceptConnectionHandler;
 import socket.server.nio.v2.handlers.MessageReadHandler;
 import socket.server.nio.v2.handlers.MessageReplyHandler;
@@ -13,12 +14,22 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
-import java.util.Optional;
+import java.util.Map;
 import java.util.Queue;
+
+import static java.util.Map.entry;
+import static java.util.Map.ofEntries;
 
 public class NonBlockingServer {
 
     static int port = 8080;
+
+    enum SocketEvent {
+        Accept,
+        Read,
+        Write,
+        NotSupported;
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -29,9 +40,12 @@ public class NonBlockingServer {
 
         var pendingData = new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
-        var acceptHandler = new AcceptConnectionHandler(pendingData);
-        var readHandler = new MessageReadHandler(pendingData);
-        var writeHandler = new MessageReplyHandler(pendingData);
+        var handlers = ofEntries(
+                entry(SocketEvent.Accept, new AcceptConnectionHandler(pendingData)),
+                entry(SocketEvent.Read, new MessageReadHandler(pendingData)),
+                entry(SocketEvent.Write, new MessageReplyHandler(pendingData))
+        );
+
         System.out.println(String.format("Welcome to %s", NonBlockingServer.class));
 
         while (true) {
@@ -39,20 +53,23 @@ public class NonBlockingServer {
                 selector.select();
 
                 var keys = selector.selectedKeys();
-                for (var itr = keys.iterator(); itr.hasNext(); ) {
+                for (var keyItr = keys.iterator(); keyItr.hasNext(); ) {
+                    var key = keyItr.next();
+                    if (!key.isValid()) continue;
+                    keyItr.remove(); // This is must to clean old keys otherwise keeps getting it back
 
-                    var key = itr.next();
-
-                    if (notValid(key)) continue;
-
-                    itr.remove();
-
-                    Optional<SelectionKey> keyType = Optional.of(key);
-                    keyType.filter(SelectionKey::isAcceptable).ifPresent(acceptHandler::handle);
-                    keyType.filter(SelectionKey::isReadable).ifPresent(readHandler::handle);
-                    keyType.filter(SelectionKey::isWritable).ifPresent(writeHandler::handle);
-
+                    if (key.isAcceptable()) {
+                        handlers.get(SocketEvent.Accept).handle(key);
+                    }
+                    if (key.isReadable()) {
+                        handlers.get(SocketEvent.Read).handle(key);
+                    }
+                    if (key.isWritable()) {
+                        handlers.get(SocketEvent.Write).handle(key);
+                    }
                 }
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -60,9 +77,31 @@ public class NonBlockingServer {
 
     }
 
-    private static boolean notValid(SelectionKey key) {
-        return !key.isValid();
+    private static void processEvent(Map<SocketEvent, ClientHandler<SelectionKey>> handlers, SelectionKey event) {
+        var handler = handlers.get(toEventType(event));
+        try {
+            handler.handle(event);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Unable to process event" );
+        }
     }
+
+    private static SocketEvent toEventType(SelectionKey selectionKey) {
+        var value = SocketEvent.Accept;
+        if (selectionKey.isAcceptable()) {
+            value = SocketEvent.Accept;
+        }
+        if (selectionKey.isReadable()) {
+            value = SocketEvent.Read;
+        }
+        if (selectionKey.isWritable()) {
+            value = SocketEvent.Write;
+        }
+
+        return value;
+    }
+
 
     private static ServerSocketChannel startServer(int port) {
 

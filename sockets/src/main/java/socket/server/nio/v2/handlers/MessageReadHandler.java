@@ -49,7 +49,6 @@ public class MessageReadHandler implements ClientHandler<SelectionKey> {
 
         pendingMessage.get(channel).add(buffer);
         selectionKey.interestOps(SelectionKey.OP_WRITE);
-        selectionKey.selector().wakeup();
     }
 
     private void cleanUp(SocketChannel socketChannel) {
