@@ -1,8 +1,6 @@
 package mavenplugin;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,15 +36,15 @@ public class IncrementalMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.outputDirectory}", readonly = true, required = true)
     private File outputDirectory;
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() {
 
         long start = System.currentTimeMillis();
-        check();
+        checkForModification();
         long total = System.currentTimeMillis() - start;
         info(String.format("Total time %s ms", total));
     }
 
-    private void check() {
+    private void checkForModification() {
         LocalDateTime codeCompileAt = classCompileTime(outputDirectory);
         LocalDateTime codeChangedAt = codeChangeTime(compileSourceRoots);
 
@@ -137,7 +135,9 @@ public class IncrementalMojo extends AbstractMojo {
     }
 
     private Stream<File> sourceCodeLocation(File parentLocation) {
-        return sourceComponents.stream().map(component -> new File(parentLocation, component));
+        return sourceComponents
+                .stream()
+                .map(component -> new File(parentLocation, component));
     }
 
     private LocalDateTime classCompileTime(File targetLocation) {
