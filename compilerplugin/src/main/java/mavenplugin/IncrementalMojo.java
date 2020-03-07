@@ -1,5 +1,6 @@
 package mavenplugin;
 
+import mavenplugin.io.IOFunctions;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -7,8 +8,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Optional.ofNullable;
 
 @Mojo(name = "inc", defaultPhase = LifecyclePhase.PRE_CLEAN)
 public class IncrementalMojo extends AbstractMojo {
@@ -63,30 +64,21 @@ public class IncrementalMojo extends AbstractMojo {
         Path rootTarget = targetLocation.getParentFile().toPath();
         info(String.format("Changed detected - cleaning %s", rootTarget));
 
+        cleanTargetLocation(rootTarget);
+        createTimeStampFile(rootTarget);
+
+    }
+
+    private void cleanTargetLocation(Path rootTarget) {
         Stream.of(rootTarget)
                 .filter(Files::exists)
-                .forEach(this::deleteFiles);
+                .forEach(IOFunctions::deleteFiles);
+    }
 
+    private void createTimeStampFile(Path rootTarget) {
         rootTarget.toFile().mkdir();
         Path timeStampFile = new File(rootTarget.toFile(), TIMESTAMP_FILE).toPath();
-        touch(timeStampFile);
-
-    }
-
-    private void touch(Path timeStampFile) {
-        try {
-            Files.createFile(timeStampFile);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void deleteFiles(Path file) {
-        try {
-            Files.walkFileTree(file, new DeleteResourceRecusive());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        IOFunctions.touch(timeStampFile);
     }
 
     private void nothingToClean() {
@@ -141,15 +133,19 @@ public class IncrementalMojo extends AbstractMojo {
     }
 
     private LocalDateTime classCompileTime(File targetLocation) {
-        Optional<File[]> timeStampFile = Optional.ofNullable(
-                targetLocation.getParentFile().listFiles(this::isTimeStampFile));
+        File[] matchedFile = targetLocation.getParentFile().listFiles(this::isTimeStampFile);
+        Optional<File[]> timeStampFile = ofNullable(matchedFile);
 
         return timeStampFile
-                .filter(x -> x.length > 0)
+                .filter(this::hasFile)
                 .map(Arrays::asList)
                 .map(this::mostRecentUpdateTime)
                 .orElse(LocalDateTime.MIN)
                 ;
+    }
+
+    private boolean hasFile(File[] x) {
+        return x.length > 0;
     }
 
     private LocalDateTime mostRecentUpdateTime(List<File> files) {
@@ -158,7 +154,7 @@ public class IncrementalMojo extends AbstractMojo {
                 .filter(File::exists);
 
         Stream<Long> fileUpdateTimes = filesToCheck
-                .flatMap(this::walkFile)
+                .flatMap(IOFunctions::walkFile)
                 .map(Path::toFile)
                 .map(File::lastModified);
 
@@ -172,18 +168,9 @@ public class IncrementalMojo extends AbstractMojo {
         return LocalDateTime.ofInstant(epochValue, ZoneId.systemDefault());
     }
 
-    private Stream<Path> walkFile(File file) {
-        try {
-            return Files.walk(file.toPath());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     private boolean isTimeStampFile(File file) {
         return file.getName().equalsIgnoreCase(TIMESTAMP_FILE);
     }
-
 
     private void info(String value) {
         getLog().info(value);

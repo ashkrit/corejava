@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public class DeleteResourceRecusive extends SimpleFileVisitor<Path> {
+public class DeleteResourceRecursive extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException $) throws IOException {
         Files.delete(dir);
