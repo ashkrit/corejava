@@ -48,6 +48,22 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>mavenplugin</groupId>
+                <artifactId>compilerplugin</artifactId>
+                <version>1.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>pre-clean</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>inc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
