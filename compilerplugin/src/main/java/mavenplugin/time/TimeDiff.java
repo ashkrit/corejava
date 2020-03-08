@@ -1,0 +1,38 @@
+package mavenplugin.time;
+
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+
+public class TimeDiff {
+
+    public static String diffAsString(LocalDateTime start, LocalDateTime end) {
+        Duration diff = Duration.between(start, end);
+
+        String days = formatTimeValue(diff.toDays(), TimeUnit.DAYS);
+        String hours = formatTimeValue(relativeHours(diff), TimeUnit.HOURS);
+        String minutes = formatTimeValue(relativeMinutes(diff), TimeUnit.MINUTES);
+        String seconds = formatTimeValue(relativeSeconds(diff), TimeUnit.SECONDS);
+
+        return String.format("%s%s%s%s", days, hours, minutes, seconds);
+    }
+
+    private static long relativeSeconds(Duration diff) {
+        return (diff.toMillis() - TimeUnit.MILLISECONDS.convert(diff.toMinutes(), TimeUnit.MINUTES)) / 1000;
+    }
+
+    private static long relativeMinutes(Duration diff) {
+        return diff.toMinutes() - TimeUnit.MINUTES.convert(diff.toHours(), TimeUnit.HOURS);
+    }
+
+    private static long relativeHours(Duration diff) {
+        return diff.toHours() - TimeUnit.HOURS.convert(diff.toDays(), TimeUnit.DAYS);
+    }
+
+    private static String formatTimeValue(long value, TimeUnit unit) {
+        return Optional.of(value)
+                .filter(h -> h > 0).map(h -> String.format("%s %s ", h, unit)).orElseGet(() -> "");
+    }
+}

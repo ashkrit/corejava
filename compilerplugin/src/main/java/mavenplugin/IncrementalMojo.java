@@ -1,6 +1,7 @@
 package mavenplugin;
 
 import mavenplugin.io.IOFunctions;
+import mavenplugin.time.TimeDiff;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -11,12 +12,15 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +30,7 @@ import static java.util.Optional.ofNullable;
 public class IncrementalMojo extends AbstractMojo {
 
     private static final String TIMESTAMP_FILE = "buildcheck.timestamp";
-    private static final List<String> sourceComponents = Arrays.asList("java", "scala", "resources" );
+    private static final List<String> sourceComponents = Arrays.asList("java", "scala", "resources");
 
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
@@ -49,20 +53,21 @@ public class IncrementalMojo extends AbstractMojo {
         LocalDateTime codeCompileAt = classCompileTime(outputDirectory);
         LocalDateTime codeChangedAt = codeChangeTime(compileSourceRoots);
 
-        info(String.format("Code compiled at %s", codeCompileAt));
-        info(String.format("Code changed at %s", codeChangedAt));
+        info("Code compiled at %s", codeCompileAt);
+        info("Code changed at %s", codeChangedAt);
 
         if (codeChangedAt.isAfter(codeCompileAt)) {
-            prepareForCompilation(outputDirectory);
+            prepareForCompilation(outputDirectory, codeChangedAt, codeCompileAt);
         } else {
-            nothingToClean();
+            nothingToClean(codeChangedAt);
         }
     }
 
-    private void prepareForCompilation(File targetLocation) {
+    private void prepareForCompilation(File targetLocation, LocalDateTime codeChangedAt, LocalDateTime codeCompileAt) {
 
+        info("Code was changed %s after compilation", TimeDiff.diffAsString(codeCompileAt, codeChangedAt));
         Path rootTarget = targetLocation.getParentFile().toPath();
-        info(String.format("Changed detected - cleaning %s", rootTarget));
+        info("Changed detected - cleaning %s", rootTarget);
 
         cleanTargetLocation(rootTarget);
         createTimeStampFile(rootTarget);
@@ -81,15 +86,16 @@ public class IncrementalMojo extends AbstractMojo {
         IOFunctions.touch(timeStampFile);
     }
 
-    private void nothingToClean() {
-        info("Nothing to clean - Source and target are up to date" );
-        project.getProperties().setProperty("skipTests", "true" );
+    private void nothingToClean(LocalDateTime codeChangedAt) {
+        String s = TimeDiff.diffAsString(codeChangedAt, LocalDateTime.now());
+        info("Nothing to clean - Source and target are up to date. Not updated from %s", s);
+        project.getProperties().setProperty("skipTests", "true");
     }
 
     private LocalDateTime codeChangeTime(List<String> compileSourceRoots) {
 
         Stream<File> javaSourceLocation = compileSourceRoots.stream()
-                .filter(f -> f.endsWith("java" ))
+                .filter(f -> f.endsWith("java"))
                 .map(File::new);
 
         Stream<File> rootSourceLocation = javaSourceLocation.map(File::getParentFile);
@@ -114,7 +120,7 @@ public class IncrementalMojo extends AbstractMojo {
 
     private Stream<File> configFilesLocation(File parentLocation) {
         String twoLevelUp = parentLocation.getParentFile().getParent();
-        return Stream.of(Paths.get(twoLevelUp, "pom.xml" ))
+        return Stream.of(Paths.get(twoLevelUp, "pom.xml"))
                 .map(Path::toFile);
     }
 
@@ -150,17 +156,18 @@ public class IncrementalMojo extends AbstractMojo {
 
     private LocalDateTime mostRecentUpdateTime(List<File> files) {
         Stream<File> filesToCheck = files.stream()
-                .peek(file -> info(String.format("Checking %s", file)))
+                .peek(file -> info("Checking %s", file))
                 .filter(File::exists);
 
-        Stream<Long> fileUpdateTimes = filesToCheck
+        Stream<File> fileUpdateTimes = filesToCheck
                 .flatMap(IOFunctions::walkFile)
-                .map(Path::toFile)
-                .map(File::lastModified);
+                .map(Path::toFile);
 
-        Optional<Long> mostRecentTime = fileUpdateTimes.max(Long::compare);
+        Optional<File> mostRecentTime = fileUpdateTimes.max(Comparator.comparingLong(File::lastModified));
+        mostRecentTime.ifPresent(f -> info("Last changed file/folder is %s", f));
 
-        return mostRecentTime.map(this::toLocalDate).orElse(LocalDateTime.MIN);
+        return mostRecentTime.map(File::lastModified)
+                .map(this::toLocalDate).orElse(LocalDateTime.MIN);
     }
 
     private LocalDateTime toLocalDate(long value) {
@@ -172,7 +179,7 @@ public class IncrementalMojo extends AbstractMojo {
         return file.getName().equalsIgnoreCase(TIMESTAMP_FILE);
     }
 
-    private void info(String value) {
-        getLog().info(value);
+    private void info(String template, Object... args) {
+        getLog().info(String.format(template, args));
     }
 }
