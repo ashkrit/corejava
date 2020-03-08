@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,7 +96,7 @@ public class IncrementalMojo extends AbstractMojo {
     private LocalDateTime codeChangeTime(List<String> compileSourceRoots) {
 
         Stream<File> javaSourceLocation = compileSourceRoots.stream()
-                .filter(f -> f.endsWith("java"))
+                .filter(this::isJavaLocation)
                 .map(File::new);
 
         Stream<File> rootSourceLocation = javaSourceLocation.map(File::getParentFile);
@@ -106,6 +107,10 @@ public class IncrementalMojo extends AbstractMojo {
                 .collect(Collectors.toList());
 
         return mostRecentUpdateTime(resourceToScan);
+    }
+
+    private boolean isJavaLocation(String location) {
+        return location.endsWith("java");
     }
 
     private Stream<File> sourceLocations(File parentLocation) {
@@ -167,7 +172,8 @@ public class IncrementalMojo extends AbstractMojo {
         mostRecentTime.ifPresent(f -> info("Last changed file/folder is %s", f));
 
         return mostRecentTime.map(File::lastModified)
-                .map(this::toLocalDate).orElse(LocalDateTime.MIN);
+                .map(this::toLocalDate)
+                .orElse(LocalDateTime.MIN);
     }
 
     private LocalDateTime toLocalDate(long value) {

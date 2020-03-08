@@ -1,4 +1,4 @@
-package mavenplugin;
+package mavenplugin.io;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

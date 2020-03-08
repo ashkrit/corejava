@@ -1,7 +1,5 @@
 package mavenplugin.io;
 
-import mavenplugin.DeleteResourceRecursive;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
