@@ -33,6 +33,13 @@ public class TimeDiff {
 
     private static String formatTimeValue(long value, TimeUnit unit) {
         return Optional.of(value)
-                .filter(h -> h > 0).map(h -> String.format("%s %s ", h, unit)).orElseGet(() -> "");
+                .filter(TimeDiff::gtZero)
+                .map(h -> String.format("%s %s ", h, unit))
+                .orElse("");
     }
+
+    private static boolean gtZero(long value) {
+        return value > 0;
+    }
+
 }

@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class IOFunctions {
+
     public static void touch(Path timeStampFile) {
         try {
             Files.createFile(timeStampFile);
