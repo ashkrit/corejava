@@ -1,0 +1,7 @@
+package database
+
+class MongoDBConnection {
+
+
+
+}
