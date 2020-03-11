@@ -28,4 +28,13 @@ public class ComposingTest {
     }
 
 
+    @Test
+    public void compose_data_pipeline_multiple_points_parallel() {
+
+        List<Point> points = asList(new Point(0, 10), new Point(10, 10));
+        Optional<Point> point = new ComposingExample().fastMaxDistancePoint(points);
+        assertEquals(new Point(10, 10), point.get());
+    }
+
+
 }
