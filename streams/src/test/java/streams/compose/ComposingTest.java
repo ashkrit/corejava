@@ -1,23 +1,32 @@
 package streams.compose;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ComposingTest {
 
     @Test
-    public void compose_data_pipeline() {
+    public void compose_data_pipeline_single_point() {
 
-        List<Point> points = Arrays.asList(new Point(0, 10));
+        List<Point> points = asList(new Point(0, 10));
+        Optional<Point> point = new ComposingExample().maxDistancePoint(points);
+        assertEquals(new Point(0, 10), point.get());
+    }
 
-        Point point = new ComposingExample().maxDistancePoint(points);
+    @Test
+    public void compose_data_pipeline_multiple_points() {
 
-        Assertions.assertEquals(new Point(0, 10), point);
+        double q = new Point(10, 10).distance(0, 0);
 
-
+        List<Point> points = asList(new Point(0, 10), new Point(10, 10));
+        Optional<Point> point = new ComposingExample().maxDistancePoint(points);
+        assertEquals(new Point(10, 10), point.get());
     }
 }
