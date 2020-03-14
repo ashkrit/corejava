@@ -35,6 +35,10 @@ public class Person {
         return Optional.ofNullable(home);
     }
 
+    public Optional<Office> getOffice() {
+        return Optional.ofNullable(office);
+    }
+
     public static class Home {
         final String address;
         final Insurance insurance;
