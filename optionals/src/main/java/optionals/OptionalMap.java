@@ -1,11 +1,11 @@
 package optionals;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-public class OptionalMap<K, V> extends HashMap<K, V> {
+public interface OptionalMap<K, V> extends Map<K, V> {
 
-    public Optional<V> getValue(K key) {
+    default Optional<V> getValue(K key) {
         return Optional.ofNullable(get(key));
     }
 }

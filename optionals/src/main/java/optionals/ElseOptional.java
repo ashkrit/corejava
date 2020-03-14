@@ -13,6 +13,6 @@ public class ElseOptional {
         System.out.println(ofNullable(null)
                 .orElseGet(() -> "Loaded from DB"));
 
-        ofNullable(null).orElseThrow(() -> new IllegalArgumentException("Missing value"));
+        ofNullable(null).orElseThrow(IllegalArgumentException::new);
     }
 }
