@@ -1,5 +1,7 @@
 package optionals;
 
+import java.util.Optional;
+
 public class Person {
     final String email;
     final String firstName;
@@ -21,20 +23,12 @@ public class Person {
         this.office = office;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public Optional<String> getEmail() {
+        return Optional.ofNullable(email);
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getEmail() {
-        return email;
+    public Optional<String> getPhone() {
+        return Optional.ofNullable(phone);
     }
 
     public Home getHome() {
