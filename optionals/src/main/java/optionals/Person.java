@@ -31,8 +31,8 @@ public class Person {
         return Optional.ofNullable(phone);
     }
 
-    public Home getHome() {
-        return home;
+    public Optional<Home> getHome() {
+        return Optional.ofNullable(home);
     }
 
     public static class Home {
@@ -44,8 +44,8 @@ public class Person {
             this.insurance = insurance;
         }
 
-        public Insurance getInsurance() {
-            return insurance;
+        public Optional<Insurance> getInsurance() {
+            return Optional.ofNullable(insurance);
         }
 
         public String getAddress() {

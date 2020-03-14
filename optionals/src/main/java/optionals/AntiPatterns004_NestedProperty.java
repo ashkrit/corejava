@@ -8,17 +8,22 @@ public class AntiPatterns004_NestedProperty {
 
     public static void main(String[] args) {
 
-        Person p = new Person("James", "Bond", null, null);
+        Person p = new Person("James", "Bond", null, null, new Person.Home("add1",
+                new Person.Insurance("AXA", 100)), null);
 
         //Nested Property
-        if (p.getHome() != null) {
-            System.out.println("Sending Postal mail " + p.getHome().address);
+        if (p.home != null) {
+            System.out.println("Sending Postal mail " + p.home.address);
         }
 
-
-        if (p.getHome() != null && p.getHome().getInsurance() != null) {
-            System.out.println("Sending Notification to insurance " + p.getHome().getInsurance().getAgency());
+        if (p.home != null && p.home.insurance != null) {
+            System.out.println("Sending Notification to insurance " + p.home.insurance.agency);
         }
+
+        p.getHome().ifPresent(a -> System.out.println("Sending Postal mail " + a.address));
+        p.getHome()
+                .flatMap(Person.Home::getInsurance)
+                .ifPresent(a -> System.out.println("Sending Notification to insurance " + a.agency));
 
     }
 
