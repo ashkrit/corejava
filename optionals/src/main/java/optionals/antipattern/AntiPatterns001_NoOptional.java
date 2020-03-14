@@ -19,5 +19,6 @@ public class AntiPatterns001_NoOptional {
         p.getEmail().ifPresent(email -> System.out.println("Sending email to " + email));
         p.getPhone().ifPresent(phone -> System.out.println("Calling " + phone));
 
+
     }
 }
