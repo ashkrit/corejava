@@ -19,6 +19,18 @@ public class AntiPatterns002_UseOptionalInWrongWay {
             System.out.println("Sending Email " + email.get());
         }
 
+        //Use IfPresent & other cool things
+        phone
+                .filter(number -> hasOptIn(number))
+                .ifPresent(number -> System.out.println("Calling Phone " + number));
+
+        email
+                .filter(m -> hasOptIn(m))
+                .ifPresent(m -> System.out.println("Sending Email " + m));
+    }
+
+    private static boolean hasOptIn(String p) {
+        return true;
     }
 
     private static Optional<String> email(Person p) {
