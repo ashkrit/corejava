@@ -1,6 +1,6 @@
-package optionals;
+package optionals.antipattern;
 
-import optionals.Person.Home;
+import optionals.antipattern.Person.Home;
 
 public class AntiPatterns004_NestedProperty {
 

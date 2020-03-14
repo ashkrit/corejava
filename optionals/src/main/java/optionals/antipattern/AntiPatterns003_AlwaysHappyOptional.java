@@ -1,4 +1,4 @@
-package optionals;
+package optionals.antipattern;
 
 import java.util.Optional;
 

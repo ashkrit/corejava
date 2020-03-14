@@ -1,7 +1,7 @@
-package optionals;
+package optionals.antipattern;
 
-import optionals.Person.Home;
-import optionals.Person.Office;
+import optionals.antipattern.Person.Home;
+import optionals.antipattern.Person.Office;
 
 import java.util.Optional;
 import java.util.stream.Stream;

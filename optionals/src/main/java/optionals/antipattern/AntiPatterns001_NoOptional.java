@@ -1,4 +1,4 @@
-package optionals;
+package optionals.antipattern;
 
 public class AntiPatterns001_NoOptional {
 
