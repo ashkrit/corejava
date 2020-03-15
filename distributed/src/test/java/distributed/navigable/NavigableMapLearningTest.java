@@ -158,4 +158,21 @@ public class NavigableMapLearningTest {
         assertArrayEquals(new Integer[]{20, 27, 55, 99}, biggerElements.keySet().toArray(new Integer[]{}));
     }
 
+    @Test
+    public void submap_return_element_in_range() {
+
+        NavigableMap<Integer, byte[]> buffers = new TreeMap<Integer, byte[]>() {{
+            put(10, new byte[10]);
+            put(20, new byte[20]);
+            put(9, new byte[9]);
+            put(27, new byte[27]);
+            put(99, new byte[99]);
+            put(55, new byte[55]);
+        }};
+
+        SortedMap<Integer, byte[]> biggerElements = buffers.subMap(15, 60);
+        assertArrayEquals(new Integer[]{20, 27, 55}, biggerElements.keySet().toArray(new Integer[]{}));
+
+    }
+
 }
