@@ -18,7 +18,6 @@ public class FXServiceEasyMockTest {
     final CurrencyConverter currencyConverter = EasyMock.createMock(CurrencyConverter.class);
     final BankService bankService = EasyMock.createMock(BankService.class);
 
-
     @Test
     public void transfer_sgd_to_inr() {
 

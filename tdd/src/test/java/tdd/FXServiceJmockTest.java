@@ -13,7 +13,7 @@ import tdd.service.CurrencyConverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FXServiceTest {
+public class FXServiceJmockTest {
 
     @RegisterExtension
     JUnit5Mockery context = new JUnit5Mockery();
@@ -22,7 +22,6 @@ public class FXServiceTest {
     final Currency INR = new Currency("INR");
     final CurrencyConverter currencyConverter = context.mock(CurrencyConverter.class);
     final BankService bankService = context.mock(BankService.class);
-
 
     @Test
     public void transfer_sgd_to_inr() {

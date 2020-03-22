@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 import tdd.model.{BankAccount, Currency, Money}
 import tdd.service.{BankService, CurrencyConverter}
 
-class FXServiceSpec extends FlatSpec with BeforeAndAfter with Matchers {
+class FXServiceJmockSpec extends FlatSpec with BeforeAndAfter with Matchers {
 
   val SGD = new Currency("SGD")
   val INR = new Currency("INR")
