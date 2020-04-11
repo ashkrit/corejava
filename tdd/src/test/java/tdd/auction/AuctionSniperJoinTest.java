@@ -5,17 +5,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import tdd.auction.server.AuctionServer;
 import tdd.auction.server.InMemoryAuctionServer;
+import tdd.auction.server.TextCommandProcessor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static tdd.auction.server.TextCommandProcessor.toMessage;
 
 public class AuctionSniperJoinTest {
 
-    AuctionServer auctionServer = new InMemoryAuctionServer();
-    AuctionEventConsumer handler = new AuctionEventConsumer(auctionServer);
+    AuctionEventConsumer handler = new AuctionEventConsumer(new ConsoleOutputAction());
+    AuctionServer auctionServer = new InMemoryAuctionServer(handler);
+    TextCommandProcessor textCommand = new TextCommandProcessor(auctionServer);
 
     @BeforeEach
     public void bootstrapAuctionServer() {
@@ -25,9 +28,9 @@ public class AuctionSniperJoinTest {
     @Test
     public void joinsUntilAuctionCloses() {
 
-        auctionServer.startSelling("itemName-123", 100);
-        auctionServer.join("itemName-123", "ABC Corp", handler);
-        auctionServer.auctionClosed();
+        textCommand.onMessage(toMessage("startselling", "itemName-123", "100"));
+        textCommand.onMessage(toMessage("join", "itemName-123", "ABC Corp"));
+        textCommand.onMessage(toMessage("auctionclosed"));
 
         assertEquals("ABC Corp", handler.bidder());
         assertEquals("itemName-123", handler.auctionItem().itemName());
@@ -41,7 +44,7 @@ public class AuctionSniperJoinTest {
 
 
         auctionServer.startSelling("itemName-567", 100);
-        auctionServer.join("itemName-567", "ABC Corp", handler);
+        auctionServer.join("itemName-567", "ABC Corp");
         auctionServer.auctionClosed();
 
 
@@ -57,7 +60,7 @@ public class AuctionSniperJoinTest {
         int basePrice = new Random().nextInt(999);
 
         auctionServer.startSelling("itemName-567", basePrice);
-        auctionServer.join("itemName-567", "ABC Corp", handler);
+        auctionServer.join("itemName-567", "ABC Corp");
         auctionServer.auctionClosed();
 
 
@@ -71,7 +74,7 @@ public class AuctionSniperJoinTest {
     @Test
     public void joiningFailsWhenNoAuctionIsGoingOnForItem() {
 
-        auctionServer.join("itemName-567", "ABC Corp", handler);
+        auctionServer.join("itemName-567", "ABC Corp");
         assertEquals(AuctionState.NoAuction, handler.auctionState());
         assertEquals("No auction going on itemName-567", handler.message());
     }
@@ -82,9 +85,8 @@ public class AuctionSniperJoinTest {
 
         ByteArrayOutputStream bos = overrideSysOut();
 
-        handler = new AuctionEventConsumer(auctionServer, new ConsoleOutputAction());
         auctionServer.startSelling("itemName-567", 200);
-        auctionServer.join("itemName-567", "ABC Corp", handler);
+        auctionServer.join("itemName-567", "ABC Corp");
         auctionServer.auctionClosed();
 
         String[] messages = new String(bos.toByteArray()).split("\r\n");

@@ -7,7 +7,6 @@ public class Bid {
     public Bid(String bidder, Item bidItem) {
         this.bidder = bidder;
         this.bidItem = bidItem;
-
     }
 
     public String itemName() {

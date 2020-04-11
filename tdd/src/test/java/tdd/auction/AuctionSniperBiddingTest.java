@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuctionSniperBiddingTest {
 
-    AuctionServer auctionServer = new InMemoryAuctionServer();
-    AuctionEventConsumer consumer = new AuctionEventConsumer(auctionServer);
+    AuctionEventConsumer consumer = new AuctionEventConsumer();
+    AuctionServer auctionServer = new InMemoryAuctionServer(consumer);
 
     @BeforeEach
     public void bootstrapAuctionServer() {
@@ -23,9 +23,9 @@ public class AuctionSniperBiddingTest {
 
         auctionServer.startSelling("itemName-10", 100);
 
-        auctionServer.join("itemName-10", "ABCL Corp", consumer);
+        auctionServer.join("itemName-10", "ABCL Corp");
 
-        consumer.placeBid(10);
+        auctionServer.bid(consumer.placeBid(10));
 
         auctionServer.auctionClosed();
 

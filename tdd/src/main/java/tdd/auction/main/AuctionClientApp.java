@@ -11,12 +11,12 @@ public class AuctionClientApp {
 
         String auctionItem = "PICASO-Guernica(1937)";
 
-        AuctionServer server = new InMemoryAuctionServer();
+        AuctionEventConsumer consumer = new AuctionEventConsumer(new ConsoleOutputAction());
+        AuctionServer server = new InMemoryAuctionServer(consumer);
 
         server.startSelling(auctionItem, 9990);
-        AuctionEventConsumer consumer = new AuctionEventConsumer(server, new ConsoleOutputAction());
-        server.join(auctionItem, "X Corp", consumer);
-        consumer.placeBid(10);
+        server.join(auctionItem, "X Corp");
+        server.bid(consumer.placeBid(10));
 
         server.auctionClosed();
 

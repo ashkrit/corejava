@@ -2,7 +2,6 @@ package tdd.auction;
 
 import tdd.auction.model.Bid;
 import tdd.auction.model.Item;
-import tdd.auction.server.AuctionServer;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
@@ -10,8 +9,6 @@ import static java.util.Optional.ofNullable;
 public class AuctionEventConsumer implements AuctionEvents {
 
     private final ConsoleOutputAction action;
-    private final AuctionServer auctionServer;
-
     private Item item;
     private String bidder;
 
@@ -19,15 +16,13 @@ public class AuctionEventConsumer implements AuctionEvents {
     private String message;
     private Bid lastBid;
 
-    public AuctionEventConsumer(AuctionServer auctionServer) {
-        this(auctionServer, null);
+    public AuctionEventConsumer() {
+        this(null);
     }
 
-    public AuctionEventConsumer(AuctionServer auctionServer, ConsoleOutputAction action) {
+    public AuctionEventConsumer(ConsoleOutputAction action) {
         this.action = action;
-        this.auctionServer = auctionServer;
     }
-
 
     public Item auctionItem() {
         return item;
@@ -86,9 +81,9 @@ public class AuctionEventConsumer implements AuctionEvents {
         }
     }
 
-    public void placeBid(int increaseAmount) {
+    public Bid placeBid(int increaseAmount) {
         int newPrice = lastPrice() + increaseAmount;
         Item adjustedItem = Item.of(item.itemName(), newPrice);
-        auctionServer.bid(new Bid(bidder, adjustedItem));
+        return new Bid(bidder, adjustedItem);
     }
 }

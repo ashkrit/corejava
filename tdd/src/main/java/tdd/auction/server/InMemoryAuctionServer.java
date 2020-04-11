@@ -4,33 +4,25 @@ import tdd.auction.AuctionEvents;
 import tdd.auction.model.Bid;
 import tdd.auction.model.Item;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import static java.util.Optional.ofNullable;
 
 public class InMemoryAuctionServer implements AuctionServer {
 
-    private final Set<AuctionEvents> consumers = new HashSet<>();
+    private final AuctionEvents consumers;
     private Item item;
 
-    public InMemoryAuctionServer() {
-
+    public InMemoryAuctionServer(AuctionEvents consumer) {
+        this.consumers = consumer;
     }
 
     @Override
-    public void join(String item, String bidder, AuctionEvents consumer) {
-        registerConsumer(consumer);
+    public void join(String item, String bidder) {
 
         if (isItemOnSale(item)) {
-            consumer.onJoin(item, bidder, this.item.price());
+            consumers.onJoin(item, bidder, this.item.price());
         } else {
-            consumer.onNoAuction(item);
+            consumers.onNoAuction(item);
         }
-    }
-
-    private void registerConsumer(AuctionEvents consumer) {
-        consumers.add(consumer);
     }
 
     private boolean isItemOnSale(String itemToCheck) {
@@ -42,7 +34,7 @@ public class InMemoryAuctionServer implements AuctionServer {
 
     @Override
     public void auctionClosed() {
-        consumers.forEach(AuctionEvents::onLost);
+        consumers.onLost();
     }
 
 
@@ -54,7 +46,7 @@ public class InMemoryAuctionServer implements AuctionServer {
     @Override
     public void bid(Bid bid) {
         if (isItemOnSale(bid.itemName())) {
-            consumers.forEach(consumer -> consumer.onPriceChanged(bid));
+            consumers.onPriceChanged(bid);
         }
     }
 
