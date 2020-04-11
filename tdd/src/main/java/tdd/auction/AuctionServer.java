@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class AuctionServer {
 
-    private final Set<AuctionEventHandler> bidders = new HashSet<>();
+    private final Set<AuctionEventConsumer> consumers = new HashSet<>();
     private String item;
     private int currentPrice;
 
@@ -13,17 +13,17 @@ public class AuctionServer {
 
     }
 
-    public void join(String item, String bidder, AuctionEventHandler eventHandler) {
-        bidders.add(eventHandler);
+    public void join(String item, String bidder, AuctionEventConsumer consumer) {
+        consumers.add(consumer);
         if (item.equals(this.item)) {
-            eventHandler.onJoin(item, bidder, currentPrice);
+            consumer.onJoin(item, bidder, currentPrice);
         } else {
-            eventHandler.onNoAuction(item);
+            consumer.onNoAuction(item);
         }
     }
 
     public void close() {
-        bidders.forEach(AuctionEventHandler::onLost);
+        consumers.forEach(AuctionEventConsumer::onLost);
     }
 
     public void disconnect() {

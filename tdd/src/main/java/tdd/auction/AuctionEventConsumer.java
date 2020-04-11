@@ -1,6 +1,6 @@
 package tdd.auction;
 
-public class AuctionEventHandler {
+public class AuctionEventConsumer {
     private String item;
     private String bidder;
     private int price;

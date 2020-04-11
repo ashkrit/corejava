@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AuctionSniperTest {
 
     AuctionServer auctionServer = new AuctionServer();
-    AuctionEventHandler handler = new AuctionEventHandler();
+    AuctionEventConsumer handler = new AuctionEventConsumer();
 
     @BeforeEach
     public void bootstrapAuctionServer() {
