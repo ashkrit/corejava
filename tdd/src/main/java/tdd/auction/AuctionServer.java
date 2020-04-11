@@ -15,11 +15,15 @@ public class AuctionServer {
 
     public void join(String item, String bidder, AuctionEventConsumer consumer) {
         consumers.add(consumer);
-        if (item.equals(this.item)) {
+        if (isItemOnSale(item)) {
             consumer.onJoin(item, bidder, currentPrice);
         } else {
             consumer.onNoAuction(item);
         }
+    }
+
+    private boolean isItemOnSale(String item) {
+        return item.equals(this.item);
     }
 
     public void close() {
@@ -37,5 +41,14 @@ public class AuctionServer {
     public void startSelling(String item, int price) {
         this.item = item;
         this.currentPrice = price;
+    }
+
+    public void bid(String item, String bidder, int newPrice) {
+
+        if (isItemOnSale(item)) {
+            consumers.forEach(consumer -> {
+                consumer.onPriceChanged(item, bidder, newPrice);
+            });
+        }
     }
 }

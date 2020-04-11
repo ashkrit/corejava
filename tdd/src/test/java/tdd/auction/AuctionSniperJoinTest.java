@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AuctionSniperJoinTest {
 
     AuctionServer auctionServer = new AuctionServer();
-    AuctionEventConsumer handler = new AuctionEventConsumer();
+    AuctionEventConsumer handler = new AuctionEventConsumer(auctionServer);
 
     @BeforeEach
     public void bootstrapAuctionServer() {
@@ -80,7 +80,7 @@ public class AuctionSniperJoinTest {
 
         ByteArrayOutputStream bos = overrideSysOut();
 
-        handler = new AuctionEventConsumer(new ConsoleOutputAction());
+        handler = new AuctionEventConsumer(auctionServer, new ConsoleOutputAction());
         auctionServer.startSelling("item-567", 200);
         auctionServer.join("item-567", "ABC Corp", handler);
         auctionServer.close();

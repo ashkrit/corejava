@@ -13,7 +13,7 @@ public class AuctionClientApp {
         AuctionServer server = new AuctionServer();
 
         server.startSelling(auctionItem, 9990);
-        server.join(auctionItem, "X Corp", new AuctionEventConsumer(new ConsoleOutputAction()));
+        server.join(auctionItem, "X Corp", new AuctionEventConsumer(server, new ConsoleOutputAction()));
         server.close();
 
         server.disconnect();
