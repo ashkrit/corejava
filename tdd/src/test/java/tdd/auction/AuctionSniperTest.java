@@ -30,6 +30,21 @@ public class AuctionSniperTest {
         assertEquals("lost", handler.auctionState());
     }
 
+
+    @Test
+    public void joinAuctionForAnotherItemAndLoose() {
+
+        AuctionEventHandler handler = new AuctionEventHandler();
+        auctionServer.join("item-456", "ABC Corp", handler);
+
+        auctionServer.close();
+
+        assertEquals("item-456", handler.auctionItem());
+        assertEquals(100, handler.lastPrice());
+        assertEquals("lost", handler.auctionState());
+
+    }
+
     @AfterEach
     public void closeAuctionServer() {
         auctionServer.disconnect();

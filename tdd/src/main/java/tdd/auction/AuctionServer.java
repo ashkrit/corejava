@@ -7,6 +7,7 @@ public class AuctionServer {
 
     public void join(String item, String bidder, AuctionEventHandler eventHandler) {
 
+        eventHandler.onJoin(item, bidder, 100);
     }
 
     public void close() {

@@ -1,15 +1,24 @@
 package tdd.auction;
 
 public class AuctionEventHandler {
+    private String item;
+    private String bidder;
+    private int price;
+
     public String auctionItem() {
-        return "item-123";
+        return item;
     }
 
     public int lastPrice() {
-        return 100;
+        return price;
     }
 
     public String auctionState() {
         return "lost";
+    }
+
+    public void onJoin(String item, String $, int price) {
+        this.item = item;
+        this.price = price;
     }
 }
