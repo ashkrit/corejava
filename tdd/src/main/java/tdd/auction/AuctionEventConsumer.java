@@ -1,5 +1,7 @@
 package tdd.auction;
 
+import tdd.auction.AuctionServer.BidItem;
+
 import static java.lang.String.format;
 
 public class AuctionEventConsumer {
@@ -7,10 +9,9 @@ public class AuctionEventConsumer {
     private final ConsoleOutputAction action;
     private final AuctionServer auctionServer;
 
-    private String item;
+    private BidItem bidItem;
     private String bidder;
 
-    private int price;
     private AuctionState currentState = AuctionState.Joining;
     private String message;
 
@@ -24,7 +25,7 @@ public class AuctionEventConsumer {
     }
 
     public String auctionItem() {
-        return item;
+        return bidItem.item;
     }
 
     public String message() {
@@ -32,7 +33,7 @@ public class AuctionEventConsumer {
     }
 
     public int lastPrice() {
-        return price;
+        return bidItem.price();
     }
 
     public AuctionState auctionState() {
@@ -44,10 +45,10 @@ public class AuctionEventConsumer {
     }
 
     public void onJoin(String item, String bidder, int price) {
-        this.item = item;
-        this.bidder = bidder;
 
-        this.price = price;
+        this.bidder = bidder;
+        this.bidItem = new BidItem(item, price);
+
         this.currentState = AuctionState.Joining;
 
         if (action != null) {
@@ -69,8 +70,8 @@ public class AuctionEventConsumer {
     }
 
     public void onPriceChanged(String item, String bidder, int newPrice) {
-        this.item = item;
-        this.price = newPrice;
+        this.bidItem = new BidItem(item, newPrice);
+
         this.bidder = bidder;
         if (action != null) {
             action.displayMessage(format("[%bidder] placed bid for item %s at %s $", bidder, item, newPrice));
@@ -78,6 +79,6 @@ public class AuctionEventConsumer {
     }
 
     public void placeBid(int increaseAmount) {
-        auctionServer.bid(item, bidder, price + increaseAmount);
+        auctionServer.bid(bidItem.item, bidder, bidItem.price() + increaseAmount);
     }
 }
