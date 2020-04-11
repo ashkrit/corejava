@@ -1,5 +1,8 @@
 package tdd.auction;
 
+import tdd.auction.model.Bid;
+import tdd.auction.model.Item;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +11,7 @@ import static java.util.Optional.ofNullable;
 public class AuctionServer {
 
     private final Set<AuctionEventConsumer> consumers = new HashSet<>();
-    private BidItem bidItem;
+    private Item item;
 
     public AuctionServer() {
 
@@ -18,7 +21,7 @@ public class AuctionServer {
         registerConsumer(consumer);
 
         if (isItemOnSale(item)) {
-            consumer.onJoin(item, bidder, bidItem.price());
+            consumer.onJoin(item, bidder, this.item.price());
         } else {
             consumer.onNoAuction(item);
         }
@@ -29,8 +32,8 @@ public class AuctionServer {
     }
 
     private boolean isItemOnSale(String itemToCheck) {
-        return ofNullable(bidItem)
-                .map(BidItem::item)
+        return ofNullable(item)
+                .map(Item::itemName)
                 .filter(item -> item.equals(itemToCheck))
                 .isPresent();
     }
@@ -48,30 +51,13 @@ public class AuctionServer {
     }
 
     public void startSelling(String item, int price) {
-        this.bidItem = new BidItem(item, price);
+        this.item = Item.of(item, price);
     }
 
-    public void bid(String item, String bidder, int newPrice) {
-        if (isItemOnSale(item)) {
-            consumers.forEach(consumer -> consumer.onPriceChanged(item, bidder, newPrice));
+    public void bid(Bid bid) {
+        if (isItemOnSale(bid.itemName())) {
+            consumers.forEach(consumer -> consumer.onPriceChanged(bid));
         }
     }
 
-    static class BidItem {
-        final String item;
-        final int price;
-
-        BidItem(String item, int price) {
-            this.item = item;
-            this.price = price;
-        }
-
-        public String item() {
-            return item;
-        }
-
-        public int price() {
-            return price;
-        }
-    }
 }

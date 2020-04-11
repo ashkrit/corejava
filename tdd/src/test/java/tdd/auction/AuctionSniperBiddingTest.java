@@ -19,9 +19,9 @@ public class AuctionSniperBiddingTest {
     @Test
     public void placesBidButLoseAuction() {
 
-        auctionServer.startSelling("item-10", 100);
+        auctionServer.startSelling("itemName-10", 100);
 
-        auctionServer.join("item-10", "ABCL Corp", consumer);
+        auctionServer.join("itemName-10", "ABCL Corp", consumer);
 
         consumer.placeBid(10);
 

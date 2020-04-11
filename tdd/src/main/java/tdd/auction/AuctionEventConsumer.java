@@ -1,6 +1,9 @@
 package tdd.auction;
 
-import tdd.auction.AuctionServer.BidItem;
+import tdd.auction.model.Bid;
+import tdd.auction.model.Item;
+
+import java.util.Optional;
 
 import static java.lang.String.format;
 
@@ -9,11 +12,12 @@ public class AuctionEventConsumer {
     private final ConsoleOutputAction action;
     private final AuctionServer auctionServer;
 
-    private BidItem bidItem;
+    private Item item;
     private String bidder;
 
     private AuctionState currentState = AuctionState.Joining;
     private String message;
+    private Bid lastBid;
 
     public AuctionEventConsumer(AuctionServer auctionServer) {
         this(auctionServer, null);
@@ -24,8 +28,9 @@ public class AuctionEventConsumer {
         this.auctionServer = auctionServer;
     }
 
-    public String auctionItem() {
-        return bidItem.item;
+
+    public Item auctionItem() {
+        return item;
     }
 
     public String message() {
@@ -33,7 +38,7 @@ public class AuctionEventConsumer {
     }
 
     public int lastPrice() {
-        return bidItem.price();
+        return Optional.ofNullable(lastBid).map(Bid::price).orElseGet(() -> item.price());
     }
 
     public AuctionState auctionState() {
@@ -47,12 +52,12 @@ public class AuctionEventConsumer {
     public void onJoin(String item, String bidder, int price) {
 
         this.bidder = bidder;
-        this.bidItem = new BidItem(item, price);
+        this.item = Item.of(item, price);
 
         this.currentState = AuctionState.Joining;
 
         if (action != null) {
-            action.displayMessage(format("%s Joined auction for %s item and it is trading at %s$", bidder, item, price));
+            action.displayMessage(format("%s Joined auction for %s itemName and it is trading at %s$", bidder, item, price));
         }
 
     }
@@ -69,16 +74,17 @@ public class AuctionEventConsumer {
         this.message = format("No auction going on %s", item);
     }
 
-    public void onPriceChanged(String item, String bidder, int newPrice) {
-        this.bidItem = new BidItem(item, newPrice);
+    public void onPriceChanged(Bid bid) {
+        this.lastBid = bid;
 
-        this.bidder = bidder;
         if (action != null) {
-            action.displayMessage(format("[%bidder] placed bid for item %s at %s $", bidder, item, newPrice));
+            action.displayMessage(format("[%bidder] placed bid for item %s at %s $", this.lastBid.getBidder(), lastBid.itemName(), lastBid.price()));
         }
     }
 
     public void placeBid(int increaseAmount) {
-        auctionServer.bid(bidItem.item, bidder, bidItem.price() + increaseAmount);
+        int newPrice = lastPrice() + increaseAmount;
+        Item adjustedItem = Item.of(item.itemName(), newPrice);
+        auctionServer.bid(new Bid(bidder, adjustedItem));
     }
 }

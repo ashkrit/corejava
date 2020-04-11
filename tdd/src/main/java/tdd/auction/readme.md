@@ -19,10 +19,10 @@ Bidder* <-> (Message Broker) ->Auction House
 Kafka or equalivent will be used as message broker
 
 Commands
-Start - Auction house starts Auction for item
+Start - Auction house starts Auction for itemName
 Join - Bidder join auction
 Bid - Bidder places bid
-Price - Current price of item
+Price - Current price of itemName
 Close - Auction closed. Winner details are shared
 
 
