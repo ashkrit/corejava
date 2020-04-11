@@ -3,6 +3,8 @@ package tdd.auction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tdd.auction.server.AuctionServer;
+import tdd.auction.server.InMemoryAuctionServer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -12,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuctionSniperJoinTest {
 
-    AuctionServer auctionServer = new AuctionServer();
+    AuctionServer auctionServer = new InMemoryAuctionServer();
     AuctionEventConsumer handler = new AuctionEventConsumer(auctionServer);
 
     @BeforeEach
@@ -25,7 +27,7 @@ public class AuctionSniperJoinTest {
 
         auctionServer.startSelling("itemName-123", 100);
         auctionServer.join("itemName-123", "ABC Corp", handler);
-        auctionServer.close();
+        auctionServer.auctionClosed();
 
         assertEquals("ABC Corp", handler.bidder());
         assertEquals("itemName-123", handler.auctionItem().itemName());
@@ -40,7 +42,7 @@ public class AuctionSniperJoinTest {
 
         auctionServer.startSelling("itemName-567", 100);
         auctionServer.join("itemName-567", "ABC Corp", handler);
-        auctionServer.close();
+        auctionServer.auctionClosed();
 
 
         assertEquals("ABC Corp", handler.bidder());
@@ -56,7 +58,7 @@ public class AuctionSniperJoinTest {
 
         auctionServer.startSelling("itemName-567", basePrice);
         auctionServer.join("itemName-567", "ABC Corp", handler);
-        auctionServer.close();
+        auctionServer.auctionClosed();
 
 
         assertEquals("ABC Corp", handler.bidder());
@@ -83,7 +85,7 @@ public class AuctionSniperJoinTest {
         handler = new AuctionEventConsumer(auctionServer, new ConsoleOutputAction());
         auctionServer.startSelling("itemName-567", 200);
         auctionServer.join("itemName-567", "ABC Corp", handler);
-        auctionServer.close();
+        auctionServer.auctionClosed();
 
         String[] messages = new String(bos.toByteArray()).split("\r\n");
         assertEquals("[ABC Corp] Joined auction for itemName-567 itemName and it is trading at 200$", messages[0]);

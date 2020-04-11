@@ -1,5 +1,6 @@
-package tdd.auction;
+package tdd.auction.server;
 
+import tdd.auction.AuctionEventConsumer;
 import tdd.auction.model.Bid;
 import tdd.auction.model.Item;
 
@@ -8,15 +9,16 @@ import java.util.Set;
 
 import static java.util.Optional.ofNullable;
 
-public class AuctionServer {
+public class InMemoryAuctionServer implements AuctionServer {
 
     private final Set<AuctionEventConsumer> consumers = new HashSet<>();
     private Item item;
 
-    public AuctionServer() {
+    public InMemoryAuctionServer() {
 
     }
 
+    @Override
     public void join(String item, String bidder, AuctionEventConsumer consumer) {
         registerConsumer(consumer);
 
@@ -38,22 +40,18 @@ public class AuctionServer {
                 .isPresent();
     }
 
-    public void close() {
+    @Override
+    public void auctionClosed() {
         consumers.forEach(AuctionEventConsumer::onLost);
     }
 
-    public void disconnect() {
 
-    }
-
-    public void start() {
-
-    }
-
+    @Override
     public void startSelling(String item, int price) {
         this.item = Item.of(item, price);
     }
 
+    @Override
     public void bid(Bid bid) {
         if (isItemOnSale(bid.itemName())) {
             consumers.forEach(consumer -> consumer.onPriceChanged(bid));

@@ -2,6 +2,7 @@ package tdd.auction;
 
 import tdd.auction.model.Bid;
 import tdd.auction.model.Item;
+import tdd.auction.server.AuctionServer;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;

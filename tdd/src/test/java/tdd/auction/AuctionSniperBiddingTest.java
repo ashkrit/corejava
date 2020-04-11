@@ -3,12 +3,14 @@ package tdd.auction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tdd.auction.server.AuctionServer;
+import tdd.auction.server.InMemoryAuctionServer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuctionSniperBiddingTest {
 
-    AuctionServer auctionServer = new AuctionServer();
+    AuctionServer auctionServer = new InMemoryAuctionServer();
     AuctionEventConsumer consumer = new AuctionEventConsumer(auctionServer);
 
     @BeforeEach
@@ -25,7 +27,7 @@ public class AuctionSniperBiddingTest {
 
         consumer.placeBid(10);
 
-        auctionServer.close();
+        auctionServer.auctionClosed();
 
         assertEquals(110, consumer.lastPrice());
         assertEquals(AuctionState.Lost, consumer.auctionState());
