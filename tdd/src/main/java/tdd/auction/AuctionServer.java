@@ -3,6 +3,8 @@ package tdd.auction;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.util.Optional.ofNullable;
+
 public class AuctionServer {
 
     private final Set<AuctionEventConsumer> consumers = new HashSet<>();
@@ -16,7 +18,7 @@ public class AuctionServer {
         registerConsumer(consumer);
 
         if (isItemOnSale(item)) {
-            consumer.onJoin(item, bidder, bidItem.price);
+            consumer.onJoin(item, bidder, bidItem.price());
         } else {
             consumer.onNoAuction(item);
         }
@@ -26,8 +28,11 @@ public class AuctionServer {
         consumers.add(consumer);
     }
 
-    private boolean isItemOnSale(String item) {
-        return bidItem != null && item.equals(this.bidItem.item);
+    private boolean isItemOnSale(String itemToCheck) {
+        return ofNullable(bidItem)
+                .map(BidItem::item)
+                .filter(item -> item.equals(itemToCheck))
+                .isPresent();
     }
 
     public void close() {
@@ -47,7 +52,6 @@ public class AuctionServer {
     }
 
     public void bid(String item, String bidder, int newPrice) {
-
         if (isItemOnSale(item)) {
             consumers.forEach(consumer -> consumer.onPriceChanged(item, bidder, newPrice));
         }
