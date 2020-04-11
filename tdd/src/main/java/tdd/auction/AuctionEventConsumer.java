@@ -3,9 +3,8 @@ package tdd.auction;
 import tdd.auction.model.Bid;
 import tdd.auction.model.Item;
 
-import java.util.Optional;
-
 import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
 
 public class AuctionEventConsumer {
 
@@ -38,7 +37,9 @@ public class AuctionEventConsumer {
     }
 
     public int lastPrice() {
-        return Optional.ofNullable(lastBid).map(Bid::price).orElseGet(() -> item.price());
+        return ofNullable(lastBid)
+                .map(Bid::price)
+                .orElseGet(() -> item.price());
     }
 
     public AuctionState auctionState() {
@@ -57,7 +58,7 @@ public class AuctionEventConsumer {
         this.currentState = AuctionState.Joining;
 
         if (action != null) {
-            action.displayMessage(format("%s Joined auction for %s itemName and it is trading at %s$", bidder, item, price));
+            action.displayMessage(format("[%s] Joined auction for %s itemName and it is trading at %s$", bidder, item, price));
         }
 
     }
@@ -65,7 +66,7 @@ public class AuctionEventConsumer {
     public void onLost() {
         this.currentState = AuctionState.Lost;
         if (action != null) {
-            action.displayMessage(format("%s lost auction", bidder));
+            action.displayMessage(format("[%s] lost auction", bidder));
         }
     }
 
@@ -78,7 +79,7 @@ public class AuctionEventConsumer {
         this.lastBid = bid;
 
         if (action != null) {
-            action.displayMessage(format("[%bidder] placed bid for item %s at %s $", this.lastBid.getBidder(), lastBid.itemName(), lastBid.price()));
+            action.displayMessage(format("[%s] placed bid for item %s at %s $", this.lastBid.getBidder(), lastBid.itemName(), lastBid.price()));
         }
     }
 

@@ -86,8 +86,8 @@ public class AuctionSniperJoinTest {
         auctionServer.close();
 
         String[] messages = new String(bos.toByteArray()).split("\r\n");
-        assertEquals("ABC Corp Joined auction for itemName-567 itemName and it is trading at 200$", messages[0]);
-        assertEquals("ABC Corp lost auction", messages[1]);
+        assertEquals("[ABC Corp] Joined auction for itemName-567 itemName and it is trading at 200$", messages[0]);
+        assertEquals("[ABC Corp] lost auction", messages[1]);
     }
 
     @AfterEach
