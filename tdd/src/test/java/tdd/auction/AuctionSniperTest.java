@@ -5,6 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,9 +75,31 @@ public class AuctionSniperTest {
         assertEquals("No auction going on item-567", handler.message());
     }
 
+
+    @Test
+    public void showsEventMessageOnConsole() {
+
+        ByteArrayOutputStream bos = overrideSysOut();
+
+        handler = new AuctionEventConsumer(new ConsoleOutputAction());
+        auctionServer.startSelling("item-567", 200);
+        auctionServer.join("item-567", "ABC Corp", handler);
+        auctionServer.close();
+
+        String[] messages = new String(bos.toByteArray()).split("\r\n");
+        assertEquals("ABC Corp Joined auction for item-567 item and it is trading at 200$", messages[0]);
+        assertEquals("ABC Corp lost auction", messages[1]);
+    }
+
     @AfterEach
     public void closeAuctionServer() {
         auctionServer.disconnect();
+    }
+
+    private ByteArrayOutputStream overrideSysOut() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(bos));
+        return bos;
     }
 
 }
