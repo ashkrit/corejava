@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AuctionSniperTest {
 
     AuctionServer auctionServer = new AuctionServer();
+    AuctionEventHandler handler = new AuctionEventHandler();
 
     @BeforeEach
     public void bootstrapAuctionServer() {
@@ -19,29 +20,29 @@ public class AuctionSniperTest {
     @Test
     public void joinsUntilAuctionCloses() {
 
-        AuctionEventHandler handler = new AuctionEventHandler();
-
         auctionServer.join("item-123", "ABC Corp", handler);
 
         auctionServer.close();
 
+        assertEquals("ABC Corp", handler.bidder());
         assertEquals("item-123", handler.auctionItem());
         assertEquals(100, handler.lastPrice());
-        assertEquals("lost", handler.auctionState());
+        assertEquals(AuctionState.Lost, handler.auctionState());
     }
 
 
     @Test
     public void joinAuctionForAnotherItemAndLoose() {
 
-        AuctionEventHandler handler = new AuctionEventHandler();
+
         auctionServer.join("item-456", "ABC Corp", handler);
 
         auctionServer.close();
 
+        assertEquals("ABC Corp", handler.bidder());
         assertEquals("item-456", handler.auctionItem());
         assertEquals(100, handler.lastPrice());
-        assertEquals("lost", handler.auctionState());
+        assertEquals(AuctionState.Lost, handler.auctionState());
 
     }
 

@@ -4,6 +4,7 @@ public class AuctionEventHandler {
     private String item;
     private String bidder;
     private int price;
+    private AuctionState currentState = AuctionState.Joining;
 
     public String auctionItem() {
         return item;
@@ -13,12 +14,22 @@ public class AuctionEventHandler {
         return price;
     }
 
-    public String auctionState() {
-        return "lost";
+    public AuctionState auctionState() {
+        return currentState;
     }
 
-    public void onJoin(String item, String $, int price) {
+    public String bidder() {
+        return bidder;
+    }
+
+    public void onJoin(String item, String bidder, int price) {
         this.item = item;
         this.price = price;
+        this.bidder = bidder;
+        this.currentState = AuctionState.Joining;
+    }
+
+    public void onLost() {
+        this.currentState = AuctionState.Lost;
     }
 }
