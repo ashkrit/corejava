@@ -5,9 +5,14 @@ public class AuctionEventHandler {
     private String bidder;
     private int price;
     private AuctionState currentState = AuctionState.Joining;
+    private String message;
 
     public String auctionItem() {
         return item;
+    }
+
+    public String message() {
+        return message;
     }
 
     public int lastPrice() {
@@ -31,5 +36,10 @@ public class AuctionEventHandler {
 
     public void onLost() {
         this.currentState = AuctionState.Lost;
+    }
+
+    public void onNoAuction(String item) {
+        this.currentState = AuctionState.NoAuction;
+        this.message = String.format("No auction going on %s", item);
     }
 }

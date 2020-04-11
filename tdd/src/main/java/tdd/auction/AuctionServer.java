@@ -15,7 +15,11 @@ public class AuctionServer {
 
     public void join(String item, String bidder, AuctionEventHandler eventHandler) {
         bidders.add(eventHandler);
-        eventHandler.onJoin(item, bidder, currentPrice);
+        if (item.equals(this.item)) {
+            eventHandler.onJoin(item, bidder, currentPrice);
+        } else {
+            eventHandler.onNoAuction(item);
+        }
     }
 
     public void close() {

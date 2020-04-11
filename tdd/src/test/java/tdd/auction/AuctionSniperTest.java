@@ -17,22 +17,18 @@ public class AuctionSniperTest {
     @BeforeEach
     public void bootstrapAuctionServer() {
         auctionServer.start();
-
     }
 
     @Test
     public void joinsUntilAuctionCloses() {
 
-        String itemOnAuction = "item-123";
-        int basePrice = 100;
-
-        auctionServer.startSelling(itemOnAuction, basePrice);
-        auctionServer.join(itemOnAuction, "ABC Corp", handler);
+        auctionServer.startSelling("item-123", 100);
+        auctionServer.join("item-123", "ABC Corp", handler);
         auctionServer.close();
 
         assertEquals("ABC Corp", handler.bidder());
-        assertEquals(itemOnAuction, handler.auctionItem());
-        assertEquals(basePrice, handler.lastPrice());
+        assertEquals("item-123", handler.auctionItem());
+        assertEquals(100, handler.lastPrice());
         assertEquals(AuctionState.Lost, handler.auctionState());
     }
 
@@ -41,36 +37,40 @@ public class AuctionSniperTest {
     public void joinAuctionForAnotherItemAndLoose() {
 
 
-        String itemOnAuction = "item-567";
-        int basePrice = 100;
-
-        auctionServer.startSelling(itemOnAuction, basePrice);
-        auctionServer.join(itemOnAuction, "ABC Corp", handler);
+        auctionServer.startSelling("item-567", 100);
+        auctionServer.join("item-567", "ABC Corp", handler);
         auctionServer.close();
 
 
         assertEquals("ABC Corp", handler.bidder());
-        assertEquals(itemOnAuction, handler.auctionItem());
-        assertEquals(basePrice, handler.lastPrice());
+        assertEquals("item-567", handler.auctionItem());
+        assertEquals(100, handler.lastPrice());
         assertEquals(AuctionState.Lost, handler.auctionState());
     }
 
     @Test
     public void joinAuctionForItemAtSomeRandomPriceAndLoose() {
 
-        String itemOnAuction = "item-567";
         int basePrice = new Random().nextInt(999);
 
-        auctionServer.startSelling(itemOnAuction, basePrice);
-        auctionServer.join(itemOnAuction, "ABC Corp", handler);
+        auctionServer.startSelling("item-567", basePrice);
+        auctionServer.join("item-567", "ABC Corp", handler);
         auctionServer.close();
 
 
         assertEquals("ABC Corp", handler.bidder());
-        assertEquals(itemOnAuction, handler.auctionItem());
+        assertEquals("item-567", handler.auctionItem());
         assertEquals(basePrice, handler.lastPrice());
         assertEquals(AuctionState.Lost, handler.auctionState());
 
+    }
+
+    @Test
+    public void joiningFailsWhenNoAuctionIsGoingOnForItem() {
+
+        auctionServer.join("item-567", "ABC Corp", handler);
+        assertEquals(AuctionState.NoAuction, handler.auctionState());
+        assertEquals("No auction going on item-567", handler.message());
     }
 
     @AfterEach
