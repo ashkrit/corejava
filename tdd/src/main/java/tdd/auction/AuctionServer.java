@@ -12,4 +12,12 @@ public class AuctionServer {
     public void close() {
 
     }
+
+    public void disconnect() {
+
+    }
+
+    public void start() {
+
+    }
 }
