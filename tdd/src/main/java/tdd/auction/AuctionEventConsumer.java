@@ -7,7 +7,7 @@ import tdd.auction.server.AuctionServer;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 
-public class AuctionEventConsumer {
+public class AuctionEventConsumer implements AuctionEvents {
 
     private final ConsoleOutputAction action;
     private final AuctionServer auctionServer;
@@ -51,11 +51,11 @@ public class AuctionEventConsumer {
         return bidder;
     }
 
+    @Override
     public void onJoin(String item, String bidder, int price) {
 
         this.bidder = bidder;
         this.item = Item.of(item, price);
-
         this.currentState = AuctionState.Joining;
 
         if (action != null) {
@@ -64,6 +64,7 @@ public class AuctionEventConsumer {
 
     }
 
+    @Override
     public void onLost() {
         this.currentState = AuctionState.Lost;
         if (action != null) {
@@ -71,14 +72,15 @@ public class AuctionEventConsumer {
         }
     }
 
+    @Override
     public void onNoAuction(String item) {
         this.currentState = AuctionState.NoAuction;
         this.message = format("No auction going on %s", item);
     }
 
+    @Override
     public void onPriceChanged(Bid bid) {
         this.lastBid = bid;
-
         if (action != null) {
             action.displayMessage(format("[%s] placed bid for item %s at %s $", this.lastBid.getBidder(), lastBid.itemName(), lastBid.price()));
         }

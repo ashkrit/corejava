@@ -1,6 +1,6 @@
 package tdd.auction.server;
 
-import tdd.auction.AuctionEventConsumer;
+import tdd.auction.AuctionEvents;
 import tdd.auction.model.Bid;
 import tdd.auction.model.Item;
 
@@ -11,7 +11,7 @@ import static java.util.Optional.ofNullable;
 
 public class InMemoryAuctionServer implements AuctionServer {
 
-    private final Set<AuctionEventConsumer> consumers = new HashSet<>();
+    private final Set<AuctionEvents> consumers = new HashSet<>();
     private Item item;
 
     public InMemoryAuctionServer() {
@@ -19,7 +19,7 @@ public class InMemoryAuctionServer implements AuctionServer {
     }
 
     @Override
-    public void join(String item, String bidder, AuctionEventConsumer consumer) {
+    public void join(String item, String bidder, AuctionEvents consumer) {
         registerConsumer(consumer);
 
         if (isItemOnSale(item)) {
@@ -29,7 +29,7 @@ public class InMemoryAuctionServer implements AuctionServer {
         }
     }
 
-    private void registerConsumer(AuctionEventConsumer consumer) {
+    private void registerConsumer(AuctionEvents consumer) {
         consumers.add(consumer);
     }
 
@@ -42,7 +42,7 @@ public class InMemoryAuctionServer implements AuctionServer {
 
     @Override
     public void auctionClosed() {
-        consumers.forEach(AuctionEventConsumer::onLost);
+        consumers.forEach(AuctionEvents::onLost);
     }
 
 
