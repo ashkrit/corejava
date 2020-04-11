@@ -5,19 +5,21 @@ import java.util.Set;
 
 public class AuctionServer {
 
-    Set<AuctionEventHandler> handlers = new HashSet<>();
+    private final Set<AuctionEventHandler> bidders = new HashSet<>();
+    private String item;
+    private int currentPrice;
 
     public AuctionServer() {
 
     }
 
     public void join(String item, String bidder, AuctionEventHandler eventHandler) {
-        handlers.add(eventHandler);
-        eventHandler.onJoin(item, bidder, 100);
+        bidders.add(eventHandler);
+        eventHandler.onJoin(item, bidder, currentPrice);
     }
 
     public void close() {
-        handlers.forEach(AuctionEventHandler::onLost);
+        bidders.forEach(AuctionEventHandler::onLost);
     }
 
     public void disconnect() {
@@ -26,5 +28,10 @@ public class AuctionServer {
 
     public void start() {
 
+    }
+
+    public void startSelling(String item, int price) {
+        this.item = item;
+        this.currentPrice = price;
     }
 }

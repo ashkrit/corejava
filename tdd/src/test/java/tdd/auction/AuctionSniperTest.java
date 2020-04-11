@@ -5,6 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AuctionSniperTest {
@@ -15,18 +17,22 @@ public class AuctionSniperTest {
     @BeforeEach
     public void bootstrapAuctionServer() {
         auctionServer.start();
+
     }
 
     @Test
     public void joinsUntilAuctionCloses() {
 
-        auctionServer.join("item-123", "ABC Corp", handler);
+        String itemOnAuction = "item-123";
+        int basePrice = 100;
 
+        auctionServer.startSelling(itemOnAuction, basePrice);
+        auctionServer.join(itemOnAuction, "ABC Corp", handler);
         auctionServer.close();
 
         assertEquals("ABC Corp", handler.bidder());
-        assertEquals("item-123", handler.auctionItem());
-        assertEquals(100, handler.lastPrice());
+        assertEquals(itemOnAuction, handler.auctionItem());
+        assertEquals(basePrice, handler.lastPrice());
         assertEquals(AuctionState.Lost, handler.auctionState());
     }
 
@@ -35,13 +41,34 @@ public class AuctionSniperTest {
     public void joinAuctionForAnotherItemAndLoose() {
 
 
-        auctionServer.join("item-456", "ABC Corp", handler);
+        String itemOnAuction = "item-567";
+        int basePrice = 100;
 
+        auctionServer.startSelling(itemOnAuction, basePrice);
+        auctionServer.join(itemOnAuction, "ABC Corp", handler);
         auctionServer.close();
 
+
         assertEquals("ABC Corp", handler.bidder());
-        assertEquals("item-456", handler.auctionItem());
-        assertEquals(100, handler.lastPrice());
+        assertEquals(itemOnAuction, handler.auctionItem());
+        assertEquals(basePrice, handler.lastPrice());
+        assertEquals(AuctionState.Lost, handler.auctionState());
+    }
+
+    @Test
+    public void joinAuctionForItemAtSomeRandomPriceAndLoose() {
+
+        String itemOnAuction = "item-567";
+        int basePrice = new Random().nextInt(999);
+
+        auctionServer.startSelling(itemOnAuction, basePrice);
+        auctionServer.join(itemOnAuction, "ABC Corp", handler);
+        auctionServer.close();
+
+
+        assertEquals("ABC Corp", handler.bidder());
+        assertEquals(itemOnAuction, handler.auctionItem());
+        assertEquals(basePrice, handler.lastPrice());
         assertEquals(AuctionState.Lost, handler.auctionState());
 
     }
