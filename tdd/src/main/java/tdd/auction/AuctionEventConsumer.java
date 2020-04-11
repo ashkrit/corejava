@@ -45,9 +45,11 @@ public class AuctionEventConsumer {
 
     public void onJoin(String item, String bidder, int price) {
         this.item = item;
-        this.price = price;
         this.bidder = bidder;
+
+        this.price = price;
         this.currentState = AuctionState.Joining;
+
         if (action != null) {
             action.displayMessage(format("%s Joined auction for %s item and it is trading at %s$", bidder, item, price));
         }

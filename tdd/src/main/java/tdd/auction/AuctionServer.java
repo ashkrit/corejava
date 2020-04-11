@@ -6,24 +6,28 @@ import java.util.Set;
 public class AuctionServer {
 
     private final Set<AuctionEventConsumer> consumers = new HashSet<>();
-    private String item;
-    private int currentPrice;
+    private BidItem bidItem;
 
     public AuctionServer() {
 
     }
 
     public void join(String item, String bidder, AuctionEventConsumer consumer) {
-        consumers.add(consumer);
+        registerConsumer(consumer);
+
         if (isItemOnSale(item)) {
-            consumer.onJoin(item, bidder, currentPrice);
+            consumer.onJoin(item, bidder, bidItem.price);
         } else {
             consumer.onNoAuction(item);
         }
     }
 
+    private void registerConsumer(AuctionEventConsumer consumer) {
+        consumers.add(consumer);
+    }
+
     private boolean isItemOnSale(String item) {
-        return item.equals(this.item);
+        return bidItem != null && item.equals(this.bidItem.item);
     }
 
     public void close() {
@@ -39,16 +43,31 @@ public class AuctionServer {
     }
 
     public void startSelling(String item, int price) {
-        this.item = item;
-        this.currentPrice = price;
+        this.bidItem = new BidItem(item, price);
     }
 
     public void bid(String item, String bidder, int newPrice) {
 
         if (isItemOnSale(item)) {
-            consumers.forEach(consumer -> {
-                consumer.onPriceChanged(item, bidder, newPrice);
-            });
+            consumers.forEach(consumer -> consumer.onPriceChanged(item, bidder, newPrice));
+        }
+    }
+
+    static class BidItem {
+        final String item;
+        final int price;
+
+        BidItem(String item, int price) {
+            this.item = item;
+            this.price = price;
+        }
+
+        public String item() {
+            return item;
+        }
+
+        public int price() {
+            return price;
         }
     }
 }
