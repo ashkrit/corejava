@@ -7,6 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/*
+    This is using single Int to manage 32 locks in thread safe way. This has less memory usage as compared to JDK lock which uses Int to manage single lock.
+ */
+
 public class Locks {
     public static final int INT_BYTES = 32;
     private AtomicInteger lock = new AtomicInteger(0);

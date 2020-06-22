@@ -2,6 +2,12 @@ package bitfiddle.apps;
 
 import bitfiddle.MoreInts;
 
+/*
+    Represents virtual Disk with X capacity. If system contains N disk then N copies are required to get full fault tolerance.
+    Using 0XR - for every pair of Disk we can just keep only copy using XOR and it is possible to restore any of the failed disk using XOR copy.
+    This reduces disk requirement by 50%.
+ */
+
 public class RaidDisk {
 
     private final byte[] bytes;
