@@ -3,6 +3,8 @@ package bitfiddle.tricks;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static bitfiddle.Bits.*;
 import static bitfiddle.MoreInts.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,6 +76,33 @@ public class BitsTest {
         assertEquals("10100101", toBinary((byte) toggle(lock, 1)));
         assertEquals("10000100", toBinary((byte) toggle(lock, 6)));
         assertEquals("00100100", toBinary((byte) toggle(lock, 8)));
+    }
+
+
+    @Test
+    public void mask() {
+
+        for (int s = 1; s < 31; s++) {
+            int o = 1 << s;
+            System.out.println(o + " -> " + Integer.toBinaryString(o) + " \t " + (o - 1));
+        }
+        int x = 1 << 8;
+        System.out.println(x);
+        int mask = x & (x - 1);
+
+        for (int i = 0; i < 0; i++) {
+            String id = UUID.randomUUID().toString();
+            System.out.println(id + "->" + hash(x, id) + " " + mod(x, id));
+        }
+
+    }
+
+    private int hash(int x, String id) {
+        return id.hashCode() & (x - 1);
+    }
+
+    private int mod(int x, String id) {
+        return Math.abs(id.hashCode()) % x;
     }
 
 }
