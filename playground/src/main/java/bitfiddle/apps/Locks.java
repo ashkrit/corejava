@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class AtomicLock {
+public class Locks {
     public static final int INT_BYTES = 32;
     private AtomicInteger lock = new AtomicInteger(0);
 

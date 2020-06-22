@@ -1,9 +1,7 @@
 package bitfiddle;
 
 public class Bits {
-    /*
-       operator(& , >>) is useful for doing this.
-     */
+    /*  operator(& , >>) is useful for doing this. */
     public static int countBits(int value) {
         int count = 0;
         while (value != 0) {
