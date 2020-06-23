@@ -44,7 +44,7 @@ public class Bits {
     public static int powOf2(int size) {
         if (size == 1) return 2;
 
-        int capacity = size - 1;
+        int capacity = 1;
         while (capacity < size) {
             capacity <<= 1;
         }

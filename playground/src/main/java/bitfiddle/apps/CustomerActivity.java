@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.stream.IntStream;
 
+import static bitfiddle.Bits.countBits;
+
 /*
   E-commerce company wants to keep tracks of days customer was active in given year.
   This example shows usage of bit operator ( << , | , &) & bit count
@@ -27,27 +29,19 @@ public class CustomerActivity {
     public void record(LocalDate day) {
         int monthOffSet = day.getMonthValue() - 1;
         int monthValue = months[monthOffSet];
-        months[monthOffSet] = setDayBit(day, monthValue);
-    }
-
-    private int setDayBit(LocalDate day, int monthValue) {
-        return monthValue | createDayBit(day); // OR(|) Required for setting value
-    }
-
-    private int createDayBit(LocalDate day) {
-        return 1 << (day.getDayOfMonth() - 1); // Shift is required to set specific bit
+        months[monthOffSet] = monthValue | 1 << (day.getDayOfMonth() - 1);
     }
 
     public int daysActive(Month month) {
         int monthValue = months[month.ordinal()];
-        return Bits.countBits(monthValue);
+        return countBits(monthValue);
     }
 
     public boolean wasActive(LocalDate day) {
         int monthOffSet = day.getMonthValue() - 1;
         int monthValue = months[monthOffSet];
-        int dayBit = createDayBit(day);
-        return Bits.countBits(monthValue & dayBit) > 0;
+        int dayBit = 1 << (day.getDayOfMonth() - 1);
+        return (monthValue & dayBit) > 0;
     }
 
 
