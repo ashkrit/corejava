@@ -14,7 +14,6 @@ public class TransmissionTest {
     @Test
     public void verify_good_transfer() {
         byte pData = transmit(oddParity(toByte("1001")));
-
         assertTrue(verify(pData));
     }
 

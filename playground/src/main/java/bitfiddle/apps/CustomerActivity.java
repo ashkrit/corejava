@@ -40,8 +40,7 @@ public class CustomerActivity {
     public boolean wasActive(LocalDate day) {
         int monthOffSet = day.getMonthValue() - 1;
         int monthValue = months[monthOffSet];
-        int dayBit = 1 << (day.getDayOfMonth() - 1);
-        return (monthValue & dayBit) > 0;
+        return (monthValue & 1 << (day.getDayOfMonth() - 1)) > 0;
     }
 
 
