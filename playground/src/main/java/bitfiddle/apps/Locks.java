@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /*
-    This is using single Int to manage 32 locks in thread safe way. This has less memory usage as compared to JDK lock which uses Int to manage single lock.
+    This is using single Int to manage 32 locks in thread safe way.
+    This has less memory usage as compared to JDK lock which uses one Int(32 Bytes) to manage single lock.
  */
 
 public class Locks {

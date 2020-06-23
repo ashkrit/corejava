@@ -20,8 +20,9 @@ public class RingBuffer<T> {
         buffer = new Object[this.capacity];
     }
 
-    public int capacity() {
-        return capacity;
+    private int offset(int index) {
+        return index & mask;
+        //return index % capacity;
     }
 
     public boolean write(T value) {
@@ -45,9 +46,8 @@ public class RingBuffer<T> {
         return write - read;
     }
 
-    private int offset(int index) {
-        return index & mask;
-        //return index % capacity;
+    public int capacity() {
+        return capacity;
     }
 
 }
