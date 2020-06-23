@@ -1,7 +1,9 @@
 package bitfiddle;
 
 public class Bits {
-    /*  operator(& , >>) is useful for doing this. */
+    /*
+    Integer.bitCount is much more efficient way of doing this but this example is used to simplicity.
+    */
     public static int countBits(int value) {
         int count = 0;
         while (value != 0) {
@@ -23,19 +25,19 @@ public class Bits {
         return (byte) v;
     }
 
-    public static int set(int lock, int i) {
-        return (lock | (1 << i - 1));
+    public static int set(int value, int i) {
+        return (value | (1 << i - 1));
     }
 
-    public static int clear(int lock, int i) {
-        return (lock & ~(1 << i - 1));
+    public static int clear(int value, int i) {
+        return (value & ~(1 << i - 1));
     }
 
-    public static int toggle(int lock, int i) {
-        return (lock ^ (1 << i - 1));
+    public static int toggle(int value, int i) {
+        return (value ^ (1 << i - 1));
     }
 
-    public static boolean isSet(int lock, int i) {
-        return (lock & (1 << i - 1)) > 0;
+    public static boolean isSet(int value, int i) {
+        return (value & (1 << i - 1)) > 0;
     }
 }

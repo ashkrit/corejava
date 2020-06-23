@@ -34,6 +34,10 @@ public class CustomerActivity {
         return monthValue | createDayBit(day);
     }
 
+    private int createDayBit(LocalDate day) {
+        return 1 << (day.getDayOfMonth() - 1);
+    }
+
     public int daysActive(Month month) {
         int monthValue = months[month.ordinal()];
         return Bits.countBits(monthValue);
@@ -46,9 +50,6 @@ public class CustomerActivity {
         return Bits.countBits(monthValue & dayBit) > 0;
     }
 
-    private int createDayBit(LocalDate day) {
-        return 1 << (day.getDayOfMonth() - 1);
-    }
 
     public void prettyPrint() {
         IntStream
