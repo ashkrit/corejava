@@ -1,6 +1,8 @@
 package bitfiddle.tricks;
 
 
+import bitfiddle.Bits;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -76,5 +78,14 @@ public class BitsTest {
         assertEquals("10100101", toBinary((byte) toggle(lock, 1)));
         assertEquals("10000100", toBinary((byte) toggle(lock, 6)));
         assertEquals("00100100", toBinary((byte) toggle(lock, 8)));
+    }
+
+    @Test
+    public void gets_pow2_for_value_less_than_10() {
+        assertEquals(2, Bits.powOf2(1));
+        assertEquals(2, Bits.powOf2(2));
+        assertEquals(4, Bits.powOf2(3));
+        assertEquals(8, Bits.powOf2(5));
+        assertEquals(16, Bits.powOf2(9));
     }
 }

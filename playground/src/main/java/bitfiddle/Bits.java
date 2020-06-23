@@ -40,4 +40,14 @@ public class Bits {
     public static boolean isSet(int value, int i) {
         return (value & (1 << i - 1)) > 0;
     }
+
+    public static int powOf2(int size) {
+        if (size == 1) return 2;
+
+        int capacity = size - 1;
+        while (capacity < size) {
+            capacity <<= 1;
+        }
+        return capacity;
+    }
 }

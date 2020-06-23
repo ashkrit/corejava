@@ -31,11 +31,11 @@ public class CustomerActivity {
     }
 
     private int setDayBit(LocalDate day, int monthValue) {
-        return monthValue | createDayBit(day);
+        return monthValue | createDayBit(day); // OR(|) Required for setting value
     }
 
     private int createDayBit(LocalDate day) {
-        return 1 << (day.getDayOfMonth() - 1);
+        return 1 << (day.getDayOfMonth() - 1); // Shift is required to set specific bit
     }
 
     public int daysActive(Month month) {

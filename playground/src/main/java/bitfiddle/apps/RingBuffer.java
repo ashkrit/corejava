@@ -1,5 +1,7 @@
 package bitfiddle.apps;
 
+import bitfiddle.Bits;
+
 /*
     Mod(%) is very CPU intensive and current CPU has only 2 ports for doing ( % , /) operation but it has 5 ports for doing bitwise operation.
     In this example Mod(%) is computed using '&' operator by taking advantage of Pow of 2 capacity.
@@ -13,7 +15,7 @@ public class RingBuffer<T> {
     private int write = 0;
 
     public RingBuffer(int size) {
-        this.capacity = powOf2(size);
+        this.capacity = Bits.powOf2(size);
         this.mask = capacity - 1;
         buffer = new Object[this.capacity];
     }
@@ -48,11 +50,4 @@ public class RingBuffer<T> {
         //return index % capacity;
     }
 
-    private int powOf2(int size) {
-        int capacity = 1;
-        while (capacity < size) {
-            capacity <<= 1;
-        }
-        return capacity;
-    }
 }
