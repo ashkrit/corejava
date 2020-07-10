@@ -179,7 +179,7 @@ public class PersistentBuffer<T> implements RecordContainer<T>, Closeable {
     }
 
     @Override
-    public boolean write(T message) {
+    public boolean append(T message) {
         byte[] bytes = writer.toBytes(message);
         return writeMessage(bytes);
     }

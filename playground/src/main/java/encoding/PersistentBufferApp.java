@@ -16,7 +16,7 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class BufferApp {
+public class PersistentBufferApp {
 
     static int MB = 1024 * 1024;
 
@@ -45,16 +45,6 @@ public class BufferApp {
         process(new PersistentBuffer<>("json", toFile(location, "trade_json.segment.0"), segmentSize, JsonTradeRecordBuilder::toBytes, JsonTradeRecordBuilder::fromBytes),
                 JsonTradeRecordBuilder::newTrade, Arrays.stream(data));
 
-        /*
-        PersistentBuffer<Trade> buffer = new PersistentBuffer<>(segmentSize, toFile(location, "trade_avro.segment.0"),
-                AvroTradeRecordBuilder::toBytes, AvroTradeRecordBuilder::fromBytes);
-
-        buffer.read(291, ((offset, size, messageId, message) -> {
-            System.out.println(messageId + ":" + message);
-            return true;
-        }));
-         */
-
     }
 
     private static Path toFile(String location, String s) {
@@ -63,7 +53,7 @@ public class BufferApp {
 
 
     static <T> void process(RecordContainer<T> buffer, Function<Object[], T> recordBuilder, Stream<Object[]> data) {
-        data.map(recordBuilder::apply).forEach(buffer::write);
+        data.map(recordBuilder::apply).forEach(buffer::append);
         buffer.read((offset, size, id, b) -> {
             System.out.println(String.format("(%s) Pos:%s Size %s Bytes -> %s (%s)", buffer.formatName(), offset, size, id, b));
             return true;
