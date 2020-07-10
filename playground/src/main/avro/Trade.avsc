@@ -1,0 +1,41 @@
+{
+  "namespace": "model.avro",
+  "type": "record",
+  "name": "Trade",
+  "fields": [
+    {
+      "name": "tradeId",
+      "type": "long"
+    },
+    {
+      "name": "customerId",
+      "type": "long"
+    },
+    {
+      "name": "qty",
+      "type": "int"
+    },
+    {
+      "name": "tradeType",
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "TradeType",
+          "symbols": [
+            "Buy",
+            "Sell"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "symbol",
+      "type": "string"
+    },
+    {
+      "name": "exchange",
+      "type": "string"
+    }
+  ]
+}
