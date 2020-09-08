@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -52,12 +50,27 @@ public class MoreCollectorsOperators {
 
             SortedMap<String, Year> byTopic = books.stream()
                     .collect(Collectors.toMap(Book::getTitle, Book::getPubDate,
-                            (y1, y2) -> y1.isAfter(y2) ? y1 : y2,
+                            BinaryOperator.maxBy(Comparator.naturalOrder()),
                             TreeMap::new));
 
             assertEquals(Year.of(2018), byTopic.get("Compiler: Principals, Techniques and Tools"));
         }
 
+
+    }
+
+
+    @Nested
+    class partition_result {
+
+        @Test
+        public void partition_result_by_fiction() {
+            Map<Boolean, List<Book>> byTopic = library.stream()
+                    .collect(Collectors.partitioningBy(b -> b.getTopic() == Topic.Fiction));
+
+            assertEquals(2, byTopic.get(true).size());
+            assertEquals(2, byTopic.get(false).size());
+        }
 
     }
 
