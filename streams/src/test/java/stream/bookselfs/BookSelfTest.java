@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,5 +58,16 @@ public class BookSelfTest {
 
         assertEquals("Compiler: Principals, Techniques and Tools", filterBooks.get(0).title);
 
+    }
+
+    @Test
+    public void sort_books_by_title() {
+
+        List<Book> sortedBooks = library
+                .stream()
+                .sorted(Comparator.comparing(Book::getTitle))
+                .collect(Collectors.toList());
+
+        assertEquals("Compiler: Principals, Techniques and Tools", sortedBooks.get(0).title);
     }
 }
