@@ -1,6 +1,5 @@
 package stream.bookselfs;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -8,9 +7,12 @@ import org.junit.jupiter.api.Test;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MoreCollectorsOperators {
 
@@ -34,10 +36,29 @@ public class MoreCollectorsOperators {
             Map<Topic, List<Book>> byTopic = library.stream()
                     .collect(Collectors.groupingBy(Book::getTopic));
 
-            Assertions.assertEquals(2, byTopic.get(Topic.Fiction).size());
-            Assertions.assertEquals(1, byTopic.get(Topic.Computing).size());
-            Assertions.assertEquals(1, byTopic.get(Topic.Medicine).size());
+            assertEquals(2, byTopic.get(Topic.Fiction).size());
+            assertEquals(1, byTopic.get(Topic.Computing).size());
+            assertEquals(1, byTopic.get(Topic.Medicine).size());
         }
+
+        @Test
+        public void group_books_by_title_to_year_order_by_title() {
+
+
+            List<Book> books = asList(
+                    new Book("Compiler: Principals, Techniques and Tools", asList("Aho", "Lam", "Sethi", "Ullman"), new int[]{1009}, Year.of(2018), 23.6, Topic.Computing),
+                    new Book("Compiler: Principals, Techniques and Tools", asList("Aho", "Lam", "Sethi", "Ullman"), new int[]{1009}, Year.of(2006), 23.6, Topic.Computing)
+            );
+
+            SortedMap<String, Year> byTopic = books.stream()
+                    .collect(Collectors.toMap(Book::getTitle, Book::getPubDate,
+                            (y1, y2) -> y1.isAfter(y2) ? y1 : y2,
+                            TreeMap::new));
+
+            assertEquals(Year.of(2018), byTopic.get("Compiler: Principals, Techniques and Tools"));
+        }
+
+
     }
 
 
