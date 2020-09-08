@@ -29,7 +29,7 @@ public class SearchOperationsTest {
     class matching_operations {
 
         @Test
-        public void match_all_and_return_count() {
+        public void count_computing_books() {
             long count = library
                     .stream()
                     .filter(book -> book.topic == Topic.Computing) // Applied to every element
@@ -38,7 +38,7 @@ public class SearchOperationsTest {
         }
 
         @Test
-        public void match_some_values() {
+        public void has_any_computing_book() {
             boolean match = library
                     .stream()
                     .anyMatch(book -> book.topic == Topic.Computing); // true if any element match, this will be only applied on some element
@@ -47,7 +47,7 @@ public class SearchOperationsTest {
         }
 
         @Test
-        public void match_all_values() {
+        public void only_contains_computing_books() {
             boolean match = library
                     .stream()
                     .allMatch(book -> book.topic == Topic.Computing); // true if all element matches
@@ -57,10 +57,21 @@ public class SearchOperationsTest {
 
 
         @Test
-        public void nothing_should_match() {
+        public void no_history_books() {
             boolean match = library
                     .stream()
                     .noneMatch(book -> book.topic == Topic.History); // true if none of the element matches
+
+            assertEquals(true, match);
+        }
+
+        @Test
+        public void any_fiction_book_published_in_1955() {
+            Year publishYear = Year.of(1955);
+            boolean match = library
+                    .stream()
+                    .filter(book -> book.topic == Topic.Fiction)
+                    .anyMatch(book -> book.pubDate.equals(publishYear));
 
             assertEquals(true, match);
         }
