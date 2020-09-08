@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -79,6 +80,48 @@ public class SearchOperationsTest {
                     .anyMatch(book -> book.pubDate.equals(publishYear));
 
             assertEquals(true, match);
+        }
+    }
+
+    @Nested
+    class ending_match_on_empty_stream {
+        List<Book> noBooks = Collections.emptyList();
+
+        @Test
+        public void all_match_is_true_on_empty_collection() {
+            boolean match = noBooks
+                    .stream()
+                    .allMatch(book -> book.topic == Topic.Computing); // Always true for empty collection
+            assertEquals(true, match);
+        }
+
+
+        @Test
+        public void no_history_books() {
+            boolean match = noBooks
+                    .stream()
+                    .noneMatch(book -> book.topic == Topic.History);
+            assertEquals(true, match);
+        }
+
+        @Test
+        public void has_any_computing_book() {
+            boolean match = noBooks
+                    .stream()
+                    .anyMatch(book -> book.topic == Topic.Computing);
+            assertEquals(false, match);
+        }
+
+
+        @Test
+        public void any_fiction_book_published_in_1955() {
+            Year publishYear = Year.of(1955);
+            boolean match = noBooks
+                    .stream()
+                    .filter(book -> book.topic == Topic.Fiction)
+                    .anyMatch(book -> book.pubDate.equals(publishYear));
+
+            assertEquals(false, match);
         }
     }
 
