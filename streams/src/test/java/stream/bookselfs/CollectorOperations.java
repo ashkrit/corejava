@@ -42,8 +42,12 @@ public class CollectorOperations {
             assertEquals(18 / 4, createStream(5, 1, 2, 10).count());
 
 
-            IntSummaryStatistics summaryStatistics = new IntSummaryStatistics(4L, 1, 10, 18L);
-            assertEquals(summaryStatistics.toString(), createStream(5, 1, 2, 10).summaryStatistics().toString());
+            IntSummaryStatistics intSummaryStatistics = createStream(5, 1, 2, 10).summaryStatistics();
+            assertEquals(1, intSummaryStatistics.getMin());
+            assertEquals(10, intSummaryStatistics.getMax());
+            assertEquals(18, intSummaryStatistics.getSum());
+            assertEquals(18 / 4, intSummaryStatistics.getAverage());
+            assertEquals(4, intSummaryStatistics.getCount());
         }
 
 
