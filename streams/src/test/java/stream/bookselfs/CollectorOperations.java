@@ -13,6 +13,16 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+/*
+    Standalone collectors
+
+    [] -> Collector(Container)
+
+    [....] -> List
+    [.....] -> Set
+    [.....] -> Collection
+ */
+
 public class CollectorOperations {
 
     private List<Book> library;

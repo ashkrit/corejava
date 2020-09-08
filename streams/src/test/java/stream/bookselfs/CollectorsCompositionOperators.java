@@ -14,7 +14,19 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MoreCollectorsOperators {
+/*
+    Collector composition is very powerful, it allow to create nw collectors by combining many collector.
+
+    [....] -> Collector(Classification, Downstream collector)
+
+    [....] -> groupingBy(bookCategory,toList())  // Put element in list
+    [...] ->  groupingBy(bookCategory,maxBy(books.author.size())) // Pick book with max number of author
+    [...] ->  groupingBy(bookCategory,counting) //Count number of books by category
+    [...] ->  groupingBy(bookCategory,summingInt(books.author.size) //Sum number of author
+    [...] ->  groupingBy(bookCategory,mapping(bookName , collector)) // collect after mapping value
+
+ */
+public class CollectorsCompositionOperators {
 
     private List<Book> library;
 
@@ -35,8 +47,20 @@ public class MoreCollectorsOperators {
 
         @Test
         public void group_books_by_topic() {
+
             Map<Topic, List<Book>> byTopic = library.stream()
                     .collect(groupingBy(Book::getTopic));
+
+            assertEquals(4, byTopic.get(Topic.Fiction).size());
+            assertEquals(1, byTopic.get(Topic.Computing).size());
+            assertEquals(1, byTopic.get(Topic.Medicine).size());
+        }
+
+
+        @Test
+        public void group_books_by_topic_using_explicit_downstream_collector() {
+            Map<Topic, List<Book>> byTopic = library.stream()
+                    .collect(groupingBy(Book::getTopic, Collectors.toList()));
 
             assertEquals(4, byTopic.get(Topic.Fiction).size());
             assertEquals(1, byTopic.get(Topic.Computing).size());
@@ -111,7 +135,6 @@ public class MoreCollectorsOperators {
 
 
     }
-
 
     @Nested
     class partition_result {
