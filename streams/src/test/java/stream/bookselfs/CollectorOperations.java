@@ -1,6 +1,5 @@
 package stream.bookselfs;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,6 @@ import java.time.Year;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,12 +40,27 @@ public class CollectorOperations {
             assertEquals(18 / 4, createStream(5, 1, 2, 10).count());
 
 
-            IntSummaryStatistics intSummaryStatistics = createStream(5, 1, 2, 10).summaryStatistics();
-            assertEquals(1, intSummaryStatistics.getMin());
-            assertEquals(10, intSummaryStatistics.getMax());
-            assertEquals(18, intSummaryStatistics.getSum());
-            assertEquals(18 / 4, intSummaryStatistics.getAverage());
-            assertEquals(4, intSummaryStatistics.getCount());
+            IntSummaryStatistics summary = createStream(5, 1, 2, 10).summaryStatistics();
+            assertEquals(1, summary.getMin());
+            assertEquals(10, summary.getMax());
+            assertEquals(18, summary.getSum());
+            assertEquals(4, summary.getCount());
+        }
+
+        @Test
+        public void book_page_count_stats() {
+            IntSummaryStatistics summary = library.stream().flatMapToInt(b -> IntStream.of(b.pageCounts)).summaryStatistics();
+
+
+            int minimumPages = 256;
+            int totalPages = 3_314;
+            int maximumPages = 1009;
+            int noOfBooks = 6;
+
+            assertEquals(noOfBooks, summary.getCount());
+            assertEquals(totalPages, summary.getSum());
+            assertEquals(minimumPages, summary.getMin());
+            assertEquals(maximumPages, summary.getMax());
         }
 
 
