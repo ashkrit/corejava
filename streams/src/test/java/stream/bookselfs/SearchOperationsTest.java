@@ -37,6 +37,11 @@ public class SearchOperationsTest {
             assertEquals(1, count);
         }
 
+    }
+
+    @Nested
+    class matching_operations_that_ends_streams {
+
         @Test
         public void has_any_computing_book() {
             boolean match = library
@@ -75,7 +80,6 @@ public class SearchOperationsTest {
 
             assertEquals(true, match);
         }
-
     }
 
 
