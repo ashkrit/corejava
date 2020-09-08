@@ -5,12 +5,16 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
+import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CollectorOperations {
 
@@ -66,6 +70,32 @@ public class CollectorOperations {
 
         private IntStream createStream(int... ints) {
             return IntStream.of(ints);
+        }
+
+    }
+
+
+    @Nested
+    class non_number_values_collectors {
+
+        @Test
+        public void collect_as_list() {
+            List<Book> sortedBooks = library
+                    .stream()
+                    .collect(Collectors.toList());
+
+            assertEquals("Fundamental of Chinese fingernail image", sortedBooks.get(0).title);
+        }
+
+        @Test
+        public void collect_as_set() {
+            Set<String> authors = library
+                    .stream()
+                    .map(Book::getAuthors)
+                    .flatMap(au -> au.stream())
+                    .collect(Collectors.toSet());
+
+            assertTrue(authors.contains("Sethi"));
         }
 
     }
