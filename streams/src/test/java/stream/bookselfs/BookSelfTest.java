@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Year;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
@@ -74,7 +75,7 @@ public class BookSelfTest {
         List<String> sortedAuthors = library
                 .stream()
                 .sorted(Comparator.comparing(Book::getTitle))
-                .flatMap(book -> book.getAuthors().stream())
+                .flatMap(book -> book.getAuthors().stream())//1 to Many
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -146,7 +147,21 @@ public class BookSelfTest {
     @Test
     public void total_number_of_authors() {
 
-        int authorCount = library.stream().mapToInt(b -> b.getAuthors().size()).sum();
-        Assertions.assertEquals(9, authorCount);
+        int authorCount = library
+                .stream()
+                .mapToInt(b -> b.getAuthors().size()).sum();
+        assertEquals(9, authorCount);
+    }
+
+
+    @Test
+    public void total_number_of_pages() {
+
+        int totalPages = library
+                .stream()
+                .flatMapToInt(b -> IntStream.of(b.pageCounts))
+                .sum();
+
+        assertEquals(3_314, totalPages);
     }
 }
