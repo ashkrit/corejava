@@ -1,6 +1,5 @@
 package stream.bookselfs;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
@@ -109,6 +107,44 @@ public class CollectorOperations {
             assertEquals(Year.of(2006), authors.get("Compiler: Principals, Techniques and Tools"));
         }
 
+
+        @Test
+        public void collect_as_map_fails_with_duplicate_keys() {
+
+            List<Book> books = asList(
+                    new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2014), 25.2, Topic.Medicine),
+                    new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2016), 25.2, Topic.Medicine)
+            );
+
+            assertThrows(IllegalStateException.class, () -> {
+                books
+                        .stream()
+                        .collect(toMap(Book::getTitle, Book::getPubDate));
+            });
+
+        }
+
+        @Test
+        public void collect_as_map_handle_duplicate_keys() {
+
+            List<Book> books = asList(
+                    new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2014), 25.2, Topic.Medicine),
+                    new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2016), 25.2, Topic.Medicine)
+            );
+
+            Map<String, Year> authors = books
+                    .stream()
+                    .collect(toMap(Book::getTitle, Book::getPubDate, (y1, y2) -> y1.isAfter(y2) ? y1 : y2));
+
+            assertEquals(Year.of(2016), authors.get("Fundamental of Chinese fingernail image"));
+
+        }
+
+
+    }
+
+    @Nested
+    class duplicate_key_collection {
 
         @Test
         public void collect_as_map_fails_with_duplicate_keys() {
