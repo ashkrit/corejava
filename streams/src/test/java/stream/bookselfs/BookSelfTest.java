@@ -5,10 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -90,7 +87,7 @@ public class BookSelfTest {
     @Test
     public void top_2_books_sorted_by_title() {
 
-        List<String> sortedAuthors = library
+        List<String> top2Books = library
                 .stream()
                 .sorted(Comparator.comparing(Book::getTitle))
                 .map(Book::getTitle)
@@ -99,6 +96,32 @@ public class BookSelfTest {
 
 
         List<String> expected = asList("Compiler: Principals, Techniques and Tools", "Fundamental of Chinese fingernail image");
-        assertEquals(expected, sortedAuthors);
+        assertEquals(expected, top2Books);
+    }
+
+
+    @Test
+    public void skip_top_2_books_sorted_by_title() {
+
+        List<String> nonTop2Books = library
+                .stream()
+                .sorted(Comparator.comparing(Book::getTitle))
+                .map(Book::getTitle)
+                .skip(2)
+                .collect(Collectors.toList());
+
+
+        List<String> expected = asList("Lord of the Rings", "Voss");
+        assertEquals(expected, nonTop2Books);
+    }
+
+
+    @Test
+    public void earliest_published_book() {
+
+        Optional<Book> earliestBook = library
+                .stream()
+                .min(Comparator.comparing(Book::getPubDate));
+        assertEquals("Lord of the Rings", earliestBook.get().title);
     }
 }
