@@ -105,7 +105,6 @@ public class MoreCollectorsOperators {
             Map<Topic, String> topicBooks = library
                     .stream()
                     .collect(groupingBy(Book::getTopic, mapping));
-
             assertEquals("Voss;Lord of the Rings;The Cinderella Murder;Warren The 13th", topicBooks.get(Topic.Fiction));
 
         }

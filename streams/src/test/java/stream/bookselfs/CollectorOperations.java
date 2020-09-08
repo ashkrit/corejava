@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
@@ -98,10 +96,32 @@ public class CollectorOperations {
         }
 
         @Test
+        public void collect_as_set_of_different_type() {
+            Collection<String> authors = library
+                    .stream()
+                    .map(Book::getAuthors)
+                    .flatMap(au -> au.stream())
+                    .collect(Collectors.toCollection(() -> new TreeSet<>()));
+
+            assertTrue(authors.contains("Sethi"));
+        }
+
+        @Test
         public void collect_as_map() {
             Map<String, Year> authors = library
                     .stream()
                     .collect(toMap(Book::getTitle, Book::getPubDate));
+
+            assertEquals(Year.of(2014), authors.get("Fundamental of Chinese fingernail image"));
+            assertEquals(Year.of(2006), authors.get("Compiler: Principals, Techniques and Tools"));
+        }
+
+
+        @Test
+        public void collect_as_map_of_different_type() {
+            NavigableMap<String, Year> authors = library
+                    .stream()
+                    .collect(toMap(Book::getTitle, Book::getPubDate, (x, y) -> x, TreeMap::new));
 
             assertEquals(Year.of(2014), authors.get("Fundamental of Chinese fingernail image"));
             assertEquals(Year.of(2006), authors.get("Compiler: Principals, Techniques and Tools"));
