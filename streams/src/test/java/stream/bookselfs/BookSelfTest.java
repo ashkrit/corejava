@@ -85,4 +85,20 @@ public class BookSelfTest {
         List<String> expected = asList("Aho", "Lam", "Sethi", "Ullman", "Li", "Fu", "Tolkien", "Patrick White");
         assertEquals(expected, sortedAuthors);
     }
+
+
+    @Test
+    public void top_2_books_sorted_by_title() {
+
+        List<String> sortedAuthors = library
+                .stream()
+                .sorted(Comparator.comparing(Book::getTitle))
+                .map(Book::getTitle)
+                .limit(2)
+                .collect(Collectors.toList());
+
+
+        List<String> expected = asList("Compiler: Principals, Techniques and Tools", "Fundamental of Chinese fingernail image");
+        assertEquals(expected, sortedAuthors);
+    }
 }
