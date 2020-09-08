@@ -126,6 +126,22 @@ public class CollectorOperations {
 
         }
 
+        @Test
+        public void collect_as_map_handle_duplicate_keys() {
+
+            List<Book> books = asList(
+                    new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2014), 25.2, Topic.Medicine),
+                    new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2016), 25.2, Topic.Medicine)
+            );
+
+            Map<String, Year> authors = books
+                    .stream()
+                    .collect(toMap(Book::getTitle, Book::getPubDate, (y1, y2) -> y1.isAfter(y2) ? y1 : y2));
+
+            assertEquals(Year.of(2016), authors.get("Fundamental of Chinese fingernail image"));
+
+        }
+
 
     }
 
