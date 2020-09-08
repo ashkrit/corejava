@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Year;
 import java.util.*;
 import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.*;
@@ -71,11 +70,28 @@ public class MoreCollectorsOperators {
         @Test
         public void topic_with_pages_count() {
             Map<Topic, Integer> byTopic = library.stream()
-                    .collect(groupingBy(Book::getTopic, Collectors.summingInt(b -> b.getPageCounts().length)));
+                    .collect(groupingBy(Book::getTopic, summingInt(b -> b.getPageCounts().length)));
 
             assertEquals(5, byTopic.get(Topic.Fiction));
             assertEquals(1, byTopic.get(Topic.Computing));
             assertEquals(1, byTopic.get(Topic.Medicine));
+        }
+
+
+        @Test
+        public void topic_with_maximum_books() {
+            Map<Topic, Long> topicToBookCount = library
+                    .stream()
+                    .collect(groupingBy(Book::getTopic, counting()));
+
+            Optional<Map.Entry<Topic, Long>> topicWithMaxBook = topicToBookCount.entrySet().stream()
+                    .max(Map.Entry.comparingByValue());
+
+            Optional<Topic> topTopic = topicWithMaxBook
+                    .map(Map.Entry::getKey);
+
+            assertEquals(Topic.Fiction, topTopic.get());
+
         }
 
 
