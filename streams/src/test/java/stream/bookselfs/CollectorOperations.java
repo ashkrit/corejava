@@ -5,14 +5,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Year;
-import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -82,7 +83,7 @@ public class CollectorOperations {
         public void collect_as_list() {
             List<Book> sortedBooks = library
                     .stream()
-                    .collect(Collectors.toList());
+                    .collect(toList());
 
             assertEquals("Fundamental of Chinese fingernail image", sortedBooks.get(0).title);
         }
@@ -93,9 +94,19 @@ public class CollectorOperations {
                     .stream()
                     .map(Book::getAuthors)
                     .flatMap(au -> au.stream())
-                    .collect(Collectors.toSet());
+                    .collect(toSet());
 
             assertTrue(authors.contains("Sethi"));
+        }
+
+        @Test
+        public void collect_as_map() {
+            Map<String, Year> authors = library
+                    .stream()
+                    .collect(toMap(Book::getTitle, Book::getPubDate));
+
+            assertEquals(Year.of(2014), authors.get("Fundamental of Chinese fingernail image"));
+            assertEquals(Year.of(2006), authors.get("Compiler: Principals, Techniques and Tools"));
         }
 
     }
