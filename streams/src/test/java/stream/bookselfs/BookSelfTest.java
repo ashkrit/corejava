@@ -141,4 +141,12 @@ public class BookSelfTest {
         assertIterableEquals(expected, allTitles);
 
     }
+
+
+    @Test
+    public void total_number_of_authors() {
+
+        int authorCount = library.stream().mapToInt(b -> b.getAuthors().size()).sum();
+        Assertions.assertEquals(9, authorCount);
+    }
 }
