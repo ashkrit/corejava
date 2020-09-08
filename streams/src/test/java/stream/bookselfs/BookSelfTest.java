@@ -164,4 +164,20 @@ public class BookSelfTest {
 
         assertEquals(3_314, totalPages);
     }
+
+    @Test
+    public void books_sorted_by_number_of_authors() {
+
+        List<String> expected = asList("Voss", "Lord of the Rings", "Fundamental of Chinese fingernail image", "Compiler: Principals, Techniques and Tools");
+
+        List<String> allTitles = library
+                .stream()
+                .sorted(Comparator.comparing(Book::getAuthors,
+                        Comparator.comparing(authors -> authors.size()))) // this is using comparing with 2 params ( Key,Comparator)
+                .map(Book::getTitle)
+                .collect(Collectors.toList());
+
+        assertIterableEquals(expected, allTitles);
+
+    }
 }
