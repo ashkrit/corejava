@@ -70,4 +70,19 @@ public class BookSelfTest {
 
         assertEquals("Compiler: Principals, Techniques and Tools", sortedBooks.get(0).title);
     }
+
+    @Test
+    public void all_authors_sorted_by_book_title() {
+
+        List<String> sortedAuthors = library
+                .stream()
+                .sorted(Comparator.comparing(Book::getTitle))
+                .flatMap(book -> book.getAuthors().stream())
+                .distinct()
+                .collect(Collectors.toList());
+
+
+        List<String> expected = asList("Aho", "Lam", "Sethi", "Ullman", "Li", "Fu", "Tolkien", "Patrick White");
+        assertEquals(expected, sortedAuthors);
+    }
 }
