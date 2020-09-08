@@ -149,8 +149,5 @@ public class CollectorsCompositionOperators {
             assertEquals(4, byTopic.get(true).size());
             assertEquals(2, byTopic.get(false).size());
         }
-
     }
-
-
 }
