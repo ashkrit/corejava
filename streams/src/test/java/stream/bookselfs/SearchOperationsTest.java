@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Year;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,7 +42,7 @@ public class SearchOperationsTest {
     }
 
     @Nested
-    class matching_operations_that_ends_streams {
+    class matching_operations_that_end_streams_and_returns_boolean {
 
         @Test
         public void has_any_computing_book() {
@@ -123,6 +124,33 @@ public class SearchOperationsTest {
 
             assertEquals(false, match);
         }
+    }
+
+
+    @Nested
+    class matching_operations_that_ends_streams_and_return_record {
+
+        @Test
+        public void has_any_computing_book() {
+            Optional<Book> match = library
+                    .stream()
+                    .filter(book -> book.topic == Topic.Computing)
+                    .findAny();
+
+            assertEquals("Compiler: Principals, Techniques and Tools", match.get().title);
+        }
+
+        @Test
+        public void only_contains_computing_books() {
+            Optional<Book> match = library
+                    .stream()
+                    .filter(book -> book.topic == Topic.Fiction)
+                    .findFirst(); // Only required when order is important
+
+            assertEquals("Voss", match.get().title);
+        }
+
+
     }
 
 

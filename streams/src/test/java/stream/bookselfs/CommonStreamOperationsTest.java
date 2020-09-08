@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 @DisplayName("Stream frequently used operations")
-public class BookSelfTest {
+public class CommonStreamOperationsTest {
 
 
     private List<Book> library;
