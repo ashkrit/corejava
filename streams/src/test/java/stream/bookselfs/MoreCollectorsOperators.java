@@ -10,6 +10,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MoreCollectorsOperators {
@@ -22,7 +23,8 @@ public class MoreCollectorsOperators {
                 new Book("Fundamental of Chinese fingernail image", asList("Li", "Fu", "Li"), new int[]{256}, Year.of(2014), 25.2, Topic.Medicine),
                 new Book("Compiler: Principals, Techniques and Tools", asList("Aho", "Lam", "Sethi", "Ullman"), new int[]{1009}, Year.of(2006), 23.6, Topic.Computing),
                 new Book("Voss", asList("Patrick White"), new int[]{478}, Year.of(1957), 19.8, Topic.Fiction),
-                new Book("Lord of the Rings", asList("Tolkien"), new int[]{531, 416, 624}, Year.of(1955), 23.0, Topic.Fiction)
+                new Book("Lord of the Rings", asList("Tolkien"), new int[]{531, 416, 624}, Year.of(1955), 23.0, Topic.Fiction),
+                new Book("The Cinderella Murder", asList("Mary Higgins Clark", "Alafair Burke"), new int[]{600}, Year.of(2014), 23.0, Topic.Fiction)
         );
     }
 
@@ -32,9 +34,9 @@ public class MoreCollectorsOperators {
         @Test
         public void group_books_by_topic() {
             Map<Topic, List<Book>> byTopic = library.stream()
-                    .collect(Collectors.groupingBy(Book::getTopic));
+                    .collect(groupingBy(Book::getTopic));
 
-            assertEquals(2, byTopic.get(Topic.Fiction).size());
+            assertEquals(3, byTopic.get(Topic.Fiction).size());
             assertEquals(1, byTopic.get(Topic.Computing).size());
             assertEquals(1, byTopic.get(Topic.Medicine).size());
         }
@@ -49,11 +51,31 @@ public class MoreCollectorsOperators {
             );
 
             SortedMap<String, Year> byTopic = books.stream()
-                    .collect(Collectors.toMap(Book::getTitle, Book::getPubDate,
+                    .collect(toMap(Book::getTitle, Book::getPubDate,
                             BinaryOperator.maxBy(Comparator.naturalOrder()),
                             TreeMap::new));
 
             assertEquals(Year.of(2018), byTopic.get("Compiler: Principals, Techniques and Tools"));
+        }
+
+        @Test
+        public void topic_book_with_maximum_number_of_authors() {
+            Map<Topic, Optional<Book>> byTopic = library.stream()
+                    .collect(groupingBy(Book::getTopic,
+                            maxBy(Comparator.comparing(b -> b.getAuthors().size()))));
+
+            assertEquals("The Cinderella Murder", byTopic.get(Topic.Fiction).get().title);
+        }
+
+
+        @Test
+        public void topic_with_pages_count() {
+            Map<Topic, Integer> byTopic = library.stream()
+                    .collect(groupingBy(Book::getTopic, Collectors.summingInt(b -> b.getPageCounts().length)));
+
+            assertEquals(5, byTopic.get(Topic.Fiction));
+            assertEquals(1, byTopic.get(Topic.Computing));
+            assertEquals(1, byTopic.get(Topic.Medicine));
         }
 
 
@@ -66,9 +88,9 @@ public class MoreCollectorsOperators {
         @Test
         public void partition_result_by_fiction() {
             Map<Boolean, List<Book>> byTopic = library.stream()
-                    .collect(Collectors.partitioningBy(b -> b.getTopic() == Topic.Fiction));
+                    .collect(partitioningBy(b -> b.getTopic() == Topic.Fiction));
 
-            assertEquals(2, byTopic.get(true).size());
+            assertEquals(3, byTopic.get(true).size());
             assertEquals(2, byTopic.get(false).size());
         }
 
