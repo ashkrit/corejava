@@ -124,4 +124,21 @@ public class BookSelfTest {
                 .min(Comparator.comparing(Book::getPubDate));
         assertEquals("Lord of the Rings", earliestBook.get().title);
     }
+
+
+    @Test
+    public void all_titles_in_library() {
+        List<String> expected = asList("Fundamental of Chinese fingernail image", "Lord of the Rings", "Voss", "Compiler: Principals, Techniques and Tools");
+
+        List<String> allTitles = new ArrayList<>(library
+                .stream()
+                .map(Book::getTitle)
+                .collect(Collectors.toSet()));
+
+        Collections.sort(allTitles);
+        Collections.sort(expected);
+
+        assertIterableEquals(expected, allTitles);
+
+    }
 }
