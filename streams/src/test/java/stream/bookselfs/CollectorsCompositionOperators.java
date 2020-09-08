@@ -107,18 +107,20 @@ public class CollectorsCompositionOperators {
 
         @Test
         public void topic_with_maximum_books() {
+
+            // Book -> (Topic,1) -> (Topic,sum)  |  max(Topic.sum) -> Topic
+
+            //Pipeline 1  - Topic to book count mapping
             Map<Topic, Long> topicToBookCount = library
                     .stream()
                     .collect(groupingBy(Book::getTopic, counting()));
 
-            Optional<Map.Entry<Topic, Long>> topicWithMaxBook = topicToBookCount.entrySet().stream()
-                    .max(Map.Entry.comparingByValue());
-
-            Optional<Topic> topTopic = topicWithMaxBook
+            //Pipeline 2  - Picking topic with max count value
+            Optional<Topic> topTopic = topicToBookCount.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey);
 
             assertEquals(Topic.Fiction, topTopic.get());
-
         }
 
         @Test
