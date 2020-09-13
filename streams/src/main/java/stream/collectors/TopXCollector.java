@@ -40,9 +40,15 @@ public class TopXCollector {
     }
 
     private static <K> Map.Entry<K, Long>[] collectElement(int top, Summary<K> v) {
-        Map.Entry<K, Long>[] t = (Map.Entry<K, Long>[]) new Map.Entry[top];
+
+        /*
+         This logic can be also implemented by BTree or PriorityQueue
+         */
+
         int cnt = 0;
         Comparator<Map.Entry<K, Long>> sortByFrequency = Comparator.comparingLong(x -> x.getValue());
+
+        Map.Entry<K, Long>[] t = (Map.Entry<K, Long>[]) new Map.Entry[top];
         for (Map.Entry<K, Long> e : v.frequency.entrySet()) {
             if (cnt < top) {
                 t[cnt++] = e;
@@ -50,7 +56,7 @@ public class TopXCollector {
                     Arrays.sort(t, sortByFrequency);
                 }
             } else {
-                if (t[0].getValue() < e.getValue()) {
+                if (isLessThan(t[0], e)) {
                     t[0] = e;
                     Arrays.sort(t, sortByFrequency);
                 }
@@ -59,17 +65,19 @@ public class TopXCollector {
         return t;
     }
 
-    private static <K> boolean isGt(Map<K, Long> frequency, Map<K, Long> frequency1) {
-        return frequency.size() > frequency1.size();
+    private static <K> boolean isLessThan(Map.Entry<K, Long> left, Map.Entry<K, Long> right) {
+        return left.getValue() < right.getValue();
+    }
+
+    private static <K> boolean isGt(Map<K, Long> collection1, Map<K, Long> collection2) {
+        return collection1.size() > collection2.size();
     }
 
     public static class Summary<K> {
         Map<K, Long> frequency = new HashMap<>();
 
         void merge(Summary<K> s) {
-            s.frequency.forEach((e, v) -> {
-                frequency.compute(e, (k, v1) -> v1 == null ? 1 : v1 + v);
-            });
+            s.frequency.forEach((e, newValueToMerge) -> frequency.compute(e, (k, existingValue) -> existingValue == null ? 1 : existingValue + newValueToMerge));
         }
     }
 }
