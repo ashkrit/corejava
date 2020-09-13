@@ -63,7 +63,6 @@ public class CollectorsCompositionOperators {
         public void group_books_by_topic_using_explicit_downstream_collector() {
             Map<Topic, List<Book>> byTopic = library.stream()
                     .collect(groupingBy(Book::getTopic, Collectors.toList()));
-
             assertEquals(4, byTopic.get(Topic.Fiction).size());
             assertEquals(1, byTopic.get(Topic.Computing).size());
             assertEquals(1, byTopic.get(Topic.Medicine).size());
