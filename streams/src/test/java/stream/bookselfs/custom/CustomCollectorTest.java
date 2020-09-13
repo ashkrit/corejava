@@ -1,10 +1,12 @@
 package stream.bookselfs.custom;
 
 import org.junit.jupiter.api.Test;
-import stream.collectors.StringCollectors;
 import stream.collectors.TopXCollector;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
