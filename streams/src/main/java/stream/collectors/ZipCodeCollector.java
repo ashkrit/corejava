@@ -52,7 +52,7 @@ public class ZipCodeCollector {
     };
 
 
-    public static Collector<Store, List<List<Store>>, List<List<Store>>> create() {Ad
+    public static Collector<Store, List<List<Store>>, List<List<Store>>> create() {
         /*
          .....
                 | Split
