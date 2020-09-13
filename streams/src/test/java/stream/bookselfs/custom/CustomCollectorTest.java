@@ -7,8 +7,11 @@ import stream.collectors.TopXCollector;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static stream.collectors.StringCollectors.customStringJoiner;
+import static stream.collectors.StringCollectors.customStringJoinerUsingList;
 
 public class CustomCollectorTest {
 
@@ -19,10 +22,10 @@ public class CustomCollectorTest {
 
         String delimiter = ",";
 
-        String actual = values.stream().collect(StringCollectors.customStringJoiner(delimiter));
-        String expected = values.stream().collect(Collectors.joining(delimiter));
-        String anotherActual = values.stream()
-                .collect(StringCollectors.customStringJoinerUsingList(delimiter));
+        String expected = values.stream().collect(joining(delimiter));
+
+        String actual = values.stream().collect(customStringJoiner(delimiter));
+        String anotherActual = values.stream().collect(customStringJoinerUsingList(delimiter));
 
         assertEquals(expected, actual);
         assertEquals(expected, anotherActual);
