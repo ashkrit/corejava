@@ -52,7 +52,17 @@ public class ZipCodeCollector {
     };
 
 
-    public static Collector<Store, List<List<Store>>, List<List<Store>>> create() {
+    public static Collector<Store, List<List<Store>>, List<List<Store>>> create() {Ad
+        /*
+         .....
+                | Split
+                    |    Supplier* | accumulator
+                    |    Supplier | accumulator
+                    |    Supplier | accumulator
+                            | Combiner
+                                    | Finisher
+
+         */
         return Collector.of(supplier, accumulator, combiner);
     }
 
