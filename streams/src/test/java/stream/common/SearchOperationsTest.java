@@ -1,8 +1,10 @@
-package stream.bookselfs;
+package stream.common;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import stream.bookselfs.Book;
+import stream.bookselfs.Topic;
 
 import java.time.Year;
 import java.util.Collections;

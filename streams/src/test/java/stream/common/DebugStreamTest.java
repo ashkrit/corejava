@@ -1,4 +1,4 @@
-package stream.bookselfs;
+package stream.common;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

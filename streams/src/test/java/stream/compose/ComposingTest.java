@@ -1,4 +1,4 @@
-package streams.compose;
+package stream.compose;
 
 import org.junit.jupiter.api.Test;
 

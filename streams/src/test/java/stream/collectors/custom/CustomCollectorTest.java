@@ -1,4 +1,4 @@
-package stream.bookselfs.custom;
+package stream.collectors.custom;
 
 import org.junit.jupiter.api.Test;
 import stream.collectors.TopXCollector;

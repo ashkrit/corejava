@@ -4,12 +4,12 @@ import java.time.Year;
 import java.util.List;
 
 public class Book {
-    final String title;
-    final List<String> authors;
-    final int[] pageCounts;
-    final Topic topic;
-    final Year pubDate;
-    final double height;
+    public final String title;
+    public final List<String> authors;
+    public final int[] pageCounts;
+    public final Topic topic;
+    public final Year pubDate;
+    public final double height;
 
 
     public Book(String title, List<String> authors, int[] pageCounts, Year pubDate, double height, Topic topic) {
