@@ -20,7 +20,6 @@ public class ZipCodeCollectorV2 {
 
 
     static BiConsumer<Deque<Deque<Store>>, Store> accumulatorQ = (buffer, value) -> {
-        int total = buffer.size();
         Deque<Store> lastGroup = buffer.getLast();
 
         if (!lastGroup.isEmpty()) {
