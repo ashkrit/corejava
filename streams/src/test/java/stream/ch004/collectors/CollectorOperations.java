@@ -1,4 +1,4 @@
-package stream.collectors;
+package stream.ch004.collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

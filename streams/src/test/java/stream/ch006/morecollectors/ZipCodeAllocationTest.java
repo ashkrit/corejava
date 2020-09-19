@@ -1,6 +1,5 @@
-package stream.collectors.custom;
+package stream.ch006.morecollectors;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import stream.collectors.ZipCodeCollector;
 import stream.collectors.ZipCodeCollector.Store;

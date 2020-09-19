@@ -1,4 +1,4 @@
-package stream.collectors.custom;
+package stream.ch006.morecollectors;
 
 import org.junit.jupiter.api.Test;
 import stream.collectors.TopXCollector;

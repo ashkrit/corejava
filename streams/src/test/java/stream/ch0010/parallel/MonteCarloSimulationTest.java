@@ -1,4 +1,4 @@
-package stream.parallel;
+package stream.ch0010.parallel;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package stream.common;
+package stream.ch001.common;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

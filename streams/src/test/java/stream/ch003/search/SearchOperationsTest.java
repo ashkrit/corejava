@@ -1,4 +1,4 @@
-package stream.common;
+package stream.ch003.search;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

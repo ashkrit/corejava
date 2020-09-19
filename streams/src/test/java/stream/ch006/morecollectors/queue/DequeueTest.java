@@ -1,4 +1,4 @@
-package stream.queue;
+package stream.ch006.morecollectors.queue;
 
 import org.junit.jupiter.api.Test;
 
