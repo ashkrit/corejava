@@ -33,13 +33,13 @@ public class MonteCarloSimulationTest {
     @Test
     public void simulate_in_hard_way() {
 
-        HashMap<Integer, Double> supplier = new HashMap<>();
-        BiFunction<HashMap<Integer, Double>, Integer, HashMap<Integer, Double>> accumulator = (container, value) -> {
+        Map<Integer, Double> supplier = new HashMap<>();
+        BiFunction<Map<Integer, Double>, Integer, Map<Integer, Double>> accumulator = (container, value) -> {
             container.put(value, fraction);
             return container;
         };
 
-        BinaryOperator<HashMap<Integer, Double>> combiner = (m1, m2) -> {
+        BinaryOperator<Map<Integer, Double>> combiner = (m1, m2) -> {
             m2.forEach((k, v) -> m1.merge(k, v, (v1, v2) -> v1 + v2));
             return m1;
         };
