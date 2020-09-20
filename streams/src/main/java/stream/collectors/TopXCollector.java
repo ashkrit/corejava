@@ -77,7 +77,7 @@ public class TopXCollector {
         Map<K, Long> frequency = new HashMap<>();
 
         void merge(Summary<K> s) {
-            s.frequency.forEach((e, newValueToMerge) -> frequency.merge(e, newValueToMerge, (v1, v2) -> v1 + v2));
+            s.frequency.forEach((e, newValueToMerge) -> frequency.merge(e, newValueToMerge, Long::sum));
         }
     }
 }
