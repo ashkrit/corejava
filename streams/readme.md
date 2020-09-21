@@ -1,6 +1,8 @@
 ### Java Streams refresher 
 This project contains example of java streams, it starts with basic every day streams to advance stream operation.
 
+
+
 ### How code is organized
 
 Learning test approach is used for exploring Streams feature. Examples are inform of chapters.
