@@ -1,6 +1,6 @@
 package stream.ch000.create;
 
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@DisplayName("How to create Stream")
 public class CreateStreamTest {
 
     @Test
@@ -21,7 +22,6 @@ public class CreateStreamTest {
         List<String> values = Arrays.asList("A", "B");
         assertTrue(Stream.class.isInstance(values.stream()));
     }
-
 
     @Test
     void stream_from_stream_factory_args() {
