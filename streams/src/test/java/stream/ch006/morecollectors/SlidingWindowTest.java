@@ -1,5 +1,6 @@
 package stream.ch006.morecollectors;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -7,6 +8,7 @@ import java.util.Arrays;
 import static java.util.Arrays.parallelPrefix;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DisplayName("more Parallel Prefix applications")
 public class SlidingWindowTest {
 
     @Test

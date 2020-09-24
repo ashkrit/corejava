@@ -53,7 +53,6 @@ public class CreateStreamTest {
         assertTrue(IntStream.class.isInstance(values));
     }
 
-
     @Test
     void io_stream() throws Exception {
         File f = File.createTempFile("xyz", "y");

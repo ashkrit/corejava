@@ -1,5 +1,6 @@
 package stream.ch006.morecollectors;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static stream.collectors.StringCollectors.customStringJoiner;
 import static stream.collectors.StringCollectors.customStringJoinerUsingList;
 
+@DisplayName("Simple collector")
 public class CustomCollectorTest {
 
     @Test

@@ -1,5 +1,6 @@
 package stream.ch006.morecollectors;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import stream.collectors.TopXCollector;
 
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
+@DisplayName("Advance collectors")
 public class TopProductsTest {
 
     @Test

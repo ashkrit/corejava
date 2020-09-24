@@ -1,6 +1,7 @@
 package stream.ch003.search;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import stream.bookselfs.Book;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@DisplayName("Searching in stream")
 public class SearchOperationsTest {
 
 

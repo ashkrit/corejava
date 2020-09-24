@@ -1,5 +1,6 @@
 package stream.ch006.morecollectors;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.IntStream;
@@ -7,6 +8,7 @@ import java.util.stream.IntStream;
 import static java.util.Arrays.parallelPrefix;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
+@DisplayName("Parallel Prefix applications")
 public class DeltaEncodingTest {
 
     @Test

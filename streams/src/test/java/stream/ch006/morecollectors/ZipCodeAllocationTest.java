@@ -1,5 +1,6 @@
 package stream.ch006.morecollectors;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import stream.collectors.ZipCodeCollector;
 import stream.collectors.ZipCodeCollector.Store;
@@ -9,13 +10,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.Arrays.parallelPrefix;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static stream.collectors.ZipCodeCollector.Store.building;
 
+@DisplayName("Advance collector patterns")
 public class ZipCodeAllocationTest {
     /*
          Rule

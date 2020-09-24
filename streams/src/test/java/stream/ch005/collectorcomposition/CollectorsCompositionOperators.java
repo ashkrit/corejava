@@ -1,6 +1,7 @@
 package stream.ch005.collectorcomposition;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import stream.bookselfs.Book;
@@ -28,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
     [...] ->  groupingBy(bookCategory,mapping(bookName , collector)) // collect after mapping value
 
  */
+
+@DisplayName("Composing collectors")
 public class CollectorsCompositionOperators {
 
     private List<Book> library;

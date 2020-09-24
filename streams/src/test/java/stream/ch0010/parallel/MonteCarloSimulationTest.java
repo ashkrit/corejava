@@ -1,5 +1,6 @@
 package stream.ch0010.parallel;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingDouble;
 
+@DisplayName("Simple Parallel streams")
 public class MonteCarloSimulationTest {
 
     ThreadLocalRandom random = ThreadLocalRandom.current();

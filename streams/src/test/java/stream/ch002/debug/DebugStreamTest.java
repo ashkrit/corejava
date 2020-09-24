@@ -1,12 +1,14 @@
 package stream.ch002.debug;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+@DisplayName("How to debug")
 public class DebugStreamTest {
 
     @Test

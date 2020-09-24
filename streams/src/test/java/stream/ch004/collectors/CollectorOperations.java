@@ -1,6 +1,7 @@
 package stream.ch004.collectors;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import stream.bookselfs.Book;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
     [.....] -> Collection
  */
 
+@DisplayName("Collector pattern")
 public class CollectorOperations {
 
     private List<Book> library;
