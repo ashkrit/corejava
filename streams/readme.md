@@ -1,6 +1,6 @@
 ### Java Streams refresher 
 This project contains example of java streams, it starts with basic every day streams to advance stream operation.
-
+Code sample for blog - http://ashkrit.blogspot.com/2020/09/let-stream-flow.html
 
 
 ### How code is organized
