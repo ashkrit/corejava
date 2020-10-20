@@ -24,7 +24,6 @@
             <version>2.1.12</version>
         </dependency>
 
-
         <!--Avro -->
         <dependency>
             <groupId>org.apache.avro</groupId>

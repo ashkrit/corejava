@@ -3,6 +3,7 @@ package measure;
 import org.HdrHistogram.Histogram;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.IntStream.range;
