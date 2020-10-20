@@ -1,4 +1,4 @@
-package streams.compose;
+package stream.compose;
 
 import java.awt.*;
 import java.util.Comparator;
