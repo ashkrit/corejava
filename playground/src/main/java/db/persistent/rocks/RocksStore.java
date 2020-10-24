@@ -42,7 +42,7 @@ public class RocksStore implements KeyValueStore {
 
     @Override
     public <Row_Type> SSTable<Row_Type> createTable(TableInfo<Row_Type> tableInfo) {
-        SSTable<Row_Type> SSTable = new RocksTable<>(rocksDB, tableInfo.getTableName(), tableInfo.getIndexes(), tableInfo.getSchema(), tableInfo.getEncoder(), tableInfo.getDecoder());
+        SSTable<Row_Type> SSTable = new RocksTable<>(rocksDB, tableInfo);
         registerTable(tableInfo.getTableName(), SSTable);
         return SSTable;
     }
