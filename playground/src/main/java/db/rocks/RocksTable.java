@@ -1,8 +1,8 @@
 package db.rocks;
 
+import db.KeyBuilder;
 import db.Table;
 import org.rocksdb.RocksDB;
-import org.rocksdb.RocksIterator;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,9 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static db.rocks.RocksDBDriver.get;
-import static db.rocks.RocksDBDriver.put;
-
 public class RocksTable<Row_Type> implements Table<Row_Type> {
 
     private final String tableName;
@@ -23,7 +20,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     private final Function<Row_Type, byte[]> encoder;
     private final Function<byte[], Row_Type> decoder;
     private final KeyBuilder keyBuilder;
-    private final RocksDB db;
+    private final NavigableRocks nvRocks;
 
     public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
 
@@ -35,10 +32,10 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         this.tableName = tableName;
         this.indexes = indexes;
         this.cols = cols;
-        this.db = db;
         this.keyBuilder = new KeyBuilder(tableName);
         this.encoder = encoder;
         this.decoder = decoder;
+        this.nvRocks = new NavigableRocks(db);
     }
 
     @Override
@@ -54,33 +51,15 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     public void scan(Consumer<Row_Type> consumer, int limit) {
 
         String fromKey = keyBuilder.primaryIndex();
-        iterate(fromKey, v -> decoder.apply(v), consumer, limit);
+        nvRocks.iterate(fromKey, v -> decoder.apply(v), consumer, limit);
 
     }
 
-    private void iterate(String fromKey, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit) {
-
-        try (RocksIterator itr = db.newIterator()) {
-
-            itr.seek(fromKey.getBytes());
-
-            int tracker = limit;
-            while (itr.isValid() && tracker > 0) {
-                String s = new String(itr.key());
-                if (!s.startsWith(fromKey)) {
-                    break;
-                }
-                consumer.accept(converter.apply(itr.value()));
-                itr.next();
-                tracker--;
-            }
-        }
-    }
 
     @Override
     public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
         String indexKey = keyBuilder.primaryIndex(indexName, matchValue);
-        iterate(indexKey, key -> decoder.apply(get(db, key)), consumer, limit);
+        nvRocks.iterate(indexKey, key -> decoder.apply(nvRocks.get(key)), consumer, limit);
     }
 
     @Override
@@ -93,7 +72,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         long sequence = id.incrementAndGet();
         String indexKey = keyBuilder.primaryIndex("pk", String.valueOf(sequence));
         byte[] key = indexKey.getBytes();
-        put(db, key, encoder.apply(row));
+        nvRocks.put(key, encoder.apply(row));
         buildIndex(row, key, indexKey);
     }
 
@@ -102,31 +81,8 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
             String indexKey = keyBuilder.secondaryIndex(indexName, indexValue, key);
-            put(db, indexKey.getBytes(), keyRef); // This maintain reference to PK. To make covered full row can be stored.
+            nvRocks.put(indexKey.getBytes(), keyRef); // This maintain reference to PK. To make covered full row can be stored.
         }
     }
 
-    static class KeyBuilder {
-        final String tableName;
-
-        /*
-          Format
-          table/index/indexvalue/rowid
-         */
-        KeyBuilder(String tableName) {
-            this.tableName = tableName;
-        }
-
-        public String secondaryIndex(String indexName, String indexValue, String rowKey) {
-            return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, rowKey);
-        }
-
-        public String primaryIndex(String indexName, String indexValue) {
-            return String.format("%s/%s/%s", tableName, indexName, indexValue);
-        }
-
-        public String primaryIndex() {
-            return String.format("%s/%s", tableName, "pk");
-        }
-    }
 }
