@@ -13,7 +13,7 @@ public interface KeyValueStore {
     <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type,
                                            Map<String, Function<Row_Type, Object>> schema);
 
-    <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type,
+    <Row_Type> Table<Row_Type> createTable(String tableName,
                                            Map<String, Function<Row_Type, Object>> schema,
                                            Map<String, Function<Row_Type, String>> indexes,
                                            Function<Row_Type, byte[]> encoder,

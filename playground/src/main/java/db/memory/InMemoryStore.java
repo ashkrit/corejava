@@ -31,7 +31,7 @@ public class InMemoryStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes, Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes, Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
         throw new UnsupportedOperationException();
     }
 

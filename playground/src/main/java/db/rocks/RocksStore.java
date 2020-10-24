@@ -23,7 +23,10 @@ public class RocksStore implements KeyValueStore {
 
     @Override
     public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes) {
-        return createTable(tableName, type, schema, indexes, row -> new Gson().toJson(row).getBytes(), rawBytes -> new Gson().fromJson(new String(rawBytes), type));
+        Function<Row_Type, byte[]> toJson = row -> new Gson().toJson(row).getBytes();
+        Function<byte[], Row_Type> toRecord = rawBytes -> new Gson().fromJson(new String(rawBytes), type);
+
+        return createTable(tableName, schema, indexes, toJson, toRecord);
     }
 
     private <Row_Type> void registerTable(String tableName, Table<Row_Type> table) {
@@ -36,7 +39,9 @@ public class RocksStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes,
+    public <Row_Type> Table<Row_Type> createTable(String tableName,
+                                                  Map<String, Function<Row_Type, Object>> schema,
+                                                  Map<String, Function<Row_Type, String>> indexes,
                                                   Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
         Table<Row_Type> table = new RocksTable<>(rocksDB, tableName, indexes, schema, encoder, decoder);
         registerTable(tableName, table);
