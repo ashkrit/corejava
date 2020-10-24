@@ -3,6 +3,7 @@ package db.persistent.rocks;
 import com.google.gson.Gson;
 import db.KeyValueStore;
 import db.SSTable;
+import db.TableInfo;
 import org.rocksdb.RocksDB;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class RocksStore implements KeyValueStore {
         Function<Row_Type, byte[]> toJson = row -> new Gson().toJson(row).getBytes();
         Function<byte[], Row_Type> toRecord = rawBytes -> new Gson().fromJson(new String(rawBytes), type);
 
-        return createTable(tableName, schema, indexes, toJson, toRecord);
+        return createTable(new TableInfo<>(tableName, schema, indexes, toJson, toRecord));
     }
 
     private <Row_Type> void registerTable(String tableName, SSTable<Row_Type> SSTable) {
@@ -39,12 +40,9 @@ public class RocksStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> SSTable<Row_Type> createTable(String tableName,
-                                                    Map<String, Function<Row_Type, Object>> schema,
-                                                    Map<String, Function<Row_Type, String>> indexes,
-                                                    Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
-        SSTable<Row_Type> SSTable = new RocksTable<>(rocksDB, tableName, indexes, schema, encoder, decoder);
-        registerTable(tableName, SSTable);
+    public <Row_Type> SSTable<Row_Type> createTable(TableInfo<Row_Type> tableInfo) {
+        SSTable<Row_Type> SSTable = new RocksTable<>(rocksDB, tableInfo.getTableName(), tableInfo.getIndexes(), tableInfo.getSchema(), tableInfo.getEncoder(), tableInfo.getDecoder());
+        registerTable(tableInfo.getTableName(), SSTable);
         return SSTable;
     }
 

@@ -2,6 +2,7 @@ package db.memory;
 
 import db.KeyValueStore;
 import db.SSTable;
+import db.TableInfo;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class InMemoryStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> SSTable<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes, Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
+    public <Row_Type> SSTable<Row_Type> createTable(TableInfo<Row_Type> tableInfo) {
         throw new UnsupportedOperationException();
     }
 
