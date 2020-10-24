@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class KVDatabaseTest {
 
-    KVDatabase db;
+    private KVDatabase db;
 
     @BeforeEach
     public void createDB() {
@@ -42,7 +42,9 @@ public class KVDatabaseTest {
             put("amount", Order::amount);
             put("noOfItem", Order::noOfItems);
         }};
-        db.createTable("orders", cols);
+
+        db
+                .createTable("orders", cols);
 
         List<String> expectedCols = asList("orderId", "customerId", "orderDate", "status", "amount", "noOfItem");
         List<String> actualCols = db.desc("orders");
@@ -100,8 +102,7 @@ public class KVDatabaseTest {
         List<Order> returnRows = new ArrayList<>();
         orders.match("orderId", "100", 5, returnRows::add);
 
-        List expectedRows = asList(o1);
-        assertResult(expectedRows, returnRows);
+        assertResult(asList(o1), returnRows);
     }
 
 
