@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface Table<T_TYPE> {
+public interface SSTable<T_TYPE> {
     List<String> cols();
 
     void scan(Consumer<T_TYPE> consumer, int limit);

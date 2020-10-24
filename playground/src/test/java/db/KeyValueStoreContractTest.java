@@ -53,7 +53,7 @@ public abstract class KeyValueStoreContractTest {
     @Test
     public void insert_data() {
 
-        Table<Order> orders = db.createTable("orders", Order.class, cols());
+        SSTable<Order> orders = db.createTable("orders", Order.class, cols());
 
         List<Order> expectedRows = asList(
                 Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5),
@@ -80,7 +80,7 @@ public abstract class KeyValueStoreContractTest {
             put("status", Order::status);
         }};
 
-        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
+        SSTable<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
@@ -108,7 +108,7 @@ public abstract class KeyValueStoreContractTest {
             put("status", Order::status);
         }};
 
-        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
+        SSTable<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
@@ -154,7 +154,7 @@ public abstract class KeyValueStoreContractTest {
             put("status", Order::status);
         }};
 
-        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
+        SSTable<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
@@ -180,7 +180,7 @@ public abstract class KeyValueStoreContractTest {
             put("status_by_date", o -> o.status() + "#" + o.orderDate());
         }};
 
-        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
+        SSTable<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200901, "SHIPPED", 967.6d, 15);

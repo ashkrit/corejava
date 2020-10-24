@@ -1,7 +1,7 @@
 package db.rocks;
 
 import db.KeyBuilder;
-import db.Table;
+import db.SSTable;
 import org.rocksdb.RocksDB;
 
 import java.util.Collection;
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RocksTable<Row_Type> implements Table<Row_Type> {
+public class RocksSSTable<Row_Type> implements SSTable<Row_Type> {
 
     private final String tableName;
     private final Map<String, Function<Row_Type, String>> indexes;
@@ -27,11 +27,11 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
 
     public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
 
-    public RocksTable(RocksDB db, String tableName,
-                      Map<String, Function<Row_Type, String>> indexes,
-                      Map<String, Function<Row_Type, Object>> cols,
-                      Function<Row_Type, byte[]> encoder,
-                      Function<byte[], Row_Type> decoder) {
+    public RocksSSTable(RocksDB db, String tableName,
+                        Map<String, Function<Row_Type, String>> indexes,
+                        Map<String, Function<Row_Type, Object>> cols,
+                        Function<Row_Type, byte[]> encoder,
+                        Function<byte[], Row_Type> decoder) {
         this.tableName = tableName;
         this.indexes = indexes;
         this.cols = cols;
