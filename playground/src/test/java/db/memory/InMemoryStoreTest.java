@@ -1,6 +1,7 @@
-package db;
+package db.memory;
 
 
+import db.KeyValueStoreContractTest;
 import db.memory.InMemoryStore;
 import org.junit.jupiter.api.BeforeEach;
 

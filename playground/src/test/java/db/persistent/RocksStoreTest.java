@@ -1,5 +1,6 @@
-package db;
+package db.persistent;
 
+import db.KeyValueStoreContractTest;
 import db.persistent.rocks.RocksStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
