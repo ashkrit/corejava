@@ -17,7 +17,7 @@ public class RocksStore implements KeyValueStore {
     private final RocksDB rocksDB;
 
     public RocksStore(File rootFolder) {
-        this.rocksDB = RocksConnection.openDatabase(rootFolder);
+        this.rocksDB = RocksDBDriver.openDatabase(rootFolder);
     }
 
     @Override

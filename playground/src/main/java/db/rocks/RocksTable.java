@@ -3,7 +3,6 @@ package db.rocks;
 import com.google.gson.Gson;
 import db.Table;
 import org.rocksdb.RocksDB;
-import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 
 import java.util.Collection;
@@ -14,6 +13,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static db.rocks.RocksDBDriver.put;
+
 public class RocksTable<Row_Type> implements Table<Row_Type> {
 
     private final String tableName;
@@ -21,6 +22,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     private final Map<String, Function<Row_Type, Object>> cols;
     private final Class<Row_Type> type;
     private final RocksDB db;
+    private KeyBuilder keyBuilder;
 
     public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
 
@@ -30,6 +32,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         this.cols = cols;
         this.db = db;
         this.type = type;
+        this.keyBuilder = new KeyBuilder(tableName);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     @Override
     public void scan(Consumer<Row_Type> consumer, int limit) {
 
-        String fromKey = String.format("%s/%s", tableName, "pk");
+        String fromKey = keyBuilder.primaryIndex();
         iterate(consumer, fromKey, v -> fromJson(v), limit);
 
     }
@@ -72,23 +75,11 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
 
     @Override
     public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
-        String indexKey = buildIndexKey(indexName, matchValue);
+        String indexKey = keyBuilder.searchKey(indexName, matchValue);
         iterate(consumer, indexKey, v -> {
-            String json = new String(get(v));
+            String json = new String(RocksDBDriver.get(db, v.getBytes()));
             return fromJson(json);
         }, limit);
-    }
-
-    private byte[] get(String key) {
-        try {
-            return db.get(key.getBytes());
-        } catch (RocksDBException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String buildIndexKey(String indexName, String matchValue) {
-        return String.format("%s/%s/%s", tableName, indexName, matchValue);
     }
 
     @Override
@@ -101,28 +92,40 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         long sequence = id.incrementAndGet();
         String indexKey = String.format("%s/%s/%s", tableName, "pk", sequence);
         byte[] key = indexKey.getBytes();
-        put(key, new Gson().toJson(row).getBytes());
+        put(db, key, new Gson().toJson(row).getBytes());
         buildIndex(row, key, indexKey);
-    }
-
-    private void put(byte[] key, byte[] value) {
-        try {
-            db.put(key, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void buildIndex(Row_Type row, byte[] keyRef, String key) {
         for (Map.Entry<String, Function<Row_Type, String>> index : indexes.entrySet()) {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
-            String indexKey = createIndexKey(key, indexValue, indexName);
-            put(indexKey.getBytes(), keyRef);
+            String indexKey = keyBuilder.rowKey(indexName, indexValue, key);
+            put(db, indexKey.getBytes(), keyRef);
         }
     }
 
-    private String createIndexKey(String key, String indexValue, String indexName) {
-        return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, key);
+    static class KeyBuilder {
+        final String tableName;
+
+        /*
+          Format
+          table/index/indexvalue/rowid
+         */
+        KeyBuilder(String tableName) {
+            this.tableName = tableName;
+        }
+
+        public String rowKey(String indexName, String indexValue, String key) {
+            return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, key);
+        }
+
+        public String searchKey(String indexName, String indexValue) {
+            return String.format("%s/%s/%s", tableName, indexName, indexValue);
+        }
+
+        public String primaryIndex() {
+            return String.format("%s/%s", tableName, "pk");
+        }
     }
 }
