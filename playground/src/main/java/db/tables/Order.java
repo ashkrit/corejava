@@ -1,14 +1,14 @@
 package db.tables;
 
 public class Order {
-    private final String orderId;
+    private final long orderId;
     private final String customerId;
     private final int orderDate;
     private final String status;
     private final double amount;
     private final int noOfItems;
 
-    public Order(String orderId, String customerId, int orderDate, String status, double amount, int noOfItems) {
+    public Order(long orderId, String customerId, int orderDate, String status, double amount, int noOfItems) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.orderDate = orderDate;
@@ -17,7 +17,11 @@ public class Order {
         this.noOfItems = noOfItems;
     }
 
-    public String orderId() {
+    public static Order of(long orderId, String customerId, int orderDate, String status, double amount, int noOfItems) {
+        return new Order(orderId, customerId, orderDate, status, amount, noOfItems);
+    }
+
+    public long orderId() {
         return orderId;
     }
 

@@ -1,15 +1,14 @@
 package db;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Table<Row_Type> {
     public final String tableName;
     public final Map<String, Function<Row_Type, Object>> cols;
-
+    private final Map<String, Row_Type> rows = new HashMap<>();
 
     public Table(String tableName, Map<String, Function<Row_Type, Object>> cols) {
         this.tableName = tableName;
@@ -24,8 +23,18 @@ public class Table<Row_Type> {
                 .collect(Collectors.toList());
     }
 
-    public void insert(Collection<Row_Type> rows) {
 
+    public void scan(int limit, Consumer<Row_Type> consumer) {
+
+        rows.entrySet().stream()
+                .limit(limit)
+                .map(Map.Entry::getValue)
+                .forEach(consumer::accept);
+
+    }
+
+    public void insert(Row_Type row) {
+        rows.put(UUID.randomUUID().toString(), row);
     }
 
     @Override
