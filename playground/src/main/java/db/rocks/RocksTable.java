@@ -117,8 +117,12 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         for (Map.Entry<String, Function<Row_Type, String>> index : indexes.entrySet()) {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
-            String indexKey = String.format("%s/%s/%s/%s", tableName, indexName, indexValue, key);
+            String indexKey = createIndexKey(key, indexValue, indexName);
             put(indexKey.getBytes(), keyRef);
         }
+    }
+
+    private String createIndexKey(String key, String indexValue, String indexName) {
+        return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, key);
     }
 }

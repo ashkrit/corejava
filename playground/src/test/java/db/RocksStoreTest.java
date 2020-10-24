@@ -1,6 +1,6 @@
 package db;
 
-import db.rocks.RocksKeyValueStore;
+import db.rocks.RocksStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -9,14 +9,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-public class RocksKeyValueStoreTest extends KeyValueDatabaseContractTest {
+public class RocksStoreTest extends KeyValueStoreContractTest {
 
     @BeforeEach
     public void createDB() {
         File tmpdir = new File(System.getProperty("java.io.tmpdir"), "rocks");
         System.out.println("DB created at " + tmpdir.getAbsolutePath());
         cleanFiles(tmpdir);
-        this.db = new RocksKeyValueStore(tmpdir);
+        this.db = new RocksStore(tmpdir);
     }
 
     private void cleanFiles(File tmpdir) {
@@ -36,7 +36,7 @@ public class RocksKeyValueStoreTest extends KeyValueDatabaseContractTest {
 
     @AfterEach
     public void cleanDB() {
-        ((RocksKeyValueStore) this.db).close();
+        ((RocksStore) this.db).close();
     }
 
 

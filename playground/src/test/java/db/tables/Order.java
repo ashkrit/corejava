@@ -1,4 +1,4 @@
-package db;
+package db.tables;
 
 import java.util.Objects;
 

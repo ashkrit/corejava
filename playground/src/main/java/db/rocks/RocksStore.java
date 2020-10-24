@@ -1,8 +1,7 @@
 package db.rocks;
 
-import db.KVDatabase;
+import db.KeyValueStore;
 import db.Table;
-import db.memory.InMemoryTable;
 import org.rocksdb.RocksDB;
 
 import java.io.File;
@@ -13,17 +12,17 @@ import java.util.function.Function;
 
 import static java.util.Collections.emptyMap;
 
-public class RocksKeyValueStore implements KVDatabase {
+public class RocksStore implements KeyValueStore {
     private final Map<String, Table<?>> tables = new HashMap<>();
     private final RocksDB rocksDB;
 
-    public RocksKeyValueStore(File rootFolder) {
+    public RocksStore(File rootFolder) {
         this.rocksDB = RocksConnection.openDatabase(rootFolder);
     }
 
     @Override
     public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
-        Table<Row_Type> table = new RocksTable<>(rocksDB, t,tableName, indexes, cols);
+        Table<Row_Type> table = new RocksTable<>(rocksDB, t, tableName, indexes, cols);
         registerTable(tableName, table);
         return table;
     }

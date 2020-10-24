@@ -1,5 +1,6 @@
 package db;
 
+import db.tables.Order;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -10,9 +11,9 @@ import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public abstract class KeyValueDatabaseContractTest {
+public abstract class KeyValueStoreContractTest {
 
-    public KVDatabase db;
+    public KeyValueStore db;
 
     @Test
     public void create_table() {

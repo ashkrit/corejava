@@ -1,6 +1,6 @@
 package db.memory;
 
-import db.KVDatabase;
+import db.KeyValueStore;
 import db.Table;
 
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 import static java.util.Collections.emptyMap;
 
-public class InMemoryKV implements KVDatabase {
+public class InMemoryStore implements KeyValueStore {
 
     private final Map<String, Table<?>> tables = new HashMap<>();
 
