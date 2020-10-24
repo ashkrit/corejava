@@ -2,6 +2,7 @@ package db;
 
 import db.impl.InMemoryKV;
 import db.tables.Order;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -99,7 +100,6 @@ public class KVDatabaseTest {
         orders.insert(o3);
         orders.insert(o4);
 
-
         List<Order> returnRows = new ArrayList<>();
         orders.match("orderId", "100", 5, returnRows::add);
 
@@ -178,6 +178,45 @@ public class KVDatabaseTest {
         List<Order> returnRows = new ArrayList<>();
         orders.match("status", "SHIPPED", 2, returnRows);
         assertResult(asList(o1, o2), returnRows);
+
+    }
+
+    @Test
+    public void multi_column_index() {
+
+        Map<String, Function<Order, String>> indexes = new HashMap<String, Function<Order, String>>() {{
+            put("status_by_date", o -> o.status() + "#" + o.orderDate());
+        }};
+
+        Table<Order> orders = db.createTable("orders", cols(), indexes);
+
+        Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
+        Order o2 = Order.of(101, "2", 20200901, "SHIPPED", 967.6d, 15);
+        Order o3 = Order.of(102, "1", 20201003, "SHIPPED", 767.6d, 25);
+        Order o4 = Order.of(104, "3", 20201004, "CANCEL", 767.6d, 25);
+
+        orders.insert(o1);
+        orders.insert(o2);
+        orders.insert(o3);
+        orders.insert(o4);
+
+
+        assertAll(
+                () -> {
+                    //All Shipped
+                    List<Order> returnRows = new ArrayList<>();
+                    orders.match("status_by_date", "SHIPPED", 10, returnRows);
+                    assertResult(asList(o1, o2, o3), returnRows);
+                },
+                () -> {
+                    //All shipped on 202009
+                    List<Order> returnRows = new ArrayList<>();
+                    orders.match("status_by_date", "SHIPPED#202009", 10, returnRows);
+                    assertResult(asList(o1, o2), returnRows);
+                }
+
+        );
+
 
     }
 
