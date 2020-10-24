@@ -1,7 +1,6 @@
 package db.rocks;
 
 import com.google.gson.Gson;
-import db.Order;
 import db.Table;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -20,15 +19,17 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     private final String tableName;
     private final Map<String, Function<Row_Type, String>> indexes;
     private final Map<String, Function<Row_Type, Object>> cols;
+    private final Class<Row_Type> type;
     private final RocksDB db;
 
     public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
 
-    public RocksTable(RocksDB db, String tableName, Map<String, Function<Row_Type, String>> indexes, Map<String, Function<Row_Type, Object>> cols) {
+    public RocksTable(RocksDB db, Class<Row_Type> type, String tableName, Map<String, Function<Row_Type, String>> indexes, Map<String, Function<Row_Type, Object>> cols) {
         this.tableName = tableName;
         this.indexes = indexes;
         this.cols = cols;
         this.db = db;
+        this.type = type;
     }
 
     @Override
@@ -44,11 +45,15 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     public void scan(Consumer<Row_Type> consumer, int limit) {
 
         String fromKey = String.format("%s/%s", tableName, "pk");
-        iterate(consumer, fromKey, v -> (Row_Type) new Gson().fromJson(v, Order.class), limit);
+        iterate(consumer, fromKey, v -> fromJson(v), limit);
 
     }
 
-    private void iterate(Consumer<Row_Type> consumer, String fromKey, Function<String, Row_Type> fn, int limit) {
+    private Row_Type fromJson(String value) {
+        return new Gson().fromJson(value, type);
+    }
+
+    private void iterate(Consumer<Row_Type> consumer, String fromKey, Function<String, Row_Type> converter, int limit) {
         RocksIterator itr = db.newIterator();
         itr.seek(fromKey.getBytes());
         int tracker = limit;
@@ -58,7 +63,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
                 break;
             }
             String json = new String(itr.value());
-            consumer.accept(fn.apply(json));
+            consumer.accept(converter.apply(json));
             itr.next();
             tracker--;
         }
@@ -69,13 +74,17 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
         String indexKey = buildIndexKey(indexName, matchValue);
         iterate(consumer, indexKey, v -> {
-            try {
-                String json = new String(db.get(v.getBytes()));
-                return (Row_Type) new Gson().fromJson(json, Order.class);
-            } catch (RocksDBException e) {
-                throw new RuntimeException(e);
-            }
+            String json = new String(get(v));
+            return fromJson(json);
         }, limit);
+    }
+
+    private byte[] get(String key) {
+        try {
+            return db.get(key.getBytes());
+        } catch (RocksDBException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String buildIndexKey(String indexName, String matchValue) {

@@ -18,7 +18,7 @@ public abstract class KeyValueDatabaseContractTest {
     public void create_table() {
 
         Map<String, Function<Order, Object>> cols = Collections.emptyMap();
-        db.createTable("orders", cols);
+        db.createTable("orders", Order.class, cols);
 
         assertEquals(asList(), db.desc("orders"));
     }
@@ -37,7 +37,7 @@ public abstract class KeyValueDatabaseContractTest {
         }};
 
         db
-                .createTable("orders", cols);
+                .createTable("orders", Order.class, cols);
 
         List<String> expectedCols = asList("orderId", "customerId", "orderDate", "status", "amount", "noOfItem");
         List<String> actualCols = db.desc("orders");
@@ -52,7 +52,7 @@ public abstract class KeyValueDatabaseContractTest {
     @Test
     public void insert_data() {
 
-        Table<Order> orders = db.createTable("orders", cols());
+        Table<Order> orders = db.createTable("orders", Order.class, cols());
 
         List<Order> expectedRows = asList(
                 Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5),
@@ -79,7 +79,7 @@ public abstract class KeyValueDatabaseContractTest {
             put("status", Order::status);
         }};
 
-        Table<Order> orders = db.createTable("orders", cols(), indexes);
+        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
@@ -107,7 +107,7 @@ public abstract class KeyValueDatabaseContractTest {
             put("status", Order::status);
         }};
 
-        Table<Order> orders = db.createTable("orders", cols(), indexes);
+        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
@@ -153,7 +153,7 @@ public abstract class KeyValueDatabaseContractTest {
             put("status", Order::status);
         }};
 
-        Table<Order> orders = db.createTable("orders", cols(), indexes);
+        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
@@ -179,7 +179,7 @@ public abstract class KeyValueDatabaseContractTest {
             put("status_by_date", o -> o.status() + "#" + o.orderDate());
         }};
 
-        Table<Order> orders = db.createTable("orders", cols(), indexes);
+        Table<Order> orders = db.createTable("orders", Order.class, cols(), indexes);
 
         Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
         Order o2 = Order.of(101, "2", 20200901, "SHIPPED", 967.6d, 15);

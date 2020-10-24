@@ -22,8 +22,8 @@ public class RocksKeyValueStore implements KVDatabase {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
-        Table<Row_Type> table = new RocksTable<>(rocksDB, tableName, indexes, cols);
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
+        Table<Row_Type> table = new RocksTable<>(rocksDB, t,tableName, indexes, cols);
         registerTable(tableName, table);
         return table;
     }
@@ -33,8 +33,8 @@ public class RocksKeyValueStore implements KVDatabase {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> cols) {
-        return createTable(tableName, cols, emptyMap());
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols) {
+        return createTable(tableName, t, cols, emptyMap());
     }
 
     @Override

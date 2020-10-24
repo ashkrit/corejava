@@ -15,7 +15,7 @@ public class InMemoryKV implements KVDatabase {
     private final Map<String, Table<?>> tables = new HashMap<>();
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
         InMemoryTable<Row_Type> table = new InMemoryTable<>(tableName, cols, indexes);
         registerTable(tableName, table);
         return table;
@@ -26,8 +26,8 @@ public class InMemoryKV implements KVDatabase {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> cols) {
-        return createTable(tableName, cols, emptyMap());
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols) {
+        return createTable(tableName, t, cols, emptyMap());
     }
 
     @Override
