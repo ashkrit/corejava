@@ -1,4 +1,4 @@
-package db.impl;
+package db.memory;
 
 import db.Table;
 
@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class InternalTable<Row_Type> implements Table<Row_Type> {
+public class InMemoryTable<Row_Type> implements Table<Row_Type> {
 
     private final String tableName;
     private final Map<String, Function<Row_Type, String>> indexes;
@@ -20,7 +20,7 @@ public class InternalTable<Row_Type> implements Table<Row_Type> {
     private final Map<Long, Row_Type> rawRows = new HashMap<>();
     private final NavigableMap<String, Long> indexRows = new TreeMap<>();
 
-    public InternalTable(String tableName, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
+    public InMemoryTable(String tableName, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
         this.tableName = tableName;
         this.cols = cols;
         this.indexes = indexes;

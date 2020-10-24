@@ -1,4 +1,4 @@
-package db.impl;
+package db.memory;
 
 import db.KVDatabase;
 import db.Table;
@@ -16,12 +16,12 @@ public class InMemoryKV implements KVDatabase {
 
     @Override
     public <Row_Type> Table<Row_Type> createTable(String tableName, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
-        InternalTable<Row_Type> table = new InternalTable<>(tableName, cols, indexes);
+        InMemoryTable<Row_Type> table = new InMemoryTable<>(tableName, cols, indexes);
         registerTable(tableName, table);
         return table;
     }
 
-    private <Row_Type> void registerTable(String tableName, InternalTable<Row_Type> table) {
+    private <Row_Type> void registerTable(String tableName, InMemoryTable<Row_Type> table) {
         tables.put(tableName, table);
     }
 
