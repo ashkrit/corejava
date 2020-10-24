@@ -1,5 +1,6 @@
 package db;
 
+import db.impl.InMemoryKV;
 import db.tables.Order;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,7 @@ public class KVDatabaseTest {
         expectedRows.forEach(orders::insert);
 
         List<Order> returnRows = new ArrayList<>();
-        orders.scan(5, returnRows::add);
+        orders.scan(returnRows::add, 5);
 
         assertResult(expectedRows, returnRows);
     }
