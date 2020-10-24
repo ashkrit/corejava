@@ -2,6 +2,7 @@ package db;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,7 +17,7 @@ public class InMemoryKV implements KVDatabase {
     }
 
     @Override
-    public Collection<String> desc(String table) {
+    public List<String> desc(String table) {
         Table<?> tableObject = tables.get(table);
         return tableObject.cols();
     }
