@@ -54,33 +54,33 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     public void scan(Consumer<Row_Type> consumer, int limit) {
 
         String fromKey = keyBuilder.primaryIndex();
-        iterate(consumer, fromKey, v -> decoder.apply(v), limit);
+        iterate(fromKey, v -> decoder.apply(v), consumer, limit);
 
     }
 
-    private void iterate(Consumer<Row_Type> consumer, String fromKey, Function<byte[], Row_Type> converter, int limit) {
-        RocksIterator itr = db.newIterator();
-        itr.seek(fromKey.getBytes());
-        int tracker = limit;
-        while (itr.isValid() && tracker > 0) {
-            String s = new String(itr.key());
-            if (!s.startsWith(fromKey)) {
-                break;
+    private void iterate(String fromKey, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit) {
+
+        try (RocksIterator itr = db.newIterator()) {
+
+            itr.seek(fromKey.getBytes());
+
+            int tracker = limit;
+            while (itr.isValid() && tracker > 0) {
+                String s = new String(itr.key());
+                if (!s.startsWith(fromKey)) {
+                    break;
+                }
+                consumer.accept(converter.apply(itr.value()));
+                itr.next();
+                tracker--;
             }
-            consumer.accept(converter.apply(itr.value()));
-            itr.next();
-            tracker--;
         }
-        itr.close();
     }
 
     @Override
     public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
-        String indexKey = keyBuilder.searchKey(indexName, matchValue);
-        iterate(consumer, indexKey, key -> {
-            byte[] rawBytes = get(db, key);
-            return decoder.apply(rawBytes);
-        }, limit);
+        String indexKey = keyBuilder.primaryIndex(indexName, matchValue);
+        iterate(indexKey, key -> decoder.apply(get(db, key)), consumer, limit);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     @Override
     public void insert(Row_Type row) {
         long sequence = id.incrementAndGet();
-        String indexKey = String.format("%s/%s/%s", tableName, "pk", sequence);
+        String indexKey = keyBuilder.primaryIndex("pk", String.valueOf(sequence));
         byte[] key = indexKey.getBytes();
         put(db, key, encoder.apply(row));
         buildIndex(row, key, indexKey);
@@ -101,8 +101,8 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         for (Map.Entry<String, Function<Row_Type, String>> index : indexes.entrySet()) {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
-            String indexKey = keyBuilder.rowKey(indexName, indexValue, key);
-            put(db, indexKey.getBytes(), keyRef);
+            String indexKey = keyBuilder.secondaryIndex(indexName, indexValue, key);
+            put(db, indexKey.getBytes(), keyRef); // This maintain reference to PK. To make covered full row can be stored.
         }
     }
 
@@ -117,11 +117,11 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
             this.tableName = tableName;
         }
 
-        public String rowKey(String indexName, String indexValue, String key) {
-            return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, key);
+        public String secondaryIndex(String indexName, String indexValue, String rowKey) {
+            return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, rowKey);
         }
 
-        public String searchKey(String indexName, String indexValue) {
+        public String primaryIndex(String indexName, String indexValue) {
             return String.format("%s/%s/%s", tableName, indexName, indexValue);
         }
 
