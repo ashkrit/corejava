@@ -11,15 +11,15 @@ public class KeyBuilder {
         this.tableName = tableName;
     }
 
-    public String secondaryIndex(String indexName, String indexValue, String rowKey) {
+    public String secondaryIndexKey(String indexName, String indexValue, String rowKey) {
         return String.format("%s/%s/%s/%s", tableName, indexName, indexValue, rowKey);
     }
 
-    public String primaryIndex(String indexName, String indexValue) {
+    public String searchKey(String indexName, String indexValue) {
         return String.format("%s/%s/%s", tableName, indexName, indexValue);
     }
 
-    public String primaryIndex() {
+    public String primaryKey() {
         return String.format("%s/%s", tableName, "pk");
     }
 }

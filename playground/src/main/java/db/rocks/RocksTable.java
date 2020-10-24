@@ -17,9 +17,12 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     private final String tableName;
     private final Map<String, Function<Row_Type, String>> indexes;
     private final Map<String, Function<Row_Type, Object>> cols;
+
     private final Function<Row_Type, byte[]> encoder;
     private final Function<byte[], Row_Type> decoder;
+
     private final KeyBuilder keyBuilder;
+
     private final NavigableRocks nvRocks;
 
     public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
@@ -50,27 +53,27 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     @Override
     public void scan(Consumer<Row_Type> consumer, int limit) {
 
-        String fromKey = keyBuilder.primaryIndex();
+        String fromKey = keyBuilder.primaryKey();
         nvRocks.iterate(fromKey, v -> decoder.apply(v), consumer, limit);
 
     }
 
 
     @Override
-    public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
-        String indexKey = keyBuilder.primaryIndex(indexName, matchValue);
+    public void match(String indexName, String matchValue, Consumer<Row_Type> consumer, int limit) {
+        String indexKey = keyBuilder.searchKey(indexName, matchValue);
         nvRocks.iterate(indexKey, key -> decoder.apply(nvRocks.get(key)), consumer, limit);
     }
 
     @Override
-    public void match(String indexName, String matchValue, int limit, Collection<Row_Type> container) {
-        match(indexName, matchValue, limit, container::add);
+    public void match(String indexName, String matchValue, Collection<Row_Type> container, int limit) {
+        match(indexName, matchValue, container::add, limit);
     }
 
     @Override
     public void insert(Row_Type row) {
         long sequence = id.incrementAndGet();
-        String indexKey = keyBuilder.primaryIndex("pk", String.valueOf(sequence));
+        String indexKey = keyBuilder.searchKey("pk", String.valueOf(sequence));
         byte[] key = indexKey.getBytes();
         nvRocks.put(key, encoder.apply(row));
         buildIndex(row, key, indexKey);
@@ -80,7 +83,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         for (Map.Entry<String, Function<Row_Type, String>> index : indexes.entrySet()) {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
-            String indexKey = keyBuilder.secondaryIndex(indexName, indexValue, key);
+            String indexKey = keyBuilder.secondaryIndexKey(indexName, indexValue, key);
             nvRocks.put(indexKey.getBytes(), keyRef); // This maintain reference to PK. To make covered full row can be stored.
         }
     }

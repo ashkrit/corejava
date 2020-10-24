@@ -9,9 +9,9 @@ public interface Table<T_TYPE> {
 
     void scan(Consumer<T_TYPE> consumer, int limit);
 
-    void match(String indexName, String matchValue, int limit, Consumer<T_TYPE> consumer);
+    void match(String indexName, String matchValue, Consumer<T_TYPE> consumer, int limit);
 
-    void match(String indexName, String matchValue, int limit, Collection<T_TYPE> container);
+    void match(String indexName, String matchValue, Collection<T_TYPE> container, int limit);
 
     void insert(T_TYPE row);
 }

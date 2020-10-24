@@ -93,7 +93,7 @@ public abstract class KeyValueStoreContractTest {
         orders.insert(o4);
 
         List<Order> returnRows = new ArrayList<>();
-        orders.match("orderId", "100", 5, returnRows::add);
+        orders.match("orderId", "100", returnRows::add, 5);
 
         assertResult(asList(o1), returnRows);
     }
@@ -124,23 +124,23 @@ public abstract class KeyValueStoreContractTest {
         assertAll(
                 () -> {
                     List<Order> returnRows = new ArrayList<>();
-                    orders.match("status", "CANCEL", 5, returnRows);
+                    orders.match("status", "CANCEL", returnRows, 5);
 
                     assertResult(asList(o4), returnRows);
                 },
                 () -> {
                     List<Order> returnRows = new ArrayList<>();
-                    orders.match("status", "SHIPPED", 5, returnRows);
+                    orders.match("status", "SHIPPED", returnRows, 5);
                     assertResult(asList(o1, o2, o3), returnRows);
                 },
                 () -> {
                     List<Order> returnRows = new ArrayList<>();
-                    orders.match("customerId", "1", 5, returnRows);
+                    orders.match("customerId", "1", returnRows, 5);
                     assertResult(asList(o1, o3), returnRows);
                 },
                 () -> {
                     List<Order> returnRows = new ArrayList<>();
-                    orders.match("orderDate", "20200903", 5, returnRows);
+                    orders.match("orderDate", "20200903", returnRows, 5);
                     assertResult(asList(o4, o3), returnRows);
                 }
         );
@@ -168,7 +168,7 @@ public abstract class KeyValueStoreContractTest {
 
 
         List<Order> returnRows = new ArrayList<>();
-        orders.match("status", "SHIPPED", 2, returnRows);
+        orders.match("status", "SHIPPED", returnRows, 2);
         assertResult(asList(o1, o2), returnRows);
 
     }
@@ -197,13 +197,13 @@ public abstract class KeyValueStoreContractTest {
                 () -> {
                     //All Shipped
                     List<Order> returnRows = new ArrayList<>();
-                    orders.match("status_by_date", "SHIPPED", 10, returnRows);
+                    orders.match("status_by_date", "SHIPPED", returnRows, 10);
                     assertResult(asList(o1, o2, o3), returnRows);
                 },
                 () -> {
                     //All shipped on 202009
                     List<Order> returnRows = new ArrayList<>();
-                    orders.match("status_by_date", "SHIPPED#202009", 10, returnRows);
+                    orders.match("status_by_date", "SHIPPED#202009", returnRows, 10);
                     assertResult(asList(o1, o2), returnRows);
                 }
 

@@ -46,15 +46,15 @@ public class InMemoryTable<Row_Type> implements Table<Row_Type> {
     }
 
     @Override
-    public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
+    public void match(String indexName, String matchValue, Consumer<Row_Type> consumer, int limit) {
         String indexKey = buildIndexKey(indexName, matchValue);
         Stream<Row_Type> rows = rows(indexKey, limit);
         rows.forEach(consumer::accept);
     }
 
     @Override
-    public void match(String indexName, String matchValue, int limit, Collection<Row_Type> container) {
-        match(indexName, matchValue, limit, container::add);
+    public void match(String indexName, String matchValue, Collection<Row_Type> container, int limit) {
+        match(indexName, matchValue, container::add, limit);
     }
 
     private Stream<Row_Type> rows(String indexKey, int limit) {
