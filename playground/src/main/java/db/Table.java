@@ -1,5 +1,7 @@
 package db;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -42,9 +44,19 @@ public class Table<Row_Type> {
     }
 
     public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
-        String indexKey = String.format("%s/%s/%s", tableName, indexName, matchValue);
+        String indexKey = buildIndexKey(indexName, matchValue);
+        Stream<Row_Type> rows = rows(indexKey, limit);
+        rows.forEach(consumer::accept);
 
-        Stream<Map.Entry<String, Long>> filterRows = indexRows.tailMap(indexKey).entrySet()
+    }
+
+    public void match(String indexName, String matchValue, int limit, Collection<Row_Type> container) {
+        match(indexName, matchValue, limit, container::add);
+    }
+
+    private Stream<Row_Type> rows(String indexKey, int limit) {
+        Stream<Map.Entry<String, Long>> filterRows = indexRows
+                .tailMap(indexKey).entrySet()
                 .stream()
                 .filter(e -> e.getKey().startsWith(indexKey));
 
@@ -53,8 +65,11 @@ public class Table<Row_Type> {
                 .map(Map.Entry::getValue)
                 .map(rawRows::get);
 
-        rows.forEach(consumer::accept);
+        return rows;
+    }
 
+    private String buildIndexKey(String indexName, String matchValue) {
+        return String.format("%s/%s/%s", tableName, indexName, matchValue);
     }
 
     public void insert(Row_Type row) {

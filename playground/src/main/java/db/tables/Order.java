@@ -44,4 +44,9 @@ public class Order {
     public String status() {
         return status;
     }
+
+    @Override
+    public String toString() {
+        return String.format("OrderId:%s; customerId:%s; orderDate:%s; status:%s; %s;%s", orderId, customerId, orderDate, status, amount, noOfItems);
+    }
 }

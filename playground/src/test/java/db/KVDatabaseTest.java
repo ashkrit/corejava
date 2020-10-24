@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.sort;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class KVDatabaseTest {
@@ -69,10 +70,7 @@ public class KVDatabaseTest {
         List<Order> returnRows = new ArrayList<>();
         orders.scan(5, returnRows::add);
 
-        sort(expectedRows, Comparator.comparing(Order::orderId));
-        sort(returnRows, Comparator.comparing(Order::orderId));
-
-        assertEquals(expectedRows, returnRows);
+        assertResult(expectedRows, returnRows);
     }
 
 
@@ -103,10 +101,62 @@ public class KVDatabaseTest {
         orders.match("orderId", "100", 5, returnRows::add);
 
         List expectedRows = asList(o1);
-        sort(expectedRows, Comparator.comparing(Order::orderId));
-        sort(returnRows, Comparator.comparing(Order::orderId));
+        assertResult(expectedRows, returnRows);
+    }
 
-        assertEquals(expectedRows, returnRows);
+
+    @Test
+    public void table_with_multi_result_index() {
+
+        Map<String, Function<Order, String>> indexes = new HashMap<String, Function<Order, String>>() {{
+            put("customerId", Order::customerId);
+            put("orderDate", o -> String.valueOf(o.orderDate()));
+            put("status", Order::status);
+        }};
+
+        Table<Order> orders = db.createTable("orders", cols(), indexes);
+
+        Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
+        Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
+        Order o3 = Order.of(102, "1", 20200903, "SHIPPED", 767.6d, 25);
+        Order o4 = Order.of(104, "3", 20200903, "CANCEL", 767.6d, 25);
+
+        orders.insert(o1);
+        orders.insert(o2);
+        orders.insert(o3);
+        orders.insert(o4);
+
+
+        assertAll(
+                () -> {
+                    List<Order> returnRows = new ArrayList<>();
+                    orders.match("status", "CANCEL", 5, returnRows);
+
+                    assertResult(asList(o4), returnRows);
+                },
+                () -> {
+                    List<Order> returnRows = new ArrayList<>();
+                    orders.match("status", "SHIPPED", 5, returnRows);
+                    assertResult(asList(o1, o2, o3), returnRows);
+                },
+                () -> {
+                    List<Order> returnRows = new ArrayList<>();
+                    orders.match("customerId", "1", 5, returnRows);
+                    assertResult(asList(o1, o3), returnRows);
+                },
+                () -> {
+                    List<Order> returnRows = new ArrayList<>();
+                    orders.match("orderDate", "20200903", 5, returnRows);
+                    assertResult(asList(o4, o3), returnRows);
+                }
+        );
+
+    }
+
+    private void assertResult(List<Order> expectedRows, List<Order> actualRows) {
+        sort(expectedRows, Comparator.comparing(Order::orderId));
+        sort(actualRows, Comparator.comparing(Order::orderId));
+        assertEquals(expectedRows, actualRows);
     }
 
 
