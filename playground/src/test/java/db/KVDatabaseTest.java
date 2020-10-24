@@ -153,6 +153,32 @@ public class KVDatabaseTest {
 
     }
 
+    @Test
+    public void match_with_limit() {
+
+        Map<String, Function<Order, String>> indexes = new HashMap<String, Function<Order, String>>() {{
+            put("status", Order::status);
+        }};
+
+        Table<Order> orders = db.createTable("orders", cols(), indexes);
+
+        Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
+        Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
+        Order o3 = Order.of(102, "1", 20200903, "SHIPPED", 767.6d, 25);
+        Order o4 = Order.of(104, "3", 20200903, "CANCEL", 767.6d, 25);
+
+        orders.insert(o1);
+        orders.insert(o2);
+        orders.insert(o3);
+        orders.insert(o4);
+
+
+        List<Order> returnRows = new ArrayList<>();
+        orders.match("status", "SHIPPED", 2, returnRows);
+        assertResult(asList(o1, o2), returnRows);
+
+    }
+
     private void assertResult(List<Order> expectedRows, List<Order> actualRows) {
         sort(expectedRows, Comparator.comparing(Order::orderId));
         sort(actualRows, Comparator.comparing(Order::orderId));
