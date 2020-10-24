@@ -15,8 +15,8 @@ public class InMemoryStore implements KeyValueStore {
     private final Map<String, Table<?>> tables = new HashMap<>();
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
-        InMemoryTable<Row_Type> table = new InMemoryTable<>(tableName, cols, indexes);
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes) {
+        InMemoryTable<Row_Type> table = new InMemoryTable<>(tableName, schema, indexes);
         registerTable(tableName, table);
         return table;
     }
@@ -26,8 +26,13 @@ public class InMemoryStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols) {
-        return createTable(tableName, t, cols, emptyMap());
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema) {
+        return createTable(tableName, type, schema, emptyMap());
+    }
+
+    @Override
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes, Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

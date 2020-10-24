@@ -1,5 +1,6 @@
 package db.rocks;
 
+import com.google.gson.Gson;
 import db.KeyValueStore;
 import db.Table;
 import org.rocksdb.RocksDB;
@@ -21,10 +22,8 @@ public class RocksStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
-        Table<Row_Type> table = new RocksTable<>(rocksDB, t, tableName, indexes, cols);
-        registerTable(tableName, table);
-        return table;
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes) {
+        return createTable(tableName, type, schema, indexes, row -> new Gson().toJson(row).getBytes(), rawBytes -> new Gson().fromJson(new String(rawBytes), type));
     }
 
     private <Row_Type> void registerTable(String tableName, Table<Row_Type> table) {
@@ -32,8 +31,16 @@ public class RocksStore implements KeyValueStore {
     }
 
     @Override
-    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> t, Map<String, Function<Row_Type, Object>> cols) {
-        return createTable(tableName, t, cols, emptyMap());
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema) {
+        return createTable(tableName, type, schema, emptyMap());
+    }
+
+    @Override
+    public <Row_Type> Table<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes,
+                                                  Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
+        Table<Row_Type> table = new RocksTable<>(rocksDB, tableName, indexes, schema, encoder, decoder);
+        registerTable(tableName, table);
+        return table;
     }
 
     @Override

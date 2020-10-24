@@ -1,6 +1,5 @@
 package db.rocks;
 
-import com.google.gson.Gson;
 import db.Table;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksIterator;
@@ -13,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static db.rocks.RocksDBDriver.get;
 import static db.rocks.RocksDBDriver.put;
 
 public class RocksTable<Row_Type> implements Table<Row_Type> {
@@ -20,19 +20,25 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     private final String tableName;
     private final Map<String, Function<Row_Type, String>> indexes;
     private final Map<String, Function<Row_Type, Object>> cols;
-    private final Class<Row_Type> type;
+    private final Function<Row_Type, byte[]> encoder;
+    private final Function<byte[], Row_Type> decoder;
+    private final KeyBuilder keyBuilder;
     private final RocksDB db;
-    private KeyBuilder keyBuilder;
 
     public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
 
-    public RocksTable(RocksDB db, Class<Row_Type> type, String tableName, Map<String, Function<Row_Type, String>> indexes, Map<String, Function<Row_Type, Object>> cols) {
+    public RocksTable(RocksDB db, String tableName,
+                      Map<String, Function<Row_Type, String>> indexes,
+                      Map<String, Function<Row_Type, Object>> cols,
+                      Function<Row_Type, byte[]> encoder,
+                      Function<byte[], Row_Type> decoder) {
         this.tableName = tableName;
         this.indexes = indexes;
         this.cols = cols;
         this.db = db;
-        this.type = type;
         this.keyBuilder = new KeyBuilder(tableName);
+        this.encoder = encoder;
+        this.decoder = decoder;
     }
 
     @Override
@@ -48,15 +54,11 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     public void scan(Consumer<Row_Type> consumer, int limit) {
 
         String fromKey = keyBuilder.primaryIndex();
-        iterate(consumer, fromKey, v -> fromJson(v), limit);
+        iterate(consumer, fromKey, v -> decoder.apply(v), limit);
 
     }
 
-    private Row_Type fromJson(String value) {
-        return new Gson().fromJson(value, type);
-    }
-
-    private void iterate(Consumer<Row_Type> consumer, String fromKey, Function<String, Row_Type> converter, int limit) {
+    private void iterate(Consumer<Row_Type> consumer, String fromKey, Function<byte[], Row_Type> converter, int limit) {
         RocksIterator itr = db.newIterator();
         itr.seek(fromKey.getBytes());
         int tracker = limit;
@@ -65,8 +67,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
             if (!s.startsWith(fromKey)) {
                 break;
             }
-            String json = new String(itr.value());
-            consumer.accept(converter.apply(json));
+            consumer.accept(converter.apply(itr.value()));
             itr.next();
             tracker--;
         }
@@ -76,9 +77,9 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
     @Override
     public void match(String indexName, String matchValue, int limit, Consumer<Row_Type> consumer) {
         String indexKey = keyBuilder.searchKey(indexName, matchValue);
-        iterate(consumer, indexKey, v -> {
-            String json = new String(RocksDBDriver.get(db, v.getBytes()));
-            return fromJson(json);
+        iterate(consumer, indexKey, key -> {
+            byte[] rawBytes = get(db, key);
+            return decoder.apply(rawBytes);
         }, limit);
     }
 
@@ -92,7 +93,7 @@ public class RocksTable<Row_Type> implements Table<Row_Type> {
         long sequence = id.incrementAndGet();
         String indexKey = String.format("%s/%s/%s", tableName, "pk", sequence);
         byte[] key = indexKey.getBytes();
-        put(db, key, new Gson().toJson(row).getBytes());
+        put(db, key, encoder.apply(row));
         buildIndex(row, key, indexKey);
     }
 
