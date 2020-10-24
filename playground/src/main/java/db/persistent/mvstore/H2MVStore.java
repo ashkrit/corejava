@@ -1,9 +1,9 @@
-package db.rocks;
+package db.persistent.mvstore;
 
 import com.google.gson.Gson;
 import db.KeyValueStore;
 import db.SSTable;
-import org.rocksdb.RocksDB;
+import org.h2.mvstore.MVStore;
 
 import java.io.File;
 import java.util.HashMap;
@@ -13,12 +13,13 @@ import java.util.function.Function;
 
 import static java.util.Collections.emptyMap;
 
-public class RocksStore implements KeyValueStore {
-    private final Map<String, SSTable<?>> tables = new HashMap<>();
-    private final RocksDB rocksDB;
+public class H2MVStore implements KeyValueStore {
 
-    public RocksStore(File rootFolder) {
-        this.rocksDB = RocksDBDriver.openDatabase(rootFolder);
+    private final Map<String, SSTable<?>> tables = new HashMap<>();
+    private final MVStore mvStore;
+
+    public H2MVStore(File rootFolder) {
+        this.mvStore = MVStore.open(rootFolder.getAbsolutePath());
     }
 
     @Override
@@ -43,7 +44,7 @@ public class RocksStore implements KeyValueStore {
                                                     Map<String, Function<Row_Type, Object>> schema,
                                                     Map<String, Function<Row_Type, String>> indexes,
                                                     Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder) {
-        SSTable<Row_Type> SSTable = new RocksSSTable<>(rocksDB, tableName, indexes, schema, encoder, decoder);
+        SSTable<Row_Type> SSTable = new MVStoreTable<>(mvStore, tableName, indexes, schema, encoder, decoder);
         registerTable(tableName, SSTable);
         return SSTable;
     }
@@ -55,6 +56,6 @@ public class RocksStore implements KeyValueStore {
     }
 
     public void close() {
-        this.rocksDB.close();
+        this.mvStore.close();
     }
 }

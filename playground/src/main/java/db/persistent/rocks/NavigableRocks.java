@@ -1,5 +1,6 @@
-package db.rocks;
+package db.persistent.rocks;
 
+import db.persistent.NavigablePersistentStore;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
@@ -7,13 +8,14 @@ import org.rocksdb.RocksIterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class NavigableRocks {
+public class NavigableRocks implements NavigablePersistentStore {
     private final RocksDB db;
 
     public NavigableRocks(RocksDB db) {
         this.db = db;
     }
 
+    @Override
     public void put(byte[] key, byte[] value) {
         try {
             db.put(key, value);
@@ -22,6 +24,7 @@ public class NavigableRocks {
         }
     }
 
+    @Override
     public byte[] get(byte[] key) {
         try {
             return db.get(key);
@@ -30,6 +33,7 @@ public class NavigableRocks {
         }
     }
 
+    @Override
     public <Row_Type> void iterate(String fromKey, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit) {
         try (RocksIterator itr = db.newIterator()) {
             itr.seek(fromKey.getBytes());

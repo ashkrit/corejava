@@ -1,4 +1,4 @@
-package db.rocks;
+package db.persistent.rocks;
 
 
 import org.rocksdb.Options;

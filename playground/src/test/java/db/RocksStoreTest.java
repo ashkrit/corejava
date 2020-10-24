@@ -1,6 +1,6 @@
 package db;
 
-import db.rocks.RocksStore;
+import db.persistent.rocks.RocksStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
