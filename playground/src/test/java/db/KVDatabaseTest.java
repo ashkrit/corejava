@@ -1,7 +1,6 @@
 package db;
 
 import db.tables.Order;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +8,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class KVDatabaseTest {
@@ -46,8 +46,8 @@ public class KVDatabaseTest {
         List<String> expectedCols = asList("orderId", "customerId", "orderDate", "status", "amount", "noOfItem");
         List<String> actualCols = db.desc("orders");
 
-        Collections.sort(expectedCols);
-        Collections.sort(actualCols);
+        sort(expectedCols);
+        sort(actualCols);
 
         assertEquals(expectedCols, actualCols);
     }
@@ -69,13 +69,47 @@ public class KVDatabaseTest {
         List<Order> returnRows = new ArrayList<>();
         orders.scan(5, returnRows::add);
 
-        Collections.sort(expectedRows, Comparator.comparing(Order::orderId));
-        Collections.sort(returnRows, Comparator.comparing(Order::orderId));
+        sort(expectedRows, Comparator.comparing(Order::orderId));
+        sort(returnRows, Comparator.comparing(Order::orderId));
 
         assertEquals(expectedRows, returnRows);
     }
 
-    @NotNull
+
+    @Test
+    public void table_with_single_result_index() {
+
+        Map<String, Function<Order, String>> indexes = new HashMap<String, Function<Order, String>>() {{
+            put("orderId", o -> String.valueOf(o.orderId()));
+            put("customerId", Order::customerId);
+            put("orderDate", o -> String.valueOf(o.orderDate()));
+            put("status", Order::status);
+        }};
+
+        Table<Order> orders = db.createTable("orders", cols(), indexes);
+
+        Order o1 = Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5);
+        Order o2 = Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15);
+        Order o3 = Order.of(102, "1", 20200903, "SHIPPED", 767.6d, 25);
+        Order o4 = Order.of(104, "3", 20200903, "CANCEL", 767.6d, 25);
+
+        orders.insert(o1);
+        orders.insert(o2);
+        orders.insert(o3);
+        orders.insert(o4);
+
+
+        List<Order> returnRows = new ArrayList<>();
+        orders.match("orderId", "100", 5, returnRows::add);
+
+        List expectedRows = asList(o1);
+        sort(expectedRows, Comparator.comparing(Order::orderId));
+        sort(returnRows, Comparator.comparing(Order::orderId));
+
+        assertEquals(expectedRows, returnRows);
+    }
+
+
     private Map<String, Function<Order, Object>> cols() {
         Map<String, Function<Order, Object>> cols = new HashMap<String, Function<Order, Object>>() {{
             put("orderId", Order::orderId);
