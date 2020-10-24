@@ -2,7 +2,6 @@ package db;
 
 import db.impl.InMemoryKV;
 import db.tables.Order;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,14 +13,9 @@ import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class KVDatabaseTest {
+public abstract class KeyValueDatabaseContractTest {
 
-    private KVDatabase db;
-
-    @BeforeEach
-    public void createDB() {
-        this.db = new InMemoryKV();
-    }
+    public KVDatabase db;
 
     @Test
     public void create_table() {
