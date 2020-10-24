@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 import static java.util.Collections.emptyMap;
@@ -27,8 +28,8 @@ public class H2MVStore implements KeyValueStore {
     public <Row_Type> SSTable<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes) {
         Function<Row_Type, byte[]> toJson = row -> new Gson().toJson(row).getBytes();
         Function<byte[], Row_Type> toRecord = rawBytes -> new Gson().fromJson(new String(rawBytes), type);
-
-        return createTable(new TableInfo<>(tableName, schema, indexes, toJson, toRecord));
+        AtomicLong auto = new AtomicLong(System.nanoTime());
+        return createTable(new TableInfo<>(tableName, schema, indexes, toJson, toRecord, $ -> String.valueOf(auto.incrementAndGet())));
     }
 
     private <Row_Type> void registerTable(String tableName, SSTable<Row_Type> SSTable) {
@@ -42,7 +43,7 @@ public class H2MVStore implements KeyValueStore {
 
     @Override
     public <Row_Type> SSTable<Row_Type> createTable(TableInfo<Row_Type> tableInfo) {
-        SSTable<Row_Type> SSTable = new MVStoreTable<>(mvStore, tableInfo.getTableName(), tableInfo.getIndexes(), tableInfo.getSchema(), tableInfo.getEncoder(), tableInfo.getDecoder());
+        SSTable<Row_Type> SSTable = new MVStoreTable<>(mvStore, tableInfo);
         registerTable(tableInfo.getTableName(), SSTable);
         return SSTable;
     }
