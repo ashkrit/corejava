@@ -4,6 +4,8 @@ import db.SSTable;
 import db.TableInfo;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,10 +13,9 @@ import java.util.stream.Stream;
 
 public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
 
-    private final Map<String, Row_Type> rawRows = new HashMap<>();
-    private final NavigableMap<String, String> indexRows = new TreeMap<>();
+    private final Map<String, Row_Type> rawRows = new ConcurrentHashMap<>();
+    private final NavigableMap<String, Row_Type> indexRows = new ConcurrentSkipListMap<>();
     private final TableInfo<Row_Type> tableInfo;
-
 
     public InMemorySSTable(TableInfo<Row_Type> tableInfo) {
         this.tableInfo = tableInfo;
@@ -53,15 +54,14 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     private Stream<Row_Type> rows(String indexKey, int limit) {
-        Stream<Map.Entry<String, String>> filterRows = indexRows
+        Stream<Map.Entry<String, Row_Type>> filterRows = indexRows
                 .tailMap(indexKey).entrySet()
                 .stream()
                 .filter(e -> e.getKey().startsWith(indexKey));
 
         Stream<Row_Type> rows = filterRows
                 .limit(limit)
-                .map(Map.Entry::getValue)
-                .map(rawRows::get);
+                .map(Map.Entry::getValue);
 
         return rows;
     }
@@ -101,15 +101,14 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     private Stream<Row_Type> rows(String startKey, String endKey, int limit) {
-        Stream<Map.Entry<String, String>> filterRows = indexRows
+        Stream<Map.Entry<String, Row_Type>> filterRows = indexRows
                 .subMap(startKey, true, endKey, true)
                 .entrySet()
                 .stream();
 
         Stream<Row_Type> rows = filterRows
                 .limit(limit)
-                .map(Map.Entry::getValue)
-                .map(rawRows::get);
+                .map(Map.Entry::getValue);
 
         return rows;
     }
@@ -119,7 +118,7 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
             String indexKey = String.format("%s/%s/%s/%s", tableInfo.getTableName(), indexName, indexValue, key);
-            indexRows.put(indexKey, key);
+            indexRows.put(indexKey, row);
         }
     }
 
