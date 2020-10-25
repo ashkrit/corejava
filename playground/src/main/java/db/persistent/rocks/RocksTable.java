@@ -74,10 +74,10 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
-    public void range(String index, String start, String end, Collection<Row_Type> returnRows, int limit) {
+    public void range(String index, String start, String end, Collection<Row_Type> container, int limit) {
         String startKey = keyBuilder.searchKey(index, start);
         String endKey = keyBuilder.searchKey(index, end);
-        nvStores.iterate(startKey, endKey, key -> tableInfo.getDecoder().apply(nvStores.get(key)), returnRows::add, limit);
+        nvStores.iterate(startKey, endKey, key -> tableInfo.getDecoder().apply(nvStores.get(key)), container::add, limit);
     }
 
     @Override

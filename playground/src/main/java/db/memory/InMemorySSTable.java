@@ -82,11 +82,11 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
-    public void range(String index, String start, String end, Collection<Row_Type> returnRows, int limit) {
+    public void range(String index, String start, String end, Collection<Row_Type> container, int limit) {
         String startKey = buildIndexKey(index, start);
         String endKey = buildIndexKey(index, end);
         Stream<Row_Type> rows = rows(startKey, endKey, limit);
-        rows.forEach(returnRows::add);
+        rows.forEach(container::add);
 
     }
 
