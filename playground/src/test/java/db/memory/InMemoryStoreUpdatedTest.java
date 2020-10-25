@@ -1,10 +1,10 @@
 package db.memory;
 
 
-import db.KeyValueStoreContractTest;
+import db.KeyValueStoreUpdateContractTest;
 import org.junit.jupiter.api.BeforeEach;
 
-public class InMemoryStoreTest extends KeyValueStoreContractTest {
+public class InMemoryStoreUpdatedTest extends KeyValueStoreUpdateContractTest {
 
     @BeforeEach
     public void createDB() {

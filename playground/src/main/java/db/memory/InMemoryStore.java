@@ -17,9 +17,8 @@ public class InMemoryStore implements KeyValueStore {
 
     @Override
     public <Row_Type> SSTable<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes) {
-        InMemorySSTable<Row_Type> table = new InMemorySSTable<>(tableName, schema, indexes);
-        registerTable(tableName, table);
-        return table;
+        TableInfo<Row_Type> tableInfo = new TableInfo<>(tableName, schema, indexes, null, null, $ -> String.valueOf(System.nanoTime()));
+        return createTable(tableInfo);
     }
 
     private <Row_Type> void registerTable(String tableName, InMemorySSTable<Row_Type> table) {
@@ -33,7 +32,9 @@ public class InMemoryStore implements KeyValueStore {
 
     @Override
     public <Row_Type> SSTable<Row_Type> createTable(TableInfo<Row_Type> tableInfo) {
-        throw new UnsupportedOperationException();
+        InMemorySSTable<Row_Type> table = new InMemorySSTable<>(tableInfo);
+        registerTable(tableInfo.getTableName(), table);
+        return table;
     }
 
     @Override

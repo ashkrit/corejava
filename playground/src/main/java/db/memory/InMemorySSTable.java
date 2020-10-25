@@ -1,9 +1,9 @@
 package db.memory;
 
 import db.SSTable;
+import db.TableInfo;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -11,24 +11,19 @@ import java.util.stream.Stream;
 
 public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
 
-    private final String tableName;
-    private final Map<String, Function<Row_Type, String>> indexes;
-    private final Map<String, Function<Row_Type, Object>> cols;
+    private final Map<String, Row_Type> rawRows = new HashMap<>();
+    private final NavigableMap<String, String> indexRows = new TreeMap<>();
+    private final TableInfo<Row_Type> tableInfo;
 
-    public final AtomicLong id = new AtomicLong(System.nanoTime()); // Seed to keep it unique when persistence is implemented.
 
-    private final Map<Long, Row_Type> rawRows = new HashMap<>();
-    private final NavigableMap<String, Long> indexRows = new TreeMap<>();
-
-    public InMemorySSTable(String tableName, Map<String, Function<Row_Type, Object>> cols, Map<String, Function<Row_Type, String>> indexes) {
-        this.tableName = tableName;
-        this.cols = cols;
-        this.indexes = indexes;
+    public InMemorySSTable(TableInfo<Row_Type> tableInfo) {
+        this.tableInfo = tableInfo;
     }
 
     @Override
     public List<String> cols() {
-        return cols
+        return tableInfo
+                .getSchema()
                 .entrySet()
                 .stream()
                 .map(Map.Entry::getKey)
@@ -58,7 +53,7 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     private Stream<Row_Type> rows(String indexKey, int limit) {
-        Stream<Map.Entry<String, Long>> filterRows = indexRows
+        Stream<Map.Entry<String, String>> filterRows = indexRows
                 .tailMap(indexKey).entrySet()
                 .stream()
                 .filter(e -> e.getKey().startsWith(indexKey));
@@ -72,12 +67,12 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     private String buildIndexKey(String indexName, String matchValue) {
-        return String.format("%s/%s/%s", tableName, indexName, matchValue);
+        return String.format("%s/%s/%s", tableInfo.getTableName(), indexName, matchValue);
     }
 
     @Override
     public void insert(Row_Type row) {
-        long key = id.incrementAndGet();
+        String key = tableInfo.getPk().apply(row);
         rawRows.put(key, row);
         buildIndex(row, key);
     }
@@ -102,7 +97,7 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     private Stream<Row_Type> rows(String startKey, String endKey, int limit) {
-        Stream<Map.Entry<String, Long>> filterRows = indexRows
+        Stream<Map.Entry<String, String>> filterRows = indexRows
                 .subMap(startKey, true, endKey, true)
                 .entrySet()
                 .stream();
@@ -115,17 +110,17 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
         return rows;
     }
 
-    private void buildIndex(Row_Type row, long key) {
-        for (Map.Entry<String, Function<Row_Type, String>> index : indexes.entrySet()) {
+    private void buildIndex(Row_Type row, String key) {
+        for (Map.Entry<String, Function<Row_Type, String>> index : tableInfo.getIndexes().entrySet()) {
             String indexValue = index.getValue().apply(row);
             String indexName = index.getKey();
-            String indexKey = String.format("%s/%s/%s/%s", tableName, indexName, indexValue, key);
+            String indexKey = String.format("%s/%s/%s/%s", tableInfo.getTableName(), indexName, indexValue, key);
             indexRows.put(indexKey, key);
         }
     }
 
     @Override
     public String toString() {
-        return String.format("Table[%s]", tableName);
+        return String.format("Table[%s]", tableInfo.getTableName());
     }
 }
