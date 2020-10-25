@@ -10,11 +10,11 @@ public interface SSTable<T_TYPE> {
     //Search functions
     void scan(Consumer<T_TYPE> consumer, int limit);
 
-    void match(String indexName, String matchValue, Consumer<T_TYPE> consumer, int limit);
+    void search(String indexName, String searchValue, Consumer<T_TYPE> consumer, int limit);
 
-    void match(String indexName, String matchValue, Collection<T_TYPE> container, int limit);
+    void search(String indexName, String searchValue, Collection<T_TYPE> container, int limit);
 
-    void range(String index, String start, String end, Collection<T_TYPE> container, int limit);
+    void rangeSearch(String index, String startKey, String endKey, Collection<T_TYPE> container, int limit);
 
     T_TYPE get(String pk);
 

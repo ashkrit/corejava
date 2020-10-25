@@ -41,15 +41,15 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
-    public void match(String indexName, String matchValue, Consumer<Row_Type> consumer, int limit) {
-        String indexKey = buildIndexKey(indexName, matchValue);
+    public void search(String indexName, String searchValue, Consumer<Row_Type> consumer, int limit) {
+        String indexKey = buildIndexKey(indexName, searchValue);
         Stream<Row_Type> rows = rows(indexKey, limit);
         rows.forEach(consumer::accept);
     }
 
     @Override
-    public void match(String indexName, String matchValue, Collection<Row_Type> container, int limit) {
-        match(indexName, matchValue, container::add, limit);
+    public void search(String indexName, String searchValue, Collection<Row_Type> container, int limit) {
+        search(indexName, searchValue, container::add, limit);
     }
 
     private Stream<Row_Type> rows(String indexKey, int limit) {
@@ -82,7 +82,7 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
-    public void range(String index, String start, String end, Collection<Row_Type> container, int limit) {
+    public void rangeSearch(String index, String start, String end, Collection<Row_Type> container, int limit) {
         String startKey = buildIndexKey(index, start);
         String endKey = buildIndexKey(index, end);
         Stream<Row_Type> rows = rows(startKey, endKey, limit);

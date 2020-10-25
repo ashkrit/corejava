@@ -50,14 +50,14 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
 
 
     @Override
-    public void match(String indexName, String matchValue, Consumer<Row_Type> consumer, int limit) {
-        String indexKey = keyBuilder.searchKey(indexName, matchValue);
+    public void search(String indexName, String searchValue, Consumer<Row_Type> consumer, int limit) {
+        String indexKey = keyBuilder.searchKey(indexName, searchValue);
         nvStores.iterate(indexKey, key -> tableInfo.getDecoder().apply(nvStores.get(key)), consumer, limit);
     }
 
     @Override
-    public void match(String indexName, String matchValue, Collection<Row_Type> container, int limit) {
-        match(indexName, matchValue, container::add, limit);
+    public void search(String indexName, String searchValue, Collection<Row_Type> container, int limit) {
+        search(indexName, searchValue, container::add, limit);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
-    public void range(String index, String start, String end, Collection<Row_Type> container, int limit) {
+    public void rangeSearch(String index, String start, String end, Collection<Row_Type> container, int limit) {
         String startKey = keyBuilder.searchKey(index, start);
         String endKey = keyBuilder.searchKey(index, end);
         nvStores.iterate(startKey, endKey, key -> tableInfo.getDecoder().apply(nvStores.get(key)), container::add, limit);
