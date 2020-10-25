@@ -68,13 +68,20 @@ public class MVStoreTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
-    public void range(String index, String start, String end, List<Row_Type> returnRows, int limit) {
+    public void range(String index, String start, String end, Collection<Row_Type> returnRows, int limit) {
 
         String startKey = keyBuilder.searchKey(index, start);
         String endKey = keyBuilder.searchKey(index, end);
 
         nvStores.iterate(startKey, endKey, key -> tableInfo.getDecoder().apply(nvStores.get(key)), returnRows::add, limit);
 
+    }
+
+    @Override
+    public Row_Type get(String pk) {
+        String indexKey = keyBuilder.searchKey("pk", pk);
+        byte[] data = nvStores.get(indexKey.getBytes());
+        return tableInfo.getDecoder().apply(data);
     }
 
     private void buildIndex(Row_Type row, byte[] keyRef, String key) {

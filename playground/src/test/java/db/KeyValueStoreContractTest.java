@@ -1,5 +1,6 @@
 package db;
 
+import com.google.gson.Gson;
 import db.tables.Order;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

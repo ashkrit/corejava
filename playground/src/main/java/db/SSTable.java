@@ -15,5 +15,7 @@ public interface SSTable<T_TYPE> {
 
     void insert(T_TYPE row);
 
-    void range(String index, String start, String end, List<T_TYPE> returnRows, int limit);
+    void range(String index, String start, String end, Collection<T_TYPE> returnRows, int limit);
+
+    T_TYPE get(String pk);
 }
