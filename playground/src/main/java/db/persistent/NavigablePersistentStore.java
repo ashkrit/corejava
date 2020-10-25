@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface NavigablePersistentStore {
+
     void put(byte[] key, byte[] value);
 
     byte[] get(byte[] key);

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class TableInfo<Row_Type> {
+
     private final String tableName;
     private final Map<String, Function<Row_Type, Object>> schema;
     private final Map<String, Function<Row_Type, String>> indexes;
