@@ -17,6 +17,7 @@ import static java.util.Collections.emptyMap;
 
 public class H2MVStore implements KeyValueStore {
 
+    public static final String type = "mv:";
     private final Map<String, SSTable<?>> tables = new HashMap<>();
     private final MVStore mvStore;
 

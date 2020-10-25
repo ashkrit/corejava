@@ -7,17 +7,20 @@ import db.TableInfo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 import static java.util.Collections.emptyMap;
 
 public class InMemoryStore implements KeyValueStore {
 
+    public static String type = "memory:";
     private final Map<String, SSTable<?>> tables = new HashMap<>();
 
     @Override
     public <Row_Type> SSTable<Row_Type> createTable(String tableName, Class<Row_Type> type, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes) {
-        TableInfo<Row_Type> tableInfo = new TableInfo<>(tableName, schema, indexes, null, null, $ -> String.valueOf(System.nanoTime()));
+        AtomicLong l = new AtomicLong(System.nanoTime());
+        TableInfo<Row_Type> tableInfo = new TableInfo<>(tableName, schema, indexes, null, null, $ -> String.valueOf(l.incrementAndGet()));
         return createTable(tableInfo);
     }
 

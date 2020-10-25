@@ -17,6 +17,7 @@ import java.util.function.Function;
 import static java.util.Collections.emptyMap;
 
 public class RocksStore implements KeyValueStore {
+    public static final String type = "rocks:";
     private final Map<String, SSTable<?>> tables = new HashMap<>();
     private final RocksDB rocksDB;
 

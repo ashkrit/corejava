@@ -1,14 +1,12 @@
 package db;
 
 import com.google.gson.Gson;
-import db.memory.InMemoryStore;
-import db.persistent.mvstore.H2MVStore;
-import db.persistent.rocks.RocksStore;
 import db.tables.Order;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -16,18 +14,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+
+import static db.KeyValueFactory.create;
 
 public class KeyValueApp {
 
     static Function<Order, byte[]> toJson = row -> new Gson().toJson(row).getBytes();
     static Function<byte[], Order> fromJson = rawBytes -> new Gson().fromJson(new String(rawBytes), Order.class);
+    static File tmpFile = new File(System.getProperty("java.io.tmpdir"));
 
     public static void main(String[] args) {
-        KeyValueStore store = new InMemoryStore();
-        //KeyValueStore store = new H2MVStore(h2location("h2mv"));
-        //KeyValueStore store = new RocksStore(rocksStore());
+        KeyValueStore store = create("memory://", true);
+        //KeyValueStore store = KeyValueFactory.create("mv:" + Paths.get(tmpFile.getAbsolutePath(), "h2db", "mvstore").toString(), true);
+        // KeyValueStore store = KeyValueFactory.create("rocks:" + Paths.get(tmpFile.getAbsolutePath(), "rocks").toString(), true);
 
 
         Map<String, Function<Order, String>> indexes = new HashMap<String, Function<Order, String>>() {{
@@ -37,8 +39,8 @@ public class KeyValueApp {
             put("status", Order::status);
         }};
 
-
-        TableInfo<Order> ordersTable = new TableInfo<>("orders", cols(), indexes, toJson, fromJson, $ -> String.valueOf(System.nanoTime()));
+        AtomicLong l = new AtomicLong(System.nanoTime());
+        TableInfo<Order> ordersTable = new TableInfo<>("orders", cols(), indexes, toJson, fromJson, $ -> String.valueOf(l.incrementAndGet()));
 
         SSTable<Order> orders = store.createTable(ordersTable);
 
