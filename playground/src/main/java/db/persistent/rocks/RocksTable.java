@@ -81,6 +81,11 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
         return null;
     }
 
+    @Override
+    public void update(Row_Type record) {
+
+    }
+
     private void buildIndex(Row_Type row, byte[] keyRef, String key) {
 
         Stream<String> indexKeys = indexToProcess

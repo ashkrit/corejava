@@ -18,4 +18,6 @@ public interface SSTable<T_TYPE> {
     void range(String index, String start, String end, Collection<T_TYPE> returnRows, int limit);
 
     T_TYPE get(String pk);
+
+    void update(T_TYPE record); // Secondary index needs rebuilding
 }

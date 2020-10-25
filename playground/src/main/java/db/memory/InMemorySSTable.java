@@ -96,6 +96,11 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
         return null;
     }
 
+    @Override
+    public void update(Row_Type record) {
+
+    }
+
     private Stream<Row_Type> rows(String startKey, String endKey, int limit) {
         Stream<Map.Entry<String, Long>> filterRows = indexRows
                 .subMap(startKey, true, endKey, true)
