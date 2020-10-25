@@ -11,7 +11,12 @@ public class TableInfo<Row_Type> {
     private final Function<byte[], Row_Type> decoder;
     private final Function<Row_Type, String> pk;
 
-    public TableInfo(String tableName, Map<String, Function<Row_Type, Object>> schema, Map<String, Function<Row_Type, String>> indexes, Function<Row_Type, byte[]> encoder, Function<byte[], Row_Type> decoder, Function<Row_Type, String> pk) {
+    public TableInfo(String tableName,
+                     Map<String, Function<Row_Type, Object>> schema,
+                     Map<String, Function<Row_Type, String>> indexes,
+                     Function<Row_Type, byte[]> encoder,
+                     Function<byte[], Row_Type> decoder,
+                     Function<Row_Type, String> pk) {
         this.tableName = tableName;
         this.schema = schema;
         this.indexes = indexes;

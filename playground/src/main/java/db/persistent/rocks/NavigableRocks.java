@@ -49,4 +49,22 @@ public class NavigableRocks implements NavigablePersistentStore {
             }
         }
     }
+
+    @Override
+    public <Row_Type> void iterate(String fromKey, String toKey, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit) {
+
+        try (RocksIterator itr = db.newIterator()) {
+            itr.seek(fromKey.getBytes());
+            int tracker = limit;
+            while (itr.isValid() && tracker > 0) {
+                String s = new String(itr.key());
+                if (s.compareTo(toKey) > 0) {
+                    break;
+                }
+                consumer.accept(converter.apply(itr.value()));
+                itr.next();
+                tracker--;
+            }
+        }
+    }
 }

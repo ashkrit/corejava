@@ -66,6 +66,13 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
         buildIndex(row, key, indexKey);
     }
 
+    @Override
+    public void range(String index, String start, String end, List<Row_Type> returnRows, int limit) {
+        String startKey = keyBuilder.searchKey(index, start);
+        String endKey = keyBuilder.searchKey(index, end);
+        nvStores.iterate(startKey, endKey, key -> tableInfo.getDecoder().apply(nvStores.get(key)), returnRows::add, limit);
+    }
+
     private void buildIndex(Row_Type row, byte[] keyRef, String key) {
         for (Map.Entry<String, Function<Row_Type, String>> index : tableInfo.getIndexes().entrySet()) {
             String indexValue = index.getValue().apply(row);

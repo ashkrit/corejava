@@ -9,4 +9,6 @@ public interface NavigablePersistentStore {
     byte[] get(byte[] key);
 
     <Row_Type> void iterate(String fromKey, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit);
+
+    <Row_Type> void iterate(String fromKey, String toKey, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit);
 }

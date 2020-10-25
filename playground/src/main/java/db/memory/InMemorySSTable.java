@@ -82,6 +82,29 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
         buildIndex(row, key);
     }
 
+    @Override
+    public void range(String index, String start, String end, List<Row_Type> returnRows, int limit) {
+        String startKey = buildIndexKey(index, start);
+        String endKey = buildIndexKey(index, end);
+        Stream<Row_Type> rows = rows(startKey, endKey, limit);
+        rows.forEach(returnRows::add);
+
+    }
+
+    private Stream<Row_Type> rows(String startKey, String endKey, int limit) {
+        Stream<Map.Entry<String, Long>> filterRows = indexRows
+                .subMap(startKey, true, endKey, true)
+                .entrySet()
+                .stream();
+
+        Stream<Row_Type> rows = filterRows
+                .limit(limit)
+                .map(Map.Entry::getValue)
+                .map(rawRows::get);
+
+        return rows;
+    }
+
     private void buildIndex(Row_Type row, long key) {
         for (Map.Entry<String, Function<Row_Type, String>> index : indexes.entrySet()) {
             String indexValue = index.getValue().apply(row);
