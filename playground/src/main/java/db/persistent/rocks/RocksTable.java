@@ -9,9 +9,11 @@ import org.rocksdb.RocksDB;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RocksTable<Row_Type> implements SSTable<Row_Type> {
 
@@ -19,13 +21,14 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
     private final NavigablePersistentStore nvStores;
 
     private final TableInfo<Row_Type> tableInfo;
+    private final Set<Map.Entry<String, Function<Row_Type, String>>> indexToProcess;
 
     public RocksTable(RocksDB db,
                       TableInfo<Row_Type> tableInfo) {
         this.tableInfo = tableInfo;
         this.keyBuilder = new KeyBuilder(tableInfo.getTableName());
         this.nvStores = new NavigableRocks(db);
-
+        this.indexToProcess = tableInfo.getIndexes().entrySet();
     }
 
     @Override
@@ -74,12 +77,21 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     private void buildIndex(Row_Type row, byte[] keyRef, String key) {
-        for (Map.Entry<String, Function<Row_Type, String>> index : tableInfo.getIndexes().entrySet()) {
-            String indexValue = index.getValue().apply(row);
-            String indexName = index.getKey();
-            String indexKey = keyBuilder.secondaryIndexKey(indexName, indexValue, key);
-            nvStores.put(indexKey.getBytes(), keyRef); // This maintain reference to PK. To make covered full row can be stored.
-        }
+
+        Stream<String> indexKeys = indexToProcess
+                .stream()
+                .map(index -> toIndexKey(row, key, index));
+
+        indexKeys
+                .forEach(indexKey -> nvStores.put(indexKey.getBytes(), keyRef)); //// This maintain reference to PK. To make covered full row can be stored.
+
+    }
+
+    private String toIndexKey(Row_Type row, String key, Map.Entry<String, Function<Row_Type, String>> index) {
+        String indexValue = index.getValue().apply(row);
+        String indexName = index.getKey();
+        String indexKey = keyBuilder.secondaryIndexKey(indexName, indexValue, key);
+        return indexKey;
     }
 
 }

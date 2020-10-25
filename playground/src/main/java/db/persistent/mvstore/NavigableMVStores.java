@@ -45,15 +45,13 @@ public class NavigableMVStores implements NavigablePersistentStore {
     private <Row_Type> void match(String fromKey, Predicate<String> predicate, Function<byte[], Row_Type> converter, Consumer<Row_Type> consumer, int limit) {
         Cursor<byte[], byte[]> itr = db.cursor(fromKey.getBytes());
         int tracker = limit;
-        while (itr.hasNext() && tracker > 0) {
-            String s = new String(itr.getKey());
 
+        for (; itr.hasNext() && tracker > 0; itr.next(), tracker--) {
+            String s = new String(itr.getKey());
             if (predicate.test(s)) {
                 break;
             }
             consumer.accept(converter.apply(itr.getValue()));
-            itr.next();
-            tracker--;
         }
     }
 }
