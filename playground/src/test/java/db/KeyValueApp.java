@@ -67,24 +67,6 @@ public class KeyValueApp {
 
     }
 
-    private static File rocksStore() {
-        File tmpdir = new File(System.getProperty("java.io.tmpdir"), "rocks");
-        System.out.println("DB created at " + tmpdir.getAbsolutePath());
-        cleanFiles(tmpdir);
-        return tmpdir;
-    }
-
-    private static File h2location(String h2mv) {
-        File tmpdir = new File(new File(System.getProperty("java.io.tmpdir"), "mvstore"), h2mv);
-        System.out.println("DB created at " + tmpdir.getAbsolutePath());
-        tmpdir.getParentFile().mkdirs();
-        if (tmpdir.exists()) {
-            tmpdir.delete();
-        }
-        return tmpdir;
-    }
-
-
     private static Map<String, Function<Order, Object>> cols() {
         Map<String, Function<Order, Object>> cols = new HashMap<String, Function<Order, Object>>() {{
             put("orderId", Order::orderId);
@@ -97,18 +79,4 @@ public class KeyValueApp {
         return cols;
     }
 
-    private static void cleanFiles(File tmpdir) {
-        try {
-            Files.list(tmpdir.toPath()).forEach(f -> {
-                try {
-                    Files.deleteIfExists(f);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
