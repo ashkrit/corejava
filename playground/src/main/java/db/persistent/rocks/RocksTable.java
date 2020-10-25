@@ -62,6 +62,10 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
 
     @Override
     public void insert(Row_Type row) {
+        addRecord(row);
+    }
+
+    private void addRecord(Row_Type row) {
         String sequence = tableInfo.getPk().apply(row);
         String indexKey = keyBuilder.searchKey("pk", sequence);
         byte[] key = indexKey.getBytes();
@@ -78,12 +82,14 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
 
     @Override
     public Row_Type get(String pk) {
-        return null;
+        String indexKey = keyBuilder.searchKey("pk", pk);
+        byte[] data = nvStores.get(indexKey.getBytes());
+        return tableInfo.getDecoder().apply(data);
     }
 
     @Override
     public void update(Row_Type record) {
-
+        addRecord(record);
     }
 
     private void buildIndex(Row_Type row, byte[] keyRef, String key) {
