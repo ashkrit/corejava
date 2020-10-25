@@ -1,14 +1,9 @@
 package db;
 
 import com.google.gson.Gson;
-import db.persistent.mvstore.H2MVStore;
 import db.tables.Order;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,23 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class KeyValueStoreUpdateContractTest {
 
-    private KeyValueStore db;
-
-    @BeforeEach
-    public void createDB() {
-        File tmpdir = new File(new File(System.getProperty("java.io.tmpdir"), "mvstore"), "h2mv");
-        System.out.println("DB created at " + tmpdir.getAbsolutePath());
-        tmpdir.getParentFile().mkdirs();
-        if (tmpdir.exists()) {
-            tmpdir.delete();
-        }
-        this.db = new H2MVStore(tmpdir);
-    }
-
-    @AfterEach
-    public void cleanDB() {
-        ((H2MVStore) this.db).close();
-    }
+    public KeyValueStore db;
 
 
     @Test
