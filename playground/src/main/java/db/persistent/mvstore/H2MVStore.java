@@ -55,6 +55,7 @@ public class H2MVStore implements KeyValueStore {
     }
 
     public void close() {
+        this.mvStore.compactFile(1000);
         this.mvStore.close();
     }
 }

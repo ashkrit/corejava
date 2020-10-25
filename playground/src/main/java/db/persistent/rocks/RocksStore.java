@@ -5,6 +5,7 @@ import db.KeyValueStore;
 import db.SSTable;
 import db.TableInfo;
 import org.rocksdb.RocksDB;
+import org.rocksdb.RocksDBException;
 
 import java.io.File;
 import java.util.HashMap;
@@ -54,6 +55,11 @@ public class RocksStore implements KeyValueStore {
     }
 
     public void close() {
+        try {
+            this.rocksDB.compactRange();
+        } catch (RocksDBException e) {
+            throw new RuntimeException(e);
+        }
         this.rocksDB.close();
     }
 }

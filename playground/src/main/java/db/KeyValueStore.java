@@ -16,4 +16,6 @@ public interface KeyValueStore {
     <Row_Type> SSTable<Row_Type> createTable(TableInfo<Row_Type> tableInfo);
 
     List<String> desc(String table);
+
+    void close();
 }

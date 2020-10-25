@@ -42,4 +42,9 @@ public class InMemoryStore implements KeyValueStore {
         SSTable<?> SSTable = tables.get(tableName);
         return SSTable.cols();
     }
+
+    @Override
+    public void close() {
+
+    }
 }
