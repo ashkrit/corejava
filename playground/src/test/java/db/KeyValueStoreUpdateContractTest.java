@@ -12,10 +12,9 @@ import java.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class KeyValueStoreUpdateContractTest {
+public abstract class KeyValueStoreUpdateContractTest {
 
     public KeyValueStore db;
-
 
     @Test
     public void insert_and_single_key_lookup() {

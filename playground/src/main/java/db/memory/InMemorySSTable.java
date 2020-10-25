@@ -72,6 +72,10 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
 
     @Override
     public void insert(Row_Type row) {
+        addRecord(row);
+    }
+
+    private void addRecord(Row_Type row) {
         String key = tableInfo.getPk().apply(row);
         rawRows.put(key, row);
         buildIndex(row, key);
@@ -88,12 +92,12 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
 
     @Override
     public Row_Type get(String pk) {
-        return null;
+        return rawRows.get(pk);
     }
 
     @Override
     public void update(Row_Type record) {
-
+        addRecord(record);
     }
 
     private Stream<Row_Type> rows(String startKey, String endKey, int limit) {
