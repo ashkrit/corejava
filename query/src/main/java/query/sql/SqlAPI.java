@@ -99,6 +99,11 @@ public class SqlAPI {
             SqlBasicCall right = (SqlBasicCall) where.operands[1];
             Predicate<Object> combineCondition = predicate(base, left, tableObject).and(predicate(base, right, tableObject));
             return base.and(combineCondition);
+        } else if (name.equalsIgnoreCase("or")) {
+            SqlBasicCall left = (SqlBasicCall) where.operands[0];
+            SqlBasicCall right = (SqlBasicCall) where.operands[1];
+            Predicate<Object> combineCondition = predicate(base, left, tableObject).or(predicate(base, right, tableObject));
+            return base.and(combineCondition);
         }
         throw new RuntimeException(operator + " not supported ");
     }
