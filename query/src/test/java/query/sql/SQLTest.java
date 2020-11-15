@@ -1,8 +1,8 @@
 package query.sql;
 
-import query.KeyValueStore;
-import query.SSTable;
-import query.memory.InMemoryStore;
+import query.kv.KeyValueStore;
+import query.kv.SSTable;
+import query.kv.memory.InMemoryStore;
 import query.tables.Order;
 import org.junit.jupiter.api.Test;
 
