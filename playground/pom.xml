@@ -56,19 +56,6 @@
             <version>${avro.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.calcite</groupId>
-            <artifactId>calcite-core</artifactId>
-            <version>1.26.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.calcite</groupId>
-            <artifactId>calcite-babel</artifactId>
-            <version>1.21.0</version>
-        </dependency>
-
-
         <!-- Avro -->
 
         <!-- SBE -->
