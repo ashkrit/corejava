@@ -1,19 +1,11 @@
 package query.sql;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import query.kv.KeyValueStore;
 import query.kv.SSTable;
-import query.kv.memory.InMemoryStore;
-import query.kv.persistent.mvstore.H2MVStore;
-import query.kv.persistent.rocks.RocksStore;
 import query.tables.Order;
-import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
 
@@ -21,39 +13,9 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.sort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SQLTest {
+public abstract class SimpleSQLContractTest {
 
     KeyValueStore db;
-
-
-    @BeforeEach
-    public void createDB() {
-
-        this.db = inMemory();
-        // this.db = mvStore();
-        //this.db = rocks();
-    }
-
-    public InMemoryStore inMemory() {
-        return new InMemoryStore();
-    }
-
-    public KeyValueStore mvStore() {
-        File tmpdir = new File(new File(System.getProperty("java.io.tmpdir"), "mvstore"), "h2mv");
-        System.out.println("DB created at " + tmpdir.getAbsolutePath());
-        tmpdir.getParentFile().mkdirs();
-        if (tmpdir.exists()) {
-            tmpdir.delete();
-        }
-        return new H2MVStore(tmpdir);
-    }
-
-    public KeyValueStore rocks() {
-        File tmpdir = new File(System.getProperty("java.io.tmpdir"), "rocks");
-        System.out.println("DB created at " + tmpdir.getAbsolutePath());
-        cleanFiles(tmpdir);
-        return new RocksStore(tmpdir);
-    }
 
     @Test
     void select_all_records() {
@@ -240,18 +202,5 @@ public class SQLTest {
         this.db.close();
     }
 
-    private void cleanFiles(File tmpdir) {
-        try {
-            Files.list(tmpdir.toPath()).forEach(f -> {
-                try {
-                    Files.deleteIfExists(f);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
