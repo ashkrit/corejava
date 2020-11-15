@@ -1,7 +1,14 @@
 package db;
 
+import org.apache.calcite.config.Lex;
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.SqlOrderBy;
 import org.apache.calcite.sql.SqlSelect;
 import org.apache.calcite.sql.parser.SqlParser;
+import org.apache.calcite.sql.parser.impl.SqlParserImpl;
+import org.apache.calcite.sql.validate.SqlConformance;
+import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.apache.calcite.util.ImmutableBeans;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +17,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static org.apache.calcite.sql.parser.SqlParser.DEFAULT_IDENTIFIER_MAX_LENGTH;
 
 public interface KeyValueStore {
 
@@ -31,30 +40,44 @@ public interface KeyValueStore {
     }
 
     default void execute(String sql, Consumer<RowValue> consumer) {
-        SqlParser p = SqlParser.create(sql);
+
+        SqlParser.Config config = SqlParser.config()
+                .withConformance(SqlConformanceEnum.MYSQL_5);
+
+        SqlParser p = SqlParser.create(sql, config);
         try {
-            SqlSelect node = (SqlSelect) p.parseQuery();
-            String from = node.getFrom().toString();
-            SSTable<?> tableObject = table(from.toLowerCase());
-
-            Map<String, Integer> nameToIndex = new HashMap<>();
-            int index = 0;
-            for (String n : tableObject.cols()) {
-                nameToIndex.put(n, index++);
-            }
-            String[] columnsToLoad = tableObject.cols().toArray(new String[]{});
-            int noOfColumns = columnsToLoad.length;
-            RowValue row = new RowValue(tableObject, nameToIndex);
-
-
-            if (node.getWhere() == null) {
-                tableObject.scan(r -> {
-                    row.r = r;
-                    consumer.accept(row);
-                }, 5);
+            SqlNode sqlNode = p.parseQuery();
+            if (sqlNode instanceof SqlSelect) {
+                fullTableScan(consumer, (SqlSelect) sqlNode, 10);
+            } else if (sqlNode instanceof SqlOrderBy) {
+                SqlOrderBy order = (SqlOrderBy) sqlNode;
+                SqlSelect node = (SqlSelect) order.query;
+                fullTableScan(consumer, node, Integer.parseInt(order.fetch.toString()));
+            } else {
+                throw new RuntimeException(sqlNode.getClass() + " not supported");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    default void fullTableScan(Consumer<RowValue> consumer, SqlSelect sqlNode, int limit) {
+        SqlSelect node = sqlNode;
+        String from = node.getFrom().toString();
+        SSTable<?> tableObject = table(from.toLowerCase());
+
+        Map<String, Integer> nameToIndex = new HashMap<>();
+        int index = 0;
+        for (String n : tableObject.cols()) {
+            nameToIndex.put(n, index++);
+        }
+        RowValue row = new RowValue(tableObject, nameToIndex);
+        if (node.getWhere() == null) {
+
+            tableObject.scan(r -> {
+                row.r = r;
+                consumer.accept(row);
+            }, limit);
         }
     }
 
