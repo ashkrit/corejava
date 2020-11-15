@@ -1,8 +1,6 @@
 package query.sql;
 
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlOrderBy;
-import org.apache.calcite.sql.SqlSelect;
+import org.apache.calcite.sql.*;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
@@ -66,9 +64,25 @@ public class SqlAPI {
 
         if (hasNoFilter(node)) {
             tableObject.scan(r -> {
-                row.r = r;
+                row.internalRow = r;
                 consumer.accept(row);
             }, limit);
+        } else {
+            SqlBasicCall where = (SqlBasicCall) node.getWhere();
+            String columnName = ((SqlIdentifier) where.operands[0]).names.get(0).toLowerCase();
+            String columnValue = ((SqlLiteral) where.operands[1]).toValue();
+            String op = where.getOperator().toString();
+
+            tableObject.scan(r -> {
+                String value = tableObject.columnValue(columnName, r).toString();
+                if (op.equals("=")) {
+                    if (value.equals(columnValue)) {
+                        row.internalRow = r;
+                        consumer.accept(row);
+                    }
+                }
+            }, limit);
+
         }
     }
 
@@ -88,7 +102,7 @@ public class SqlAPI {
     public class RowValue {
         private final Map<String, Integer> nameToIndex;
         private final SSTable<?> tableObject;
-        private Object r;
+        private Object internalRow;
 
         public RowValue(SSTable<?> tableObject, Map<String, Integer> nameToIndex) {
             this.nameToIndex = nameToIndex;
@@ -96,23 +110,23 @@ public class SqlAPI {
         }
 
         public Object getValue(String name) {
-            return tableObject.columnValue(name, r);
+            return tableObject.columnValue(name, internalRow);
         }
 
         public long getLong(String name) {
-            return (Long) tableObject.columnValue(name, r);
+            return (Long) tableObject.columnValue(name, internalRow);
         }
 
         public String getString(String index) {
-            return (String) tableObject.columnValue(index, r);
+            return (String) tableObject.columnValue(index, internalRow);
         }
 
         public int getInt(String index) {
-            return (Integer) tableObject.columnValue(index, r);
+            return (Integer) tableObject.columnValue(index, internalRow);
         }
 
         public double getDouble(String index) {
-            return (Double) tableObject.columnValue(index, r);
+            return (Double) tableObject.columnValue(index, internalRow);
         }
 
     }

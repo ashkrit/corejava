@@ -128,7 +128,10 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
 
     @Override
     public Object columnValue(String col, Object row) {
-        return tableInfo.getSchema().get(col).apply((Row_Type) row);
+        return tableInfo
+                .getSchema()
+                .get(col.toLowerCase())
+                .apply((Row_Type) row);
     }
 
     @Override
