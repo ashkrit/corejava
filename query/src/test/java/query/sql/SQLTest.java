@@ -34,7 +34,6 @@ public class SQLTest {
         //this.db = rocks();
     }
 
-    @NotNull
     public InMemoryStore inMemory() {
         return new InMemoryStore();
     }

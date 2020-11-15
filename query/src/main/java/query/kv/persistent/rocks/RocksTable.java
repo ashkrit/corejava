@@ -118,4 +118,9 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
                 .apply((Row_Type) row);
     }
 
+    @Override
+    public Map<String, Function<Row_Type, String>> indexes() {
+        return tableInfo.getIndexes();
+    }
+
 }

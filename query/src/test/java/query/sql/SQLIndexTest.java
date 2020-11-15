@@ -6,8 +6,13 @@ import org.junit.jupiter.api.Test;
 import query.kv.KeyValueStore;
 import query.kv.SSTable;
 import query.kv.memory.InMemoryStore;
+import query.kv.persistent.mvstore.H2MVStore;
+import query.kv.persistent.rocks.RocksStore;
 import query.tables.Order;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Function;
 
@@ -19,18 +24,48 @@ public class SQLIndexTest {
 
     KeyValueStore db;
 
-
     @BeforeEach
     public void createDB() {
 
         this.db = inMemory();
-        // this.db = mvStore();
+        //this.db = mvStore();
         //this.db = rocks();
     }
 
-    @NotNull
     public InMemoryStore inMemory() {
         return new InMemoryStore();
+    }
+
+    public KeyValueStore mvStore() {
+        File tmpdir = new File(new File(System.getProperty("java.io.tmpdir"), "mvstore"), "h2mv");
+        System.out.println("DB created at " + tmpdir.getAbsolutePath());
+        tmpdir.getParentFile().mkdirs();
+        if (tmpdir.exists()) {
+            tmpdir.delete();
+        }
+        return new H2MVStore(tmpdir);
+    }
+
+    public KeyValueStore rocks() {
+        File tmpdir = new File(System.getProperty("java.io.tmpdir"), "rocks");
+        System.out.println("DB created at " + tmpdir.getAbsolutePath());
+        cleanFiles(tmpdir);
+        return new RocksStore(tmpdir);
+    }
+
+    private void cleanFiles(File tmpdir) {
+        try {
+            Files.list(tmpdir.toPath()).forEach(f -> {
+                try {
+                    Files.deleteIfExists(f);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -50,10 +85,8 @@ public class SQLIndexTest {
 
         List<Order> returnRows = new ArrayList<>();
 
-        db.execute("select * From orders where orderdate=20200902 and status='SHIPPED' ", row -> {
-            returnRows.add(Order.of(row.getLong("orderId"), row.getString("customerId"), row.getInt("orderDate"),
-                    row.getString("status"), row.getDouble("amount"), row.getInt("noOfItem")));
-        });
+        db.execute("select * From orders where orderdate=20200902 and status='SHIPPED' ", row ->
+                returnRows.add(Order.of(row.getLong("orderId"), row.getString("customerId"), row.getInt("orderDate"), row.getString("status"), row.getDouble("amount"), row.getInt("noOfItem"))));
 
         List<Order> expectedRows = asList(
                 Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15)
