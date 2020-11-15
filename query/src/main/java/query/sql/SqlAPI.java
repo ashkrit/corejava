@@ -58,55 +58,57 @@ public class SqlAPI {
 
     void scan(Consumer<RowValue> consumer, SqlSelect node, int limit) {
         String from = node.getFrom().toString();
-        SSTable<?> tableObject = db.table(from.toLowerCase());
-        Map<String, Integer> nameToIndex = columnOffSet(tableObject);
+        SSTable<?> table = db.table(from.toLowerCase());
+        Map<String, Integer> nameToIndex = columnOffSet(table);
 
-        RowValue row = new RowValue(tableObject, nameToIndex);
+        RowValue rowContainer = new RowValue(table, nameToIndex);
+        Predicate<Object> predicate = createMatcher(node, table);
 
+        table.scan(currentRow -> match(consumer, rowContainer, predicate, currentRow), limit);
+    }
+
+    private void match(Consumer<RowValue> consumer, RowValue row, Predicate<Object> matcher, Object r) {
+        if (matcher.test(r)) {
+            row.internalRow = r;
+            consumer.accept(row);
+        }
+    }
+
+    private Predicate<Object> createMatcher(SqlSelect node, SSTable<?> table) {
         if (hasNoFilter(node)) {
-            tableObject.scan(r -> {
-                row.internalRow = r;
-                consumer.accept(row);
-            }, limit);
+            return $ -> true;
         } else {
             SqlBasicCall where = (SqlBasicCall) node.getWhere();
-            Predicate<Object> base = ($) -> true;
-            Predicate<Object> matcher = predicate(base, where, tableObject);
-            tableObject.scan(r -> {
-                if (matcher.test(r)) {
-                    row.internalRow = r;
-                    consumer.accept(row);
-                }
-
-            }, limit);
-
+            return predicate(where, table);
         }
     }
 
 
-    private Predicate<Object> predicate(Predicate<Object> base, SqlBasicCall where, SSTable<?> tableObject) {
+    private Predicate<Object> predicate(SqlBasicCall where, SSTable<?> table) {
         SqlOperator operator = where.getOperator();
 
         String name = operator.getName().toLowerCase();
 
         switch (name) {
             case "=": {
-                String columnName = ((SqlIdentifier) where.operands[0]).names.get(0).toLowerCase();
-                String columnValue = ((SqlLiteral) where.operands[1]).toValue();
-                Predicate<Object> matcher = createEq(tableObject, columnValue, columnName);
+                SqlIdentifier filterColumn = (SqlIdentifier) where.operands[0];
+                SqlLiteral filterValue = (SqlLiteral) where.operands[1];
+
+                String columnName = filterColumn.names.get(0).toLowerCase();
+                String columnValue = filterValue.toValue();
+
+                Predicate<Object> matcher = createEq(table, columnValue, columnName);
                 return matcher;
             }
             case "and": {
                 SqlBasicCall left = (SqlBasicCall) where.operands[0];
                 SqlBasicCall right = (SqlBasicCall) where.operands[1];
-                Predicate<Object> combineCondition = predicate(base, left, tableObject).and(predicate(base, right, tableObject));
-                return base.and(combineCondition);
+                return predicate(left, table).and(predicate(right, table));
             }
             case "or": {
                 SqlBasicCall left = (SqlBasicCall) where.operands[0];
                 SqlBasicCall right = (SqlBasicCall) where.operands[1];
-                Predicate<Object> combineCondition = predicate(base, left, tableObject).or(predicate(base, right, tableObject));
-                return base.and(combineCondition);
+                return predicate(left, table).or(predicate(right, table));
             }
         }
 

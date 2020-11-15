@@ -156,6 +156,29 @@ public class SQLTest {
         assertResult(expectedRows, returnRows);
     }
 
+    @Test
+    public void nested_condition() {
+        SSTable<Order> orders = db.createTable("orders", Order.class, cols());
+
+        asList(
+                Order.of(100, "1", 20200901, "SHIPPED", 107.6d, 5),
+                Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15),
+                Order.of(102, "1", 20200903, "SHIPPED", 767.6d, 25)
+        ).forEach(orders::insert);
+
+        List<Order> returnRows = new ArrayList<>();
+
+        db.execute("select * From orders where (status='PENDING' or status='SHIPPED') AND (orderdate=20200902) ", row -> {
+            returnRows.add(Order.of(row.getLong("orderId"), row.getString("customerId"), row.getInt("orderDate"),
+                    row.getString("status"), row.getDouble("amount"), row.getInt("noOfItem")));
+        });
+
+        List<Order> expectedRows = asList(
+                Order.of(101, "2", 20200902, "SHIPPED", 967.6d, 15)
+        );
+        assertResult(expectedRows, returnRows);
+    }
+
     private Map<String, Function<Order, Object>> cols() {
         Map<String, Function<Order, Object>> cols = new HashMap<String, Function<Order, Object>>() {{
             put("orderid", Order::orderId);
