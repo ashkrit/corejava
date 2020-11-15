@@ -59,6 +59,10 @@ public class SQLTest {
         });
 
         assertEquals(1, returnRows.size());
+    }
+
+    @Test
+    void select_rows_based_on_criteria() {
 
     }
 
@@ -78,6 +82,5 @@ public class SQLTest {
         sort(expectedRows, Comparator.comparing(Order::orderId));
         sort(actualRows, Comparator.comparing(Order::orderId));
         assertEquals(expectedRows, actualRows);
-
     }
 }
