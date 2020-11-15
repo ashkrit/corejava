@@ -6,8 +6,10 @@ import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import query.kv.KeyValueStore;
 import query.kv.SSTable;
+import query.sql.RecordFilterInfo.IndexParameter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -62,9 +64,16 @@ public class SqlAPI {
         Map<String, Integer> nameToIndex = columnOffSet(table);
 
         RowValue rowContainer = new RowValue(table, nameToIndex);
-        Predicate<Object> predicate = createMatcher(node, table);
+        RecordFilterInfo filterInfo = createMatcher(node, table);
 
-        table.scan(currentRow -> match(consumer, rowContainer, predicate, currentRow), limit);
+        System.out.println("Possible index" + filterInfo.indexes);
+        if (filterInfo.indexes.isEmpty()) {
+            table.scan(currentRow -> match(consumer, rowContainer, filterInfo.predicate, currentRow), limit);
+        } else {
+            IndexParameter index = filterInfo.indexes.iterator().next();
+            System.out.println("Using index " + index);
+            table.search(index.indexName, index.indexValue, currentRow -> match(consumer, rowContainer, filterInfo.predicate, currentRow), limit);
+        }
     }
 
     private void match(Consumer<RowValue> consumer, RowValue row, Predicate<Object> matcher, Object r) {
@@ -74,17 +83,19 @@ public class SqlAPI {
         }
     }
 
-    private Predicate<Object> createMatcher(SqlSelect node, SSTable<?> table) {
+    private RecordFilterInfo createMatcher(SqlSelect node, SSTable<?> table) {
+
         if (hasNoFilter(node)) {
-            return $ -> true;
+            return new RecordFilterInfo($ -> true, new HashSet<>());
         } else {
             SqlBasicCall where = (SqlBasicCall) node.getWhere();
-            return predicate(where, table);
+            HashSet<IndexParameter> indexes = new HashSet<>();
+            return new RecordFilterInfo(predicate(where, table, indexes), indexes);
         }
     }
 
 
-    private Predicate<Object> predicate(SqlBasicCall where, SSTable<?> table) {
+    private Predicate<Object> predicate(SqlBasicCall where, SSTable<?> table, HashSet<IndexParameter> indexes) {
         SqlOperator operator = where.getOperator();
 
         String name = operator.getName().toLowerCase();
@@ -97,18 +108,23 @@ public class SqlAPI {
                 String columnName = filterColumn.names.get(0).toLowerCase();
                 String columnValue = filterValue.toValue();
 
+                System.out.println("Index " + table.indexes().containsKey(columnName));
+                if (table.indexes().containsKey(columnName)) {
+                    indexes.add(new IndexParameter(columnName, columnValue));
+                }
+
                 Predicate<Object> matcher = createEq(table, columnValue, columnName);
                 return matcher;
             }
             case "and": {
                 SqlBasicCall left = (SqlBasicCall) where.operands[0];
                 SqlBasicCall right = (SqlBasicCall) where.operands[1];
-                return predicate(left, table).and(predicate(right, table));
+                return predicate(left, table, indexes).and(predicate(right, table, indexes));
             }
             case "or": {
                 SqlBasicCall left = (SqlBasicCall) where.operands[0];
                 SqlBasicCall right = (SqlBasicCall) where.operands[1];
-                return predicate(left, table).or(predicate(right, table));
+                return predicate(left, table, indexes).or(predicate(right, table, indexes));
             }
         }
 

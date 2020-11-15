@@ -27,6 +27,11 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
+    public Map<String, Function<Row_Type, String>> indexes() {
+        return tableInfo.getIndexes();
+    }
+
+    @Override
     public List<String> cols() {
         return tableInfo
                 .getSchema()
@@ -133,6 +138,7 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
                 .get(col.toLowerCase())
                 .apply((Row_Type) row);
     }
+
 
     @Override
     public String toString() {

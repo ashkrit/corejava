@@ -24,6 +24,10 @@ public interface SSTable<T_TYPE> {
         return null;
     }
 
+    default Map<String, Function<T_TYPE, String>> indexes() {
+        return null;
+    }
+
     default Object columnValue(String col, Object row) {
         return null;
     }
