@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import db.tables.Order;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -18,8 +16,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static db.KeyValueFactory.create;
-
 public class KeyValueApp {
 
     static Function<Order, byte[]> toJson = row -> new Gson().toJson(row).getBytes();
@@ -27,16 +23,16 @@ public class KeyValueApp {
     static File tmpFile = new File(System.getProperty("java.io.tmpdir"));
 
     public static void main(String[] args) {
-        KeyValueStore store = create("memory://", true);
-        //KeyValueStore store = KeyValueFactory.create("mv:" + Paths.get(tmpFile.getAbsolutePath(), "h2db", "mvstore").toString(), true);
-        // KeyValueStore store = KeyValueFactory.create("rocks:" + Paths.get(tmpFile.getAbsolutePath(), "rocks").toString(), true);
+        //KeyValueStore store = create("memory://", true);
+        KeyValueStore store = KeyValueFactory.create("mv:" + Paths.get(tmpFile.getAbsolutePath(), "h2db", "mvstore").toString(), true);
+        //KeyValueStore store = KeyValueFactory.create("rocks:" + Paths.get(tmpFile.getAbsolutePath(), "rocks").toString(), true);
 
 
         Map<String, Function<Order, String>> indexes = new HashMap<String, Function<Order, String>>() {{
-            put("orderId", o -> String.valueOf(o.orderId()));
-            put("customerId", Order::customerId);
-            put("orderDate", o -> String.valueOf(o.orderDate()));
-            put("status", Order::status);
+            // put("orderId", o -> String.valueOf(o.orderId()));
+            //put("customerId", Order::customerId);
+            //put("orderDate", o -> String.valueOf(o.orderDate()));
+            //put("status", Order::status);
         }};
 
         AtomicLong l = new AtomicLong(System.nanoTime());
@@ -57,6 +53,10 @@ public class KeyValueApp {
                     int orderDate = Integer.parseInt(start.plusDays(days).format(yyyyMMdd));
                     String shipped = status.get(ThreadLocalRandom.current().nextInt(status.size()));
                     orders.insert(Order.of(id, String.valueOf(customer), orderDate, shipped, 107.6d, 5));
+
+                    if (id % 100_000 == 0) {
+                        System.out.println("Loaded -> " + id);
+                    }
                 });
 
         long tot = System.currentTimeMillis() - startTime;

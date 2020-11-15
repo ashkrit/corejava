@@ -22,6 +22,11 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
     }
 
     @Override
+    public Map<String, Function<Row_Type, Object>> schema() {
+        return tableInfo.getSchema();
+    }
+
+    @Override
     public List<String> cols() {
         return tableInfo
                 .getSchema()
@@ -30,7 +35,6 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public void scan(Consumer<Row_Type> consumer, int limit) {
@@ -120,6 +124,11 @@ public class InMemorySSTable<Row_Type> implements SSTable<Row_Type> {
             String indexKey = String.format("%s/%s/%s/%s", tableInfo.getTableName(), indexName, indexValue, key);
             indexRows.put(indexKey, row);
         }
+    }
+
+    @Override
+    public Object columnValue(String col, Object row) {
+        return tableInfo.getSchema().get(col).apply((Row_Type) row);
     }
 
     @Override
