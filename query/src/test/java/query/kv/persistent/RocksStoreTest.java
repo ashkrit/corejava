@@ -37,7 +37,7 @@ public class RocksStoreTest extends KeyValueStoreContractTest {
 
     @AfterEach
     public void cleanDB() {
-        ((RocksStore) this.db).close();
+        this.db.close();
     }
 
 

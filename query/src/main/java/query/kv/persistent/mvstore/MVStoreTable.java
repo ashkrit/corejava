@@ -3,7 +3,7 @@ package query.kv.persistent.mvstore;
 import query.kv.KeyBuilder;
 import query.kv.SSTable;
 import query.kv.TableInfo;
-import query.kv.persistent.NavigablePersistentStore;
+import query.kv.persistent.*;
 import org.h2.mvstore.MVStore;
 
 import java.util.Collection;
@@ -109,5 +109,13 @@ public class MVStoreTable<Row_Type> implements SSTable<Row_Type> {
         String indexName = index.getKey();
         String indexKey = keyBuilder.secondaryIndexKey(indexName, indexValue, key);
         return indexKey;
+    }
+
+    @Override
+    public Object columnValue(String col, Object row) {
+        return tableInfo
+                .getSchema()
+                .get(col.toLowerCase())
+                .apply((Row_Type) row);
     }
 }

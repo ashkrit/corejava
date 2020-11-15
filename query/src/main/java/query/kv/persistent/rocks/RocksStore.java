@@ -63,4 +63,10 @@ public class RocksStore implements KeyValueStore {
         }
         this.rocksDB.close();
     }
+
+
+    @Override
+    public <Row_Type> SSTable<Row_Type> table(String tableName) {
+        return (SSTable<Row_Type>) tables.get(tableName);
+    }
 }

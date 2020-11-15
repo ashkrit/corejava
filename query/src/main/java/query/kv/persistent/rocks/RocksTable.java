@@ -110,4 +110,12 @@ public class RocksTable<Row_Type> implements SSTable<Row_Type> {
         return indexKey;
     }
 
+    @Override
+    public Object columnValue(String col, Object row) {
+        return tableInfo
+                .getSchema()
+                .get(col.toLowerCase())
+                .apply((Row_Type) row);
+    }
+
 }
