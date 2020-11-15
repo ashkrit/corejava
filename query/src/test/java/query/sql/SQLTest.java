@@ -2,9 +2,9 @@ package query.sql;
 
 import query.kv.KeyValueStore;
 import query.kv.SSTable;
-import query.kv.memory.InMemoryStore;
 import query.tables.Order;
 import org.junit.jupiter.api.Test;
+import query.kv.memory.*;
 
 import java.util.*;
 import java.util.function.Function;
