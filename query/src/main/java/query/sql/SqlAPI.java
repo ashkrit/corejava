@@ -87,24 +87,29 @@ public class SqlAPI {
     private Predicate<Object> predicate(Predicate<Object> base, SqlBasicCall where, SSTable<?> tableObject) {
         SqlOperator operator = where.getOperator();
 
-        String name = operator.getName();
+        String name = operator.getName().toLowerCase();
 
-        if (name.equals("=")) {
-            String columnName = ((SqlIdentifier) where.operands[0]).names.get(0).toLowerCase();
-            String columnValue = ((SqlLiteral) where.operands[1]).toValue();
-            Predicate<Object> matcher = createEq(tableObject, columnValue, columnName);
-            return matcher;
-        } else if (name.equalsIgnoreCase("and")) {
-            SqlBasicCall left = (SqlBasicCall) where.operands[0];
-            SqlBasicCall right = (SqlBasicCall) where.operands[1];
-            Predicate<Object> combineCondition = predicate(base, left, tableObject).and(predicate(base, right, tableObject));
-            return base.and(combineCondition);
-        } else if (name.equalsIgnoreCase("or")) {
-            SqlBasicCall left = (SqlBasicCall) where.operands[0];
-            SqlBasicCall right = (SqlBasicCall) where.operands[1];
-            Predicate<Object> combineCondition = predicate(base, left, tableObject).or(predicate(base, right, tableObject));
-            return base.and(combineCondition);
+        switch (name) {
+            case "=": {
+                String columnName = ((SqlIdentifier) where.operands[0]).names.get(0).toLowerCase();
+                String columnValue = ((SqlLiteral) where.operands[1]).toValue();
+                Predicate<Object> matcher = createEq(tableObject, columnValue, columnName);
+                return matcher;
+            }
+            case "and": {
+                SqlBasicCall left = (SqlBasicCall) where.operands[0];
+                SqlBasicCall right = (SqlBasicCall) where.operands[1];
+                Predicate<Object> combineCondition = predicate(base, left, tableObject).and(predicate(base, right, tableObject));
+                return base.and(combineCondition);
+            }
+            case "or": {
+                SqlBasicCall left = (SqlBasicCall) where.operands[0];
+                SqlBasicCall right = (SqlBasicCall) where.operands[1];
+                Predicate<Object> combineCondition = predicate(base, left, tableObject).or(predicate(base, right, tableObject));
+                return base.and(combineCondition);
+            }
         }
+
         throw new RuntimeException(operator + " not supported ");
     }
 
