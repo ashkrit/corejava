@@ -10,6 +10,7 @@ import query.kv.SSTable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class SqlAPI {
 
@@ -69,21 +70,45 @@ public class SqlAPI {
             }, limit);
         } else {
             SqlBasicCall where = (SqlBasicCall) node.getWhere();
-            String columnName = ((SqlIdentifier) where.operands[0]).names.get(0).toLowerCase();
-            String columnValue = ((SqlLiteral) where.operands[1]).toValue();
-            String op = where.getOperator().toString();
-
+            Predicate<Object> base = ($) -> true;
+            Predicate<Object> matcher = predicate(base, where, tableObject);
             tableObject.scan(r -> {
-                String value = tableObject.columnValue(columnName, r).toString();
-                if (op.equals("=")) {
-                    if (value.equals(columnValue)) {
-                        row.internalRow = r;
-                        consumer.accept(row);
-                    }
+                if (matcher.test(r)) {
+                    row.internalRow = r;
+                    consumer.accept(row);
                 }
+
             }, limit);
 
         }
+    }
+
+
+    private Predicate<Object> predicate(Predicate<Object> base, SqlBasicCall where, SSTable<?> tableObject) {
+        SqlOperator operator = where.getOperator();
+
+        String name = operator.getName();
+
+        if (name.equals("=")) {
+            String columnName = ((SqlIdentifier) where.operands[0]).names.get(0).toLowerCase();
+            String columnValue = ((SqlLiteral) where.operands[1]).toValue();
+            Predicate<Object> matcher = createEq(tableObject, columnValue, columnName);
+            return matcher;
+        } else if (name.equalsIgnoreCase("and")) {
+            SqlBasicCall left = (SqlBasicCall) where.operands[0];
+            SqlBasicCall right = (SqlBasicCall) where.operands[1];
+            Predicate<Object> combineCondition = predicate(base, left, tableObject).and(predicate(base, right, tableObject));
+            return base.and(combineCondition);
+        }
+        throw new RuntimeException(operator + " not supported ");
+    }
+
+    private Predicate<Object> createEq(SSTable<?> tableObject, String columnValue, String columnName) {
+        Predicate<Object> eq = row -> {
+            String value = tableObject.columnValue(columnName, row).toString();
+            return value.equals(columnValue);
+        };
+        return eq;
     }
 
     private boolean hasNoFilter(SqlSelect node) {
