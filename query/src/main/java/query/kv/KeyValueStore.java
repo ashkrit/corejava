@@ -1,6 +1,7 @@
 package query.kv;
 
 import query.sql.SqlAPI;
+import query.sql.SqlAPI.RowValue;
 
 import java.util.List;
 import java.util.Map;
@@ -22,13 +23,9 @@ public interface KeyValueStore {
 
     void close();
 
-    default <Row_Type> SSTable<Row_Type> table(String tableName) {
-        return null;
-    }
+    <Row_Type> SSTable<Row_Type> table(String tableName);
 
-    default void execute(String sql, Consumer<SqlAPI.RowValue> consumer) {
+    default void execute(String sql, Consumer<RowValue> consumer) {
         new SqlAPI(this).execute(sql, consumer);
     }
-
-
 }

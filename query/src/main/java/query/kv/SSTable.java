@@ -8,7 +8,6 @@ import java.util.function.Function;
 
 /*
         Interface for LSM data structure.
-
  */
 
 public interface SSTable<T_TYPE> {

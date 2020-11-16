@@ -107,8 +107,6 @@ public class SqlAPI {
 
                 String columnName = filterColumn.names.get(0).toLowerCase();
                 String columnValue = filterValue.toValue();
-
-                System.out.println("Index " + table.indexes().containsKey(columnName));
                 if (table.indexes().containsKey(columnName)) {
                     indexes.add(new IndexParameter(columnName, columnValue));
                 }
