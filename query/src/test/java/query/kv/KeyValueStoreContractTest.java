@@ -1,9 +1,7 @@
 package query.kv;
 
-import query.kv.KeyValueStore;
-import query.kv.SSTable;
-import query.tables.Order;
 import org.junit.jupiter.api.Test;
+import query.tables.Order;
 
 import java.util.*;
 import java.util.function.Function;
