@@ -6,6 +6,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/*
+        Interface for LSM data structure.
+
+ */
+
 public interface SSTable<T_TYPE> {
     List<String> cols();
 

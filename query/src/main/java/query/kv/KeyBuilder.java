@@ -5,13 +5,14 @@ package query.kv;
     Key is stored in SortedMap for efficient range scan
     Key format : {tableName}/{indexName}/{indexValue}/{rowId}
 
+    Key format can be used for key, index & column store
+
     PK :
         orders/pk/1 -> Row
         orders/pk/2 -> Row
         orders/pk/3 -> Row
 
    Secondary: By Status
-
         orders/status/SHIPPED/1 -> 1
         orders/status/SHIPPED/2 -> 2
         orders/status/SHIPPED/3 -> 2
@@ -25,7 +26,6 @@ package query.kv;
         orders/co/100#1/1 -> 1
         orders/co/100#2/2 -> 2
         orders/co/101#3/3 -> 3
-
  */
 public class KeyBuilder {
     final String tableName;
