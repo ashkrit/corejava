@@ -10,6 +10,8 @@ public class PageOffSets {
     public static final int PAGE_NUMBER = PAGE_VERSION + SIZEOF_BYTE;
     public static final int NO_OF_TUPLE = PAGE_NUMBER + SIZEOF_INT;
     public static final int CREATED_TS = NO_OF_TUPLE + SIZEOF_INT;
+
+
     public static final int DATA_OFFSET = CREATED_TS + SIZEOF_LONG;
 
 
