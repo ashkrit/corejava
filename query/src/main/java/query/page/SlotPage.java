@@ -145,4 +145,9 @@ public class SlotPage {
     public boolean hasNext() {
         return currentTuple < totalNumberOfTuple;
     }
+
+    @Override
+    public String toString() {
+        return String.format("SlotPage(Page %s;Version %s;Tuple Count %s;Capacity %sBytes)", pageNumber, version, totalNumberOfTuple, capacity());
+    }
 }

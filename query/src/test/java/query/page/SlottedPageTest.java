@@ -26,6 +26,7 @@ public class SlottedPageTest {
         assertEquals(2, buffer.getInt(PageOffSets.PAGE_NUMBER));
         assertEquals(20, buffer.getInt(PageOffSets.NO_OF_TUPLE));
 
+        System.out.println(page);
     }
 
     @Test
@@ -44,6 +45,7 @@ public class SlottedPageTest {
         assertEquals(actual.pageNumber(), expected.pageNumber());
         assertEquals(expected.noOfTuple(), expected.noOfTuple());
 
+        System.out.println(actual);
     }
 
     @Test
@@ -64,6 +66,8 @@ public class SlottedPageTest {
         assertEquals(expected.noOfTuple(), expected.noOfTuple());
         assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
 
+        System.out.println(actual);
+
     }
 
     @Test
@@ -83,6 +87,8 @@ public class SlottedPageTest {
         actual.read(readBuffer);
 
         assertEquals(-1, actual.read(readBuffer));
+
+        System.out.println(actual);
     }
 
     @Test
@@ -103,6 +109,8 @@ public class SlottedPageTest {
         assertEquals("Bonds", new String(readBuffer, 0, actual.read(readBuffer)));
         assertEquals("Albert", new String(readBuffer, 0, actual.read(readBuffer)));
         assertEquals(-1, actual.read(readBuffer));
+
+        System.out.println(actual);
     }
 
     @Test
@@ -113,8 +121,9 @@ public class SlottedPageTest {
 
         expected.write("AA".getBytes());
 
-        Assertions.assertEquals(-1, expected.write("test".getBytes()));
+        assertEquals(-1, expected.write("test".getBytes()));
 
+        System.out.println(expected);
     }
 
 
