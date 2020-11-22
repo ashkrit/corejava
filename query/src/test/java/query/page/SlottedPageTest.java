@@ -11,7 +11,7 @@ public class SlottedPageTest {
 
     @Test
     public void writeHeader() {
-        SlotPage page = new SlotPage(1024, (byte) 1, 2);
+        SlotPage page = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         byte[] data = page.commit();
 
@@ -27,7 +27,7 @@ public class SlottedPageTest {
     @Test
     public void read_headers() {
 
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         byte[] data = expected.commit();
 
@@ -43,7 +43,7 @@ public class SlottedPageTest {
     @Test
     public void write_single_tuple() {
 
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
 
@@ -63,7 +63,7 @@ public class SlottedPageTest {
     @Test
     public void skip_read_when_reached_to_end_of_buffer() {
 
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
 
         expected.write("James".getBytes());
@@ -82,7 +82,7 @@ public class SlottedPageTest {
 
     @Test
     public void write_multiple_records() {
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
         expected.write("Bonds".getBytes());
@@ -102,7 +102,7 @@ public class SlottedPageTest {
 
     @Test
     public void handle_buffer_overflow() {
-        SlotPage expected = new SlotPage(16, (byte) 1, 2);
+        SlotPage expected = new SlotPage(16, (byte) 1, 2, System.currentTimeMillis());
 
         expected.write("AA".getBytes());
 

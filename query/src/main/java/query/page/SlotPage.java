@@ -1,6 +1,10 @@
 package query.page;
 
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
  * Layout Details
@@ -27,6 +31,7 @@ public class SlotPage {
     private final byte[] data;
     private byte version;
     private int pageNumber;
+    private long createdTs;
 
     private int writeTupleIndex = 0;
     private int readTupleIndex = 0;
@@ -36,10 +41,11 @@ public class SlotPage {
     private int dataReadIndex = PageOffSets.DATA_OFFSET;
 
 
-    public SlotPage(int pageSize, byte version, int pageNumber) {
+    public SlotPage(int pageSize, byte version, int pageNumber, long createdTs) {
         this.data = new byte[pageSize];
         this.version = version;
         this.pageNumber = pageNumber;
+        this.createdTs = createdTs;
         this.buffer = ByteBuffer.wrap(data);
     }
 
@@ -52,6 +58,7 @@ public class SlotPage {
     private void readHeaders() {
         version = buffer.get(PageOffSets.PAGE_VERSION);
         pageNumber = buffer.getInt(PageOffSets.PAGE_NUMBER);
+        createdTs = buffer.getLong(PageOffSets.CREATED_TS);
         writeTupleIndex = buffer.getInt(PageOffSets.NO_OF_TUPLE);
     }
 
@@ -63,6 +70,7 @@ public class SlotPage {
     public void writeHeaders() {
         buffer.put(PageOffSets.PAGE_VERSION, version);
         buffer.putInt(PageOffSets.PAGE_NUMBER, pageNumber);
+        buffer.putLong(PageOffSets.CREATED_TS, createdTs);
         buffer.putInt(PageOffSets.NO_OF_TUPLE, writeTupleIndex);
     }
 
@@ -141,6 +149,7 @@ public class SlotPage {
 
     @Override
     public String toString() {
-        return String.format("SlotPage(Page %s;Version %s;Tuple Count %s;Capacity %sBytes)", pageNumber, version, writeTupleIndex, capacity());
+        LocalDateTime createdTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(createdTs), ZoneId.systemDefault());
+        return String.format("SlotPage(CreatedAt: %s;Page: %s;Version: %s;Tuple Count: %s;Capacity: %sBytes)", createdTime, pageNumber, version, writeTupleIndex, capacity());
     }
 }

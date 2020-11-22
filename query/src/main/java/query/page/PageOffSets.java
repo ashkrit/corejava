@@ -4,7 +4,7 @@ public class PageOffSets {
 
     private static int SIZEOF_BYTE = 1;
     private static int SIZEOF_INT = 4;
-    private static int SIZEOF_LONG = 4;
+    private static int SIZEOF_LONG = 8;
 
     public static final int PAGE_VERSION = 0;
     public static final int PAGE_NUMBER = PAGE_VERSION + SIZEOF_BYTE;
