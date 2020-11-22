@@ -92,6 +92,11 @@
             <version>2.19.50</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>chronicle-map</artifactId>
+            <version><!--replace with the latest version--></version>
+        </dependency>
 
         <!-- chronicle End -->
         <dependency>
