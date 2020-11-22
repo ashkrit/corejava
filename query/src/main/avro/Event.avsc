@@ -1,0 +1,12 @@
+{
+  "namespace": "model.avro",
+  "type": "record",
+  "name": "EventInfo",
+  "fields": [
+       {"name": "host", "type": ["null","string"],"default": null},
+       {"name": "service", "type": ["null","string"],"default": null},
+       {"name": "eventTime",  "type": "string"},
+       {"name": "message", "type": "string"},
+       {"name": "tags", "type": {"type": "map", "values": "long" } , "default": {}}
+  ]
+}
