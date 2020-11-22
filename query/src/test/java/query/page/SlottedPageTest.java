@@ -6,8 +6,12 @@ import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 public class SlottedPageTest {
 
@@ -57,7 +61,7 @@ public class SlottedPageTest {
         byte[] readBuffer = new byte[100];
 
         assertEquals(expected.noOfTuple(), expected.noOfTuple());
-        assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
+        assertEquals("James", new String(readBuffer, 0, actual.next(readBuffer)));
 
         System.out.println(actual);
 
@@ -76,9 +80,9 @@ public class SlottedPageTest {
         ReadPage actual = ReadPage.create(data);
 
         byte[] readBuffer = new byte[100];
-        actual.read(readBuffer);
+        actual.next(readBuffer);
 
-        assertEquals(-1, actual.read(readBuffer));
+        assertEquals(-1, actual.next(readBuffer));
 
         System.out.println(actual);
     }
@@ -96,10 +100,10 @@ public class SlottedPageTest {
 
         byte[] readBuffer = new byte[100];
 
-        assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
-        assertEquals("Bonds", new String(readBuffer, 0, actual.read(readBuffer)));
-        assertEquals("Albert", new String(readBuffer, 0, actual.read(readBuffer)));
-        assertEquals(-1, actual.read(readBuffer));
+        assertEquals("James", new String(readBuffer, 0, actual.next(readBuffer)));
+        assertEquals("Bonds", new String(readBuffer, 0, actual.next(readBuffer)));
+        assertEquals("Albert", new String(readBuffer, 0, actual.next(readBuffer)));
+        assertEquals(-1, actual.next(readBuffer));
 
         System.out.println(actual);
     }
@@ -113,6 +117,27 @@ public class SlottedPageTest {
         assertEquals(-1, expected.write("test".getBytes()));
 
         System.out.println(expected);
+    }
+
+    @Test
+    public void read_using_iterator_like_interface() {
+        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+
+        expected.write("James".getBytes());
+        expected.write("Bonds".getBytes());
+        expected.write("Albert".getBytes());
+
+        byte[] data = expected.commit();
+        ReadPage page = ReadPage.create(data);
+        byte[] readBuffer = new byte[100];
+
+        List<String> records = new ArrayList<>();
+        while (page.hasNext()) {
+            int bytesRead = page.next(readBuffer);
+            records.add(new String(readBuffer, 0, bytesRead));
+        }
+
+        assertIterableEquals(asList("James", "Bonds", "Albert"), records);
     }
 
 }

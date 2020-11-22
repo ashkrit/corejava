@@ -52,16 +52,16 @@ public class ReadableSlottedPage implements ReadPage {
     }
 
     @Override
-    public int read(byte[] readBuffer) {
+    public int next(byte[] buffer) {
         if (!hasNext()) {
             return -1;
         }
         int slotIndex = (data.length - (currentTuple) * 4) - 4;
 
-        int bytesToRead = buffer.getInt(slotIndex); // Bytes to read from current position
+        int bytesToRead = this.buffer.getInt(slotIndex); // Bytes to read from current position
 
-        buffer.position(dataReadIndex);
-        buffer.get(readBuffer, 0, bytesToRead);
+        this.buffer.position(dataReadIndex);
+        this.buffer.get(buffer, 0, bytesToRead);
 
         dataReadIndex += bytesToRead; // Move data pointer
         currentTuple++; // Move to next slot
