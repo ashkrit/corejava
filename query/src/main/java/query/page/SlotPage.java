@@ -2,6 +2,26 @@ package query.page;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Layout Details
+ * Page Contains 2 Sections
+ * Header
+ * Data
+ * <p>
+ * Header Contains Version(Byte),Page No(Int),No Of tuple(Int)
+ * Data contains 2 section one is tuple data and other one is slot array that contains tuple size details
+ * .........................................
+ * {VERSION}{PAGE NO}{No Of Tuple}
+ * {Tuple 1}{Tuple 2}
+ * <p>
+ * {OffSet 2}{OffSet 1}
+ * ...........................................
+ * <p>
+ * [.....
+ * <p>
+ * 20,6,7]
+ */
+
 public class SlotPage {
 
     private final byte[] data;
@@ -82,11 +102,15 @@ public class SlotPage {
             buffer.put(offset++, b);
         }
 
-        totalNumberOfTuple++; // Move to next slot
+        nextTuple();
         int slotIndex = slotOffSet();
         buffer.putInt(slotIndex, bytes.length); // Write in slot array
         dataWriteIndex = offset;
         return bytes.length;
+    }
+
+    public void nextTuple() {
+        totalNumberOfTuple++;
     }
 
     public boolean hasCapacity(int bytesRequired) {
