@@ -91,6 +91,9 @@ public class SlotPage {
 
     public int read(byte[] readBuffer) {
 
+        if (readSlot >= noOfTuple) {
+            return -1;
+        }
         int slotIndex = (data.length - (readSlot) * 4) - 4;
 
         int bytesToRead = buffer.getInt(slotIndex); // Bytes to read from current position

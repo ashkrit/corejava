@@ -21,7 +21,7 @@ public class SlottedPageTest {
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
-        assertEquals(1, buffer.getShort(PageOffSets.PAGE_VERSION));
+        assertEquals(1, buffer.get(PageOffSets.PAGE_VERSION));
         assertEquals(2, buffer.getInt(PageOffSets.PAGE_NUMBER));
         assertEquals(20, buffer.getInt(PageOffSets.NO_OF_TUPLE));
 
@@ -63,6 +63,25 @@ public class SlottedPageTest {
         assertEquals(expected.noOfTuple(), expected.noOfTuple());
         assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
 
+    }
+
+    @Test
+    public void skip_read_when_reached_to_end_of_buffer() {
+
+        SlotPage expected = new SlotPage(1024);
+        expected.version((byte) 1);
+        expected.pageNumber(2);
+
+        expected.write("James".getBytes());
+
+        byte[] data = expected.commit();
+
+        SlotPage actual = new SlotPage(data);
+
+        byte[] readBuffer = new byte[100];
+        actual.read(readBuffer);
+
+        assertEquals(-1, actual.read(readBuffer));
     }
 
 }
