@@ -84,4 +84,24 @@ public class SlottedPageTest {
         assertEquals(-1, actual.read(readBuffer));
     }
 
+    @Test
+    public void write_multiple_records() {
+        SlotPage expected = new SlotPage(1024);
+        expected.version((byte) 1);
+        expected.pageNumber(2);
+
+        expected.write("James".getBytes());
+        expected.write("Bonds".getBytes());
+        expected.write("Albert".getBytes());
+
+        byte[] data = expected.commit();
+        SlotPage actual = new SlotPage(data);
+        byte[] readBuffer = new byte[100];
+
+        assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
+        assertEquals("Bonds", new String(readBuffer, 0, actual.read(readBuffer)));
+        assertEquals("Albert", new String(readBuffer, 0, actual.read(readBuffer)));
+        assertEquals(-1, actual.read(readBuffer));
+    }
+
 }
