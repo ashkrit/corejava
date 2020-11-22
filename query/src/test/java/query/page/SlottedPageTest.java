@@ -1,5 +1,6 @@
 package query.page;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -103,5 +104,18 @@ public class SlottedPageTest {
         assertEquals("Albert", new String(readBuffer, 0, actual.read(readBuffer)));
         assertEquals(-1, actual.read(readBuffer));
     }
+
+    @Test
+    public void handle_buffer_overflow() {
+        SlotPage expected = new SlotPage(16);
+        expected.version((byte) 1);
+        expected.pageNumber(2);
+
+        expected.write("AA".getBytes());
+
+        Assertions.assertEquals(-1, expected.write("test".getBytes()));
+
+    }
+
 
 }

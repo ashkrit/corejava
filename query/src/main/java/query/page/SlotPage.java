@@ -65,7 +65,7 @@ public class SlotPage {
         return noOfTuple;
     }
 
-    public void write(byte[] bytes) {
+    public int write(byte[] bytes) {
 
         /*
             - Write data offset in slot array ( 4 bytes) from tail
@@ -74,7 +74,11 @@ public class SlotPage {
             - Move to next slot
          */
 
-        //Update data
+
+        int capacity = (data.length - noOfTuple * 4) - dataWriteIndex;
+        if (capacity < bytes.length + 4) {
+            return -1;
+        }
 
         int offset = dataWriteIndex;
         for (byte b : bytes) {
@@ -87,6 +91,7 @@ public class SlotPage {
 
         System.out.println("Write Slot .." + slotIndex + "(" + bytes.length + ") Starting from " + dataWriteIndex + " for bytes " + bytes.length);
         dataWriteIndex = offset;
+        return bytes.length;
     }
 
     public int read(byte[] readBuffer) {
