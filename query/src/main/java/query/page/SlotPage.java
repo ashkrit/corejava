@@ -3,6 +3,7 @@ package query.page;
 import java.nio.ByteBuffer;
 
 public class SlotPage {
+
     private final int pageSize;
     private final byte[] data;
     private short version;
@@ -29,9 +30,9 @@ public class SlotPage {
     }
 
     public byte[] commit() {
-        writer.putShort(0, version);
-        writer.putInt(4, pageNumber);
-        writer.putInt(8, noOfTuple);
+        writer.putShort(PageOffSets.PAGE_VERSION, version);
+        writer.putInt(PageOffSets.PAGE_NUMBER, pageNumber);
+        writer.putInt(PageOffSets.NO_OF_TUPLE, noOfTuple);
         return data;
     }
 

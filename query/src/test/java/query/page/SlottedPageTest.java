@@ -21,9 +21,9 @@ public class SlottedPageTest {
 
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
-        assertEquals(1, buffer.getShort(0));
-        assertEquals(2, buffer.getInt(4));
-        assertEquals(20, buffer.getInt(8));
+        assertEquals(1, buffer.getShort(PageOffSets.PAGE_VERSION));
+        assertEquals(2, buffer.getInt(PageOffSets.PAGE_NUMBER));
+        assertEquals(20, buffer.getInt(PageOffSets.NO_OF_TUPLE));
 
     }
 }
