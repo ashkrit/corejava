@@ -2,6 +2,8 @@ package query.page;
 
 import java.nio.ByteBuffer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class SlotPage {
 
     private final int pageSize;
@@ -17,11 +19,24 @@ public class SlotPage {
         writer = ByteBuffer.wrap(data);
     }
 
+    public SlotPage(byte[] data) {
+        this.pageSize = data.length;
+        this.data = data;
+        this.writer = ByteBuffer.wrap(data);
+        readHeaders();
+    }
+
+    private void readHeaders() {
+        version = writer.getShort(PageOffSets.PAGE_VERSION);
+        pageNumber = writer.getInt(PageOffSets.PAGE_NUMBER);
+        noOfTuple = writer.getInt(PageOffSets.NO_OF_TUPLE);
+    }
+
     public void version(short version) {
         this.version = version;
     }
 
-    public void pageNo(int pageNumber) {
+    public void pageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
     }
 
@@ -36,4 +51,15 @@ public class SlotPage {
         return data;
     }
 
+    public short version() {
+        return version;
+    }
+
+    public int pageNumber() {
+        return pageNumber;
+    }
+
+    public int noOfTuple() {
+        return noOfTuple;
+    }
 }
