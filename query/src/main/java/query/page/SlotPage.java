@@ -1,10 +1,11 @@
 package query.page;
 
 import java.nio.ByteBuffer;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+
+import static java.time.Instant.ofEpochMilli;
+import static java.time.LocalDateTime.ofInstant;
+import static java.time.ZoneId.systemDefault;
 
 /**
  * Layout Details
@@ -149,7 +150,10 @@ public class SlotPage {
 
     @Override
     public String toString() {
-        LocalDateTime createdTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(createdTs), ZoneId.systemDefault());
-        return String.format("SlotPage(CreatedAt: %s;Page: %s;Version: %s;Tuple Count: %s;Capacity: %sBytes)", createdTime, pageNumber, version, writeTupleIndex, capacity());
+        return String.format("SlotPage (CreatedAt: %s;Page: %s;Version: %s;Tuple Count: %s;Capacity: %sBytes)", createdTime(), pageNumber, version, writeTupleIndex, capacity());
+    }
+
+    public LocalDateTime createdTime() {
+        return ofInstant(ofEpochMilli(createdTs), systemDefault());
     }
 }
