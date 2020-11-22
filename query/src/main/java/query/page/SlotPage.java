@@ -27,15 +27,20 @@ public class SlotPage {
     private final byte[] data;
     private byte version;
     private int pageNumber;
-    private int totalNumberOfTuple;
+
+    private int writeTupleIndex = 0;
+    private int readTupleIndex = 0;
+
     private final ByteBuffer buffer;
     private int dataWriteIndex = PageOffSets.DATA_OFFSET;
     private int dataReadIndex = PageOffSets.DATA_OFFSET;
-    private int currentTuple = 0;
 
-    public SlotPage(int pageSize) {
+
+    public SlotPage(int pageSize, byte version, int pageNumber) {
         this.data = new byte[pageSize];
-        buffer = ByteBuffer.wrap(data);
+        this.version = version;
+        this.pageNumber = pageNumber;
+        this.buffer = ByteBuffer.wrap(data);
     }
 
     public SlotPage(byte[] data) {
@@ -47,19 +52,7 @@ public class SlotPage {
     private void readHeaders() {
         version = buffer.get(PageOffSets.PAGE_VERSION);
         pageNumber = buffer.getInt(PageOffSets.PAGE_NUMBER);
-        totalNumberOfTuple = buffer.getInt(PageOffSets.NO_OF_TUPLE);
-    }
-
-    public void version(byte version) {
-        this.version = version;
-    }
-
-    public void pageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
-    }
-
-    public void noOfTuple(int noOfTuple) {
-        this.totalNumberOfTuple = noOfTuple;
+        writeTupleIndex = buffer.getInt(PageOffSets.NO_OF_TUPLE);
     }
 
     public byte[] commit() {
@@ -70,7 +63,7 @@ public class SlotPage {
     public void writeHeaders() {
         buffer.put(PageOffSets.PAGE_VERSION, version);
         buffer.putInt(PageOffSets.PAGE_NUMBER, pageNumber);
-        buffer.putInt(PageOffSets.NO_OF_TUPLE, totalNumberOfTuple);
+        buffer.putInt(PageOffSets.NO_OF_TUPLE, writeTupleIndex);
     }
 
     public short version() {
@@ -82,7 +75,7 @@ public class SlotPage {
     }
 
     public int noOfTuple() {
-        return totalNumberOfTuple;
+        return writeTupleIndex;
     }
 
     /**
@@ -110,7 +103,7 @@ public class SlotPage {
     }
 
     public void nextTuple() {
-        totalNumberOfTuple++;
+        writeTupleIndex++;
     }
 
     public boolean hasCapacity(int bytesRequired) {
@@ -122,7 +115,7 @@ public class SlotPage {
     }
 
     public int slotOffSet() {
-        return data.length - totalNumberOfTuple * 4;
+        return data.length - writeTupleIndex * 4;
     }
 
     public int read(byte[] readBuffer) {
@@ -130,7 +123,7 @@ public class SlotPage {
         if (!hasNext()) {
             return -1;
         }
-        int slotIndex = (data.length - (currentTuple) * 4) - 4;
+        int slotIndex = (data.length - (readTupleIndex) * 4) - 4;
 
         int bytesToRead = buffer.getInt(slotIndex); // Bytes to read from current position
 
@@ -138,16 +131,16 @@ public class SlotPage {
         buffer.get(readBuffer, 0, bytesToRead);
 
         dataReadIndex += bytesToRead; // Move data pointer
-        currentTuple++; // Move to next slot
+        readTupleIndex++; // Move to next slot
         return bytesToRead;
     }
 
     public boolean hasNext() {
-        return currentTuple < totalNumberOfTuple;
+        return readTupleIndex < writeTupleIndex;
     }
 
     @Override
     public String toString() {
-        return String.format("SlotPage(Page %s;Version %s;Tuple Count %s;Capacity %sBytes)", pageNumber, version, totalNumberOfTuple, capacity());
+        return String.format("SlotPage(Page %s;Version %s;Tuple Count %s;Capacity %sBytes)", pageNumber, version, writeTupleIndex, capacity());
     }
 }

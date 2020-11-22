@@ -1,6 +1,5 @@
 package query.page;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -12,11 +11,7 @@ public class SlottedPageTest {
 
     @Test
     public void writeHeader() {
-        SlotPage page = new SlotPage(1024);
-
-        page.version((byte) 1);
-        page.pageNumber(2);
-        page.noOfTuple(20);
+        SlotPage page = new SlotPage(1024, (byte) 1, 2);
 
         byte[] data = page.commit();
 
@@ -24,7 +19,7 @@ public class SlottedPageTest {
 
         assertEquals(1, buffer.get(PageOffSets.PAGE_VERSION));
         assertEquals(2, buffer.getInt(PageOffSets.PAGE_NUMBER));
-        assertEquals(20, buffer.getInt(PageOffSets.NO_OF_TUPLE));
+        assertEquals(0, buffer.getInt(PageOffSets.NO_OF_TUPLE));
 
         System.out.println(page);
     }
@@ -32,10 +27,7 @@ public class SlottedPageTest {
     @Test
     public void read_headers() {
 
-        SlotPage expected = new SlotPage(1024);
-        expected.version((byte) 1);
-        expected.pageNumber(2);
-        expected.noOfTuple(20);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
 
         byte[] data = expected.commit();
 
@@ -51,9 +43,7 @@ public class SlottedPageTest {
     @Test
     public void write_single_tuple() {
 
-        SlotPage expected = new SlotPage(1024);
-        expected.version((byte) 1);
-        expected.pageNumber(2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
 
         expected.write("James".getBytes());
 
@@ -73,9 +63,8 @@ public class SlottedPageTest {
     @Test
     public void skip_read_when_reached_to_end_of_buffer() {
 
-        SlotPage expected = new SlotPage(1024);
-        expected.version((byte) 1);
-        expected.pageNumber(2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
+
 
         expected.write("James".getBytes());
 
@@ -93,9 +82,7 @@ public class SlottedPageTest {
 
     @Test
     public void write_multiple_records() {
-        SlotPage expected = new SlotPage(1024);
-        expected.version((byte) 1);
-        expected.pageNumber(2);
+        SlotPage expected = new SlotPage(1024, (byte) 1, 2);
 
         expected.write("James".getBytes());
         expected.write("Bonds".getBytes());
@@ -115,9 +102,7 @@ public class SlottedPageTest {
 
     @Test
     public void handle_buffer_overflow() {
-        SlotPage expected = new SlotPage(16);
-        expected.version((byte) 1);
-        expected.pageNumber(2);
+        SlotPage expected = new SlotPage(16, (byte) 1, 2);
 
         expected.write("AA".getBytes());
 
@@ -125,6 +110,5 @@ public class SlottedPageTest {
 
         System.out.println(expected);
     }
-
 
 }
