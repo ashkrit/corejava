@@ -13,7 +13,7 @@ public class SlottedPageTest {
     public void writeHeader() {
         SlotPage page = new SlotPage(1024);
 
-        page.version((short) 1);
+        page.version((byte) 1);
         page.pageNumber(2);
         page.noOfTuple(20);
 
@@ -31,7 +31,7 @@ public class SlottedPageTest {
     public void read_headers() {
 
         SlotPage expected = new SlotPage(1024);
-        expected.version((short) 1);
+        expected.version((byte) 1);
         expected.pageNumber(2);
         expected.noOfTuple(20);
 
@@ -45,5 +45,24 @@ public class SlottedPageTest {
 
     }
 
+    @Test
+    public void write_single_tuple() {
+
+        SlotPage expected = new SlotPage(1024);
+        expected.version((byte) 1);
+        expected.pageNumber(2);
+
+        expected.write("James".getBytes());
+
+        byte[] data = expected.commit();
+
+        SlotPage actual = new SlotPage(data);
+
+        byte[] readBuffer = new byte[100];
+
+        assertEquals(expected.noOfTuple(), expected.noOfTuple());
+        assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
+
+    }
 
 }
