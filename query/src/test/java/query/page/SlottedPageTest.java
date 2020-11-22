@@ -1,6 +1,8 @@
 package query.page;
 
 import org.junit.jupiter.api.Test;
+import query.page.read.ReadPage;
+import query.page.write.WritableSlotPage;
 
 import java.nio.ByteBuffer;
 
@@ -11,7 +13,7 @@ public class SlottedPageTest {
 
     @Test
     public void writeHeader() {
-        SlotPage page = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage page = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         byte[] data = page.commit();
 
@@ -27,11 +29,11 @@ public class SlottedPageTest {
     @Test
     public void read_headers() {
 
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         byte[] data = expected.commit();
 
-        SlotPage actual = new SlotPage(data);
+        ReadPage actual = ReadPage.create(data);
 
         assertEquals(actual.version(), expected.version());
         assertEquals(actual.pageNumber(), expected.pageNumber());
@@ -43,13 +45,13 @@ public class SlottedPageTest {
     @Test
     public void write_single_tuple() {
 
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
 
         byte[] data = expected.commit();
 
-        SlotPage actual = new SlotPage(data);
+        ReadPage actual = ReadPage.create(data);
 
         byte[] readBuffer = new byte[100];
 
@@ -63,14 +65,14 @@ public class SlottedPageTest {
     @Test
     public void skip_read_when_reached_to_end_of_buffer() {
 
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
 
         expected.write("James".getBytes());
 
         byte[] data = expected.commit();
 
-        SlotPage actual = new SlotPage(data);
+        ReadPage actual = ReadPage.create(data);
 
         byte[] readBuffer = new byte[100];
         actual.read(readBuffer);
@@ -82,14 +84,15 @@ public class SlottedPageTest {
 
     @Test
     public void write_multiple_records() {
-        SlotPage expected = new SlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
         expected.write("Bonds".getBytes());
         expected.write("Albert".getBytes());
 
         byte[] data = expected.commit();
-        SlotPage actual = new SlotPage(data);
+        ReadPage actual = ReadPage.create(data);
+
         byte[] readBuffer = new byte[100];
 
         assertEquals("James", new String(readBuffer, 0, actual.read(readBuffer)));
@@ -102,7 +105,7 @@ public class SlottedPageTest {
 
     @Test
     public void handle_buffer_overflow() {
-        SlotPage expected = new SlotPage(16, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage expected = new WritableSlotPage(16, (byte) 1, 2, System.currentTimeMillis());
 
         expected.write("AA".getBytes());
 

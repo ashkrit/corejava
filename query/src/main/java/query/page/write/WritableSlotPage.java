@@ -1,4 +1,6 @@
-package query.page;
+package query.page.write;
+
+import query.page.PageOffSets;
 
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
@@ -27,22 +29,20 @@ import static java.time.ZoneId.systemDefault;
  * 20,6,7]
  */
 
-public class SlotPage {
+public class WritableSlotPage implements WritePage {
 
     private final byte[] data;
+    private final ByteBuffer buffer;
+
     private byte version;
     private int pageNumber;
     private long createdTs;
 
     private int writeTupleIndex = 0;
-    private int readTupleIndex = 0;
-
-    private final ByteBuffer buffer;
     private int dataWriteIndex = PageOffSets.DATA_OFFSET;
-    private int dataReadIndex = PageOffSets.DATA_OFFSET;
 
 
-    public SlotPage(int pageSize, byte version, int pageNumber, long createdTs) {
+    public WritableSlotPage(int pageSize, byte version, int pageNumber, long createdTs) {
         this.data = new byte[pageSize];
         this.version = version;
         this.pageNumber = pageNumber;
@@ -50,19 +50,8 @@ public class SlotPage {
         this.buffer = ByteBuffer.wrap(data);
     }
 
-    public SlotPage(byte[] data) {
-        this.data = data;
-        this.buffer = ByteBuffer.wrap(data);
-        readHeaders();
-    }
 
-    private void readHeaders() {
-        version = buffer.get(PageOffSets.PAGE_VERSION);
-        pageNumber = buffer.getInt(PageOffSets.PAGE_NUMBER);
-        createdTs = buffer.getLong(PageOffSets.CREATED_TS);
-        writeTupleIndex = buffer.getInt(PageOffSets.NO_OF_TUPLE);
-    }
-
+    @Override
     public byte[] commit() {
         writeHeaders();
         return data;
@@ -75,16 +64,29 @@ public class SlotPage {
         buffer.putInt(PageOffSets.NO_OF_TUPLE, writeTupleIndex);
     }
 
+    @Override
     public short version() {
         return version;
     }
 
+    @Override
     public int pageNumber() {
         return pageNumber;
     }
 
+    @Override
     public int noOfTuple() {
         return writeTupleIndex;
+    }
+
+    @Override
+    public int capacity() {
+        return slotOffSet() - dataWriteIndex;
+    }
+
+    @Override
+    public LocalDateTime createdTime() {
+        return ofInstant(ofEpochMilli(createdTs), systemDefault());
     }
 
     /**
@@ -93,6 +95,7 @@ public class SlotPage {
      * - Move to next data write position
      * - Move to next slot
      */
+    @Override
     public int write(byte[] bytes) {
 
         if (!hasCapacity(bytes.length + 4)) {
@@ -111,41 +114,16 @@ public class SlotPage {
         return bytes.length;
     }
 
-    public void nextTuple() {
+    private void nextTuple() {
         writeTupleIndex++;
     }
 
-    public boolean hasCapacity(int bytesRequired) {
+    private boolean hasCapacity(int bytesRequired) {
         return capacity() > bytesRequired;
     }
 
-    public int capacity() {
-        return slotOffSet() - dataWriteIndex;
-    }
-
-    public int slotOffSet() {
+    private int slotOffSet() {
         return data.length - writeTupleIndex * 4;
-    }
-
-    public int read(byte[] readBuffer) {
-
-        if (!hasNext()) {
-            return -1;
-        }
-        int slotIndex = (data.length - (readTupleIndex) * 4) - 4;
-
-        int bytesToRead = buffer.getInt(slotIndex); // Bytes to read from current position
-
-        buffer.position(dataReadIndex);
-        buffer.get(readBuffer, 0, bytesToRead);
-
-        dataReadIndex += bytesToRead; // Move data pointer
-        readTupleIndex++; // Move to next slot
-        return bytesToRead;
-    }
-
-    public boolean hasNext() {
-        return readTupleIndex < writeTupleIndex;
     }
 
     @Override
@@ -153,7 +131,4 @@ public class SlotPage {
         return String.format("SlotPage (CreatedAt: %s;Page: %s;Version: %s;Tuple Count: %s;Capacity: %sBytes)", createdTime(), pageNumber, version, writeTupleIndex, capacity());
     }
 
-    public LocalDateTime createdTime() {
-        return ofInstant(ofEpochMilli(createdTs), systemDefault());
-    }
 }

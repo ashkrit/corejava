@@ -1,0 +1,85 @@
+package query.page.read;
+
+import query.page.PageOffSets;
+
+import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+
+import static java.time.Instant.ofEpochMilli;
+import static java.time.LocalDateTime.ofInstant;
+import static java.time.ZoneId.systemDefault;
+
+public class ReadableSlottedPage implements ReadPage {
+
+    private final byte[] data;
+    private final ByteBuffer buffer;
+
+    private byte version;
+    private int pageNumber;
+    private long createdTs;
+    private int totalTuple;
+
+    private int currentTuple;
+    private int dataReadIndex = PageOffSets.DATA_OFFSET;
+
+    public ReadableSlottedPage(byte[] data) {
+        this.data = data;
+        this.buffer = ByteBuffer.wrap(data)
+                .asReadOnlyBuffer();
+        readHeaders();
+    }
+
+    private void readHeaders() {
+        version = buffer.get(PageOffSets.PAGE_VERSION);
+        pageNumber = buffer.getInt(PageOffSets.PAGE_NUMBER);
+        createdTs = buffer.getLong(PageOffSets.CREATED_TS);
+        totalTuple = buffer.getInt(PageOffSets.NO_OF_TUPLE);
+    }
+
+    @Override
+    public short version() {
+        return version;
+    }
+
+    @Override
+    public int pageNumber() {
+        return pageNumber;
+    }
+
+    @Override
+    public int totalRecords() {
+        return totalTuple;
+    }
+
+    @Override
+    public int read(byte[] readBuffer) {
+        if (!hasNext()) {
+            return -1;
+        }
+        int slotIndex = (data.length - (currentTuple) * 4) - 4;
+
+        int bytesToRead = buffer.getInt(slotIndex); // Bytes to read from current position
+
+        buffer.position(dataReadIndex);
+        buffer.get(readBuffer, 0, bytesToRead);
+
+        dataReadIndex += bytesToRead; // Move data pointer
+        currentTuple++; // Move to next slot
+        return bytesToRead;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return currentTuple < totalTuple;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("SlotPage (CreatedAt: %s;Page: %s;Version: %s;Tuple Count: %s)", createdTime(), pageNumber, version, totalTuple);
+    }
+
+    @Override
+    public LocalDateTime createdTime() {
+        return ofInstant(ofEpochMilli(createdTs), systemDefault());
+    }
+}
