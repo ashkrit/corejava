@@ -37,8 +37,8 @@ public class WritableSlotPage implements WritePage {
     private byte version;
     private int pageNumber;
     private long createdTs;
-
     private int writeTupleIndex = 0;
+
     private int dataWriteIndex = PageOffSets.DATA_OFFSET;
 
 
@@ -98,20 +98,26 @@ public class WritableSlotPage implements WritePage {
     @Override
     public int write(byte[] bytes) {
 
-        if (!hasCapacity(bytes.length + 4)) {
+        int dataLength = bytes.length;
+        if (!hasCapacity(dataLength + 4)) {
             return -1;
         }
 
-        int offset = dataWriteIndex;
+        int offset = writeChunk(dataWriteIndex, bytes);
+
+        nextTuple();
+        buffer.putInt(slotOffSet(), dataLength); // Write in slot array
+        dataWriteIndex = offset;
+
+        return dataLength;
+    }
+
+    public int writeChunk(int write, byte[] bytes) {
+        int offset = write;
         for (byte b : bytes) {
             buffer.put(offset++, b);
         }
-
-        nextTuple();
-        int slotIndex = slotOffSet();
-        buffer.putInt(slotIndex, bytes.length); // Write in slot array
-        dataWriteIndex = offset;
-        return bytes.length;
+        return offset;
     }
 
     private void nextTuple() {
