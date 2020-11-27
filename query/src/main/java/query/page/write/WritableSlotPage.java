@@ -107,7 +107,6 @@ public class WritableSlotPage implements WritePage {
 
         nextTuple();
         buffer.putInt(slotOffSet(), offset); // Write in slot array
-        System.out.println(offset);
         dataWriteIndex = offset;
 
         return dataLength;

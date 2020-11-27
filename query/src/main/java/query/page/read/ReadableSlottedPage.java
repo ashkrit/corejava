@@ -72,8 +72,12 @@ public class ReadableSlottedPage implements ReadPage {
                 }
                 int bytesToRead = localBuffer.getInt(slotIndex) - readIndex; // Bytes to read from current position
 
-                localBuffer.position(readIndex);
-                localBuffer.get(buffer, 0, bytesToRead);
+                for (int start = 0; start < bytesToRead; start++) {
+                    buffer[start] = localBuffer.get(readIndex + start);
+                }
+
+                //localBuffer.position(readIndex);
+                //localBuffer.get(buffer, 0, bytesToRead);
 
                 current++; // Move to next slot
                 return bytesToRead;

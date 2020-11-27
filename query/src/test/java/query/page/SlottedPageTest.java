@@ -1,5 +1,6 @@
 package query.page;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import query.page.read.PageIterator;
 import query.page.read.ReadPage;
@@ -9,6 +10,10 @@ import query.page.write.WritePage;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,12 +138,8 @@ public class SlottedPageTest {
         ReadPage page = ReadPage.create(data);
         byte[] readBuffer = new byte[100];
 
-        List<String> records = new ArrayList<>();
-        PageIterator itr = page.newIterator();
-        while (itr.hasNext()) {
-            int bytesRead = itr.next(readBuffer);
-            records.add(new String(readBuffer, 0, bytesRead));
-        }
+
+        List<String> records = collect(readBuffer, page.newIterator());
 
         assertAll(
                 () -> assertEquals(3, page.totalRecords()),
@@ -147,19 +148,37 @@ public class SlottedPageTest {
 
     }
 
+    @NotNull
+    public List<String> collect(byte[] readBuffer, PageIterator itr) {
+        List<String> records = new ArrayList<>();
+        while (itr.hasNext()) {
+            int bytesRead = itr.next(readBuffer);
+            records.add(new String(readBuffer, 0, bytesRead));
+        }
+        return records;
+    }
+
 
     @Test
-    public void access_record_by_index() {
+    public void support_multiple_iterator() {
 
-        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024 * 64, (byte) 1, 2, System.currentTimeMillis());
 
-        expected.write("James".getBytes());
-        expected.write("Bonds".getBytes());
-        expected.write("Albert".getBytes());
+        IntStream.range(0, 1000).forEach(i -> {
+            expected.write(("James" + i).getBytes());
+        });
 
         byte[] data = expected.commit();
         ReadPage page = ReadPage.create(data);
-        byte[] readBuffer = new byte[100];
+
+        ExecutorService es = Executors.newFixedThreadPool(2);
+
+        Future<List<String>> r1 = es.submit(() -> collect(new byte[100], page.newIterator()));
+        Future<List<String>> r2 = es.submit(() -> collect(new byte[100], page.newIterator()));
+
+        assertAll(
+                () -> assertEquals(r1.get(), r2.get())
+        );
 
     }
 
