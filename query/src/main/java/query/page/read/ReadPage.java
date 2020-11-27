@@ -11,9 +11,8 @@ public interface ReadPage {
 
     LocalDateTime createdTime();
 
-    int next(byte[] buffer);
 
-    boolean hasNext();
+    PageIterator newIterator();
 
     static ReadPage create(byte[] buffer) {
         return new ReadableSlottedPage(buffer);

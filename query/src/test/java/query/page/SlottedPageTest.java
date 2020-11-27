@@ -1,6 +1,7 @@
 package query.page;
 
 import org.junit.jupiter.api.Test;
+import query.page.read.PageIterator;
 import query.page.read.ReadPage;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
@@ -60,7 +61,7 @@ public class SlottedPageTest {
         byte[] readBuffer = new byte[100];
 
         assertEquals(expected.noOfTuple(), expected.noOfTuple());
-        assertEquals("James", new String(readBuffer, 0, actual.next(readBuffer)));
+        assertEquals("James", new String(readBuffer, 0, actual.newIterator().next(readBuffer)));
 
         System.out.println(actual);
 
@@ -79,9 +80,10 @@ public class SlottedPageTest {
         ReadPage actual = ReadPage.create(data);
 
         byte[] readBuffer = new byte[100];
-        actual.next(readBuffer);
+        PageIterator itr = actual.newIterator();
+        itr.next(readBuffer);
 
-        assertEquals(-1, actual.next(readBuffer));
+        assertEquals(-1, itr.next(readBuffer));
 
         System.out.println(actual);
     }
@@ -98,11 +100,12 @@ public class SlottedPageTest {
         ReadPage actual = ReadPage.create(data);
 
         byte[] readBuffer = new byte[100];
+        PageIterator itr = actual.newIterator();
 
-        assertEquals("James", new String(readBuffer, 0, actual.next(readBuffer)));
-        assertEquals("Bonds", new String(readBuffer, 0, actual.next(readBuffer)));
-        assertEquals("Albert", new String(readBuffer, 0, actual.next(readBuffer)));
-        assertEquals(-1, actual.next(readBuffer));
+        assertEquals("James", new String(readBuffer, 0, itr.next(readBuffer)));
+        assertEquals("Bonds", new String(readBuffer, 0, itr.next(readBuffer)));
+        assertEquals("Albert", new String(readBuffer, 0, itr.next(readBuffer)));
+        assertEquals(-1, itr.next(readBuffer));
 
         System.out.println(actual);
     }
@@ -131,8 +134,9 @@ public class SlottedPageTest {
         byte[] readBuffer = new byte[100];
 
         List<String> records = new ArrayList<>();
-        while (page.hasNext()) {
-            int bytesRead = page.next(readBuffer);
+        PageIterator itr = page.newIterator();
+        while (itr.hasNext()) {
+            int bytesRead = itr.next(readBuffer);
             records.add(new String(readBuffer, 0, bytesRead));
         }
 
@@ -140,6 +144,22 @@ public class SlottedPageTest {
                 () -> assertEquals(3, page.totalRecords()),
                 () -> assertIterableEquals(asList("James", "Bonds", "Albert"), records)
         );
+
+    }
+
+
+    @Test
+    public void access_record_by_index() {
+
+        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+
+        expected.write("James".getBytes());
+        expected.write("Bonds".getBytes());
+        expected.write("Albert".getBytes());
+
+        byte[] data = expected.commit();
+        ReadPage page = ReadPage.create(data);
+        byte[] readBuffer = new byte[100];
 
     }
 

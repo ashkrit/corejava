@@ -51,28 +51,39 @@ public class ReadableSlottedPage implements ReadPage {
     }
 
     @Override
-    public int next(byte[] buffer) {
-        if (!hasNext()) {
-            return -1;
-        }
-        int slotIndex = (data.length - (currentTuple) * 4) - 4;
-        int readIndex = 0;
-        if (currentTuple == 0) {
-            readIndex = PageOffSets.DATA_OFFSET;
-        } else {
-            readIndex = this.buffer.getInt(slotIndex + 4);
-        }
-        int bytesToRead = this.buffer.getInt(slotIndex) - readIndex; // Bytes to read from current position
-        this.buffer.position(readIndex);
-        this.buffer.get(buffer, 0, bytesToRead);
+    public PageIterator newIterator() {
 
-        currentTuple++; // Move to next slot
-        return bytesToRead;
-    }
+        return new PageIterator() {
+            int current = currentTuple;
+            int total = totalTuple;
+            ByteBuffer localBuffer = buffer;
 
-    @Override
-    public boolean hasNext() {
-        return currentTuple < totalTuple;
+            @Override
+            public int next(byte[] buffer) {
+                if (!hasNext()) {
+                    return -1;
+                }
+                int slotIndex = (data.length - (current) * 4) - 4;
+                int readIndex = 0;
+                if (current == 0) {
+                    readIndex = PageOffSets.DATA_OFFSET;
+                } else {
+                    readIndex = localBuffer.getInt(slotIndex + 4);
+                }
+                int bytesToRead = localBuffer.getInt(slotIndex) - readIndex; // Bytes to read from current position
+
+                localBuffer.position(readIndex);
+                localBuffer.get(buffer, 0, bytesToRead);
+
+                current++; // Move to next slot
+                return bytesToRead;
+            }
+
+            @Override
+            public boolean hasNext() {
+                return current < total;
+            }
+        };
     }
 
     @Override
