@@ -11,6 +11,7 @@ import static java.time.ZoneId.systemDefault;
 
 public class ReadableSlottedPage implements ReadPage {
 
+    public static final int POINTER_SIZE = 4;
     private final byte[] data;
     private final ByteBuffer buffer;
 
@@ -18,8 +19,6 @@ public class ReadableSlottedPage implements ReadPage {
     private int pageNumber;
     private long createdTs;
     private int totalTuple;
-
-    private int currentTuple;
 
     public ReadableSlottedPage(byte[] data) {
         this.data = data;
@@ -54,33 +53,37 @@ public class ReadableSlottedPage implements ReadPage {
     public PageIterator newIterator() {
 
         return new PageIterator() {
-            int current = currentTuple;
-            int total = totalTuple;
-            ByteBuffer localBuffer = buffer;
+            int current = 0;
+            final int total = totalTuple;
+            final ByteBuffer localBuffer = buffer;
 
             @Override
             public int next(byte[] buffer) {
                 if (!hasNext()) {
                     return -1;
                 }
-                int slotIndex = (data.length - (current) * 4) - 4;
-                int readIndex = 0;
-                if (current == 0) {
-                    readIndex = PageOffSets.DATA_OFFSET;
-                } else {
-                    readIndex = localBuffer.getInt(slotIndex + 4);
-                }
-                int bytesToRead = localBuffer.getInt(slotIndex) - readIndex; // Bytes to read from current position
+                int slotIndex = (data.length - (current * POINTER_SIZE)) - POINTER_SIZE;
+                int startPosition = startPosition(slotIndex);
+                int bytesToRead = localBuffer.getInt(slotIndex) - startPosition; // Bytes to read from current position
 
-                for (int start = 0; start < bytesToRead; start++) {
-                    buffer[start] = localBuffer.get(readIndex + start);
-                }
-
-                //localBuffer.position(readIndex);
-                //localBuffer.get(buffer, 0, bytesToRead);
+                readTuple(buffer, startPosition, bytesToRead);
 
                 current++; // Move to next slot
                 return bytesToRead;
+            }
+
+            public void readTuple(byte[] buffer, int startPos, int bytesToRead) {
+                for (int start = 0; start < bytesToRead; start++) {
+                    buffer[start] = localBuffer.get(startPos + start);
+                }
+            }
+
+            public int startPosition(int slotIndex) {
+                if (current == 0) {
+                    return PageOffSets.DATA_OFFSET;
+                } else {
+                    return localBuffer.getInt(slotIndex + POINTER_SIZE);
+                }
             }
 
             @Override
