@@ -20,7 +20,6 @@ public class ReadableSlottedPage implements ReadPage {
     private int totalTuple;
 
     private int currentTuple;
-    private int dataReadIndex = PageOffSets.DATA_OFFSET;
 
     public ReadableSlottedPage(byte[] data) {
         this.data = data;
@@ -57,13 +56,16 @@ public class ReadableSlottedPage implements ReadPage {
             return -1;
         }
         int slotIndex = (data.length - (currentTuple) * 4) - 4;
-
-        int bytesToRead = this.buffer.getInt(slotIndex); // Bytes to read from current position
-
-        this.buffer.position(dataReadIndex);
+        int readIndex = 0;
+        if (currentTuple == 0) {
+            readIndex = PageOffSets.DATA_OFFSET;
+        } else {
+            readIndex = this.buffer.getInt(slotIndex + 4);
+        }
+        int bytesToRead = this.buffer.getInt(slotIndex) - readIndex; // Bytes to read from current position
+        this.buffer.position(readIndex);
         this.buffer.get(buffer, 0, bytesToRead);
 
-        dataReadIndex += bytesToRead; // Move data pointer
         currentTuple++; // Move to next slot
         return bytesToRead;
     }

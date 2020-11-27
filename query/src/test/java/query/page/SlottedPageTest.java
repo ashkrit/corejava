@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SlottedPageTest {
 
@@ -137,7 +136,11 @@ public class SlottedPageTest {
             records.add(new String(readBuffer, 0, bytesRead));
         }
 
-        assertIterableEquals(asList("James", "Bonds", "Albert"), records);
+        assertAll(
+                () -> assertEquals(3, page.totalRecords()),
+                () -> assertIterableEquals(asList("James", "Bonds", "Albert"), records)
+        );
+
     }
 
 }
