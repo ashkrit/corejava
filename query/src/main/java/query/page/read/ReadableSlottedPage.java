@@ -12,8 +12,8 @@ import static java.time.ZoneId.systemDefault;
 public class ReadableSlottedPage implements ReadPage {
 
     public static final int POINTER_SIZE = 4;
-    private final byte[] readData;
     private final ByteBuffer readBuffer;
+    private final RecordReader recordReader;
 
     private byte version;
     private int pageNumber;
@@ -21,10 +21,10 @@ public class ReadableSlottedPage implements ReadPage {
     private int totalTuple;
 
     public ReadableSlottedPage(byte[] readData) {
-        this.readData = readData;
-        this.readBuffer = ByteBuffer.wrap(readData)
-                .asReadOnlyBuffer();
+        this.readBuffer = ByteBuffer.wrap(readData).asReadOnlyBuffer();
+        this.recordReader = new RecordReader(POINTER_SIZE, readData.length);
         readHeaders();
+
     }
 
     private void readHeaders() {
@@ -62,7 +62,7 @@ public class ReadableSlottedPage implements ReadPage {
                 if (!hasNext()) {
                     return -1;
                 }
-                int bytesToRead = read(writeBuffer, this.current, readBuffer);
+                int bytesToRead = recordReader.read(writeBuffer, this.current, readBuffer);
                 this.current++; // Move to next slot
                 return bytesToRead;
             }
@@ -77,7 +77,7 @@ public class ReadableSlottedPage implements ReadPage {
 
     @Override
     public int record(int index, byte[] writeBuffer) {
-        return read(writeBuffer, index, readBuffer);
+        return recordReader.read(writeBuffer, index, readBuffer);
     }
 
     @Override
@@ -90,33 +90,4 @@ public class ReadableSlottedPage implements ReadPage {
         return ofInstant(ofEpochMilli(createdTs), systemDefault());
     }
 
-    private int startPosition(int record, int slotIndex, ByteBuffer readBuffer) {
-        if (record == 0) {
-            return PageOffSets.DATA_OFFSET;
-        } else {
-            return readBuffer.getInt(slotIndex + POINTER_SIZE);
-        }
-    }
-
-    private int readTuple(byte[] writeBuffer, int startPos, int bytesToRead, ByteBuffer readBuffer) {
-        for (int start = 0; start < bytesToRead; start++) {
-            writeBuffer[start] = readBuffer.get(startPos + start);
-        }
-        return bytesToRead;
-    }
-
-    private int read(byte[] writeBuffer, int recordIndex, ByteBuffer readBuffer) {
-        int slotIndex = slotIndex(recordIndex);
-        int startPosition = startPosition(recordIndex, slotIndex, readBuffer);
-        int recordSize = recordSize(readBuffer, slotIndex, startPosition); // Bytes to read from current position
-        return readTuple(writeBuffer, startPosition, recordSize, readBuffer);
-    }
-
-    private int recordSize(ByteBuffer readBuffer, int slotIndex, int startPosition) {
-        return readBuffer.getInt(slotIndex) - startPosition;
-    }
-
-    private int slotIndex(int record) {
-        return (readData.length - (record * POINTER_SIZE)) - POINTER_SIZE;
-    }
 }
