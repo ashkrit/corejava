@@ -15,19 +15,18 @@ public class DiskPageIndex implements PageIndex {
     private final int pageSize;
     private final File indexFileLocation;
     private final File dataFileLocation;
-
     private final RandomAccessFile index;
     private final RandomAccessFile data;
-    private int noOfPage = 0;
-    private Map<Integer, PageRecord> pages = new TreeMap<>();
+
     private final byte[] pageBuffer;
-    private boolean pageIndexDirty = true;
+    private final Map<Integer, PageRecord> pages = new TreeMap<>();
+
+    private boolean indexPageDirty = true;
+    private int noOfPage = 0;
 
     public DiskPageIndex(int pageSize, Path indexFile) {
         this.pageSize = pageSize;
-
         this.pageBuffer = new byte[pageSize];
-
         try {
             this.indexFileLocation = indexFile.toFile();
             this.dataFileLocation = new File(indexFileLocation + ".data");
@@ -38,18 +37,26 @@ public class DiskPageIndex implements PageIndex {
             this.index = new RandomAccessFile(indexFileLocation, "rw");
             this.data = new RandomAccessFile(dataFileLocation, "rw");
 
-            this.data.writeByte((byte) 1); // Version
-            this.data.writeInt(pageSize); // PageSize
-            this.data.writeInt(noOfPage); // No Of pages
-            this.data.getFD().sync();
+            writeDataHeader(pageSize);
+            writeIndexHeader(pageSize);
 
-            this.index.writeByte((byte) 1);
-            this.index.writeInt(pageSize); // PageSize
-            this.index.writeInt(noOfPage);
-            this.data.getFD().sync();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public void writeIndexHeader(int pageSize) throws IOException {
+        this.index.writeByte((byte) 1);
+        this.index.writeInt(pageSize); // PageSize
+        this.index.writeInt(noOfPage);
+        this.index.getFD().sync();
+    }
+
+    public void writeDataHeader(int pageSize) throws IOException {
+        this.data.writeByte((byte) 1); // Version
+        this.data.writeInt(pageSize); // PageSize
+        this.data.writeInt(noOfPage); // No Of pages
+        this.data.getFD().sync();
     }
 
     @Override
@@ -57,14 +64,8 @@ public class DiskPageIndex implements PageIndex {
 
         noOfPage++;
         try {
-            long offSet = this.data.getFilePointer();
-
-            this.data.write(rawBytes);
-
-            //Index Record
-            this.index.writeInt(pageNumber);
-            this.index.writeLong(offSet);
-
+            long recordOffset = writeData(rawBytes);
+            writeIndex(pageNumber, recordOffset);
             commitRecord();
             commitIndex();
             flush();
@@ -72,6 +73,17 @@ public class DiskPageIndex implements PageIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public void writeIndex(int pageNumber, long offSet) throws IOException {
+        this.index.writeInt(pageNumber);
+        this.index.writeLong(offSet);
+    }
+
+    public long writeData(byte[] rawBytes) throws IOException {
+        long offSet = this.data.getFilePointer();
+        this.data.write(rawBytes);
+        return offSet;
     }
 
     public void commitRecord() throws IOException {
@@ -95,11 +107,11 @@ public class DiskPageIndex implements PageIndex {
     }
 
     private void markIndexDirty() {
-        this.pageIndexDirty = true;
+        this.indexPageDirty = true;
     }
 
     private boolean isNotDirty() {
-        return !pageIndexDirty;
+        return !indexPageDirty;
     }
 
     @Override
@@ -144,7 +156,7 @@ public class DiskPageIndex implements PageIndex {
                 pages.put(pageNo, new PageRecord(pageNo, pageSize, pageOffSet));
             }
             this.index.seek(startPositionPos);
-            pageIndexDirty = false;
+            indexPageDirty = false;
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -167,7 +179,6 @@ public class DiskPageIndex implements PageIndex {
             return String.format("PageRecord[Page Id %s ; Size %s ; From %s; To %s]", pageId, pageSize, pageOffSet, pageOffSet + pageSize);
         }
     }
-
 
     public static PageIndex create(int pageSize, Path indexFile) {
         return new DiskPageIndex(pageSize, indexFile);
