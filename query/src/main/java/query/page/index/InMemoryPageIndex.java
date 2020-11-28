@@ -1,4 +1,4 @@
-package query.page;
+package query.page.index;
 
 import query.page.read.ReadPage;
 import query.page.read.ReadableSlottedPage;

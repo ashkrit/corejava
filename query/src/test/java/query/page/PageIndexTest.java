@@ -1,6 +1,9 @@
 package query.page;
 
 import org.junit.jupiter.api.Test;
+import query.page.index.DiskPageIndex;
+import query.page.index.InMemoryPageIndex;
+import query.page.index.PageIndex;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 

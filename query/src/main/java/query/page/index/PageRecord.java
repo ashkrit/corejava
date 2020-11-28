@@ -1,4 +1,4 @@
-package query.page;
+package query.page.index;
 
 public class PageRecord {
     public final int pageId;
