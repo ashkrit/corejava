@@ -8,12 +8,13 @@ import java.time.LocalDateTime;
 import static java.time.Instant.ofEpochMilli;
 import static java.time.LocalDateTime.ofInstant;
 import static java.time.ZoneId.systemDefault;
+import static query.page.PageOffSets.DATA_OFFSET;
 
 public class ReadableSlottedPage implements ReadPage {
 
     public static final int POINTER_SIZE = 4;
     private final ByteBuffer readBuffer;
-    private final RecordReader recordReader;
+    private final RecordReaderBy4ByteOffset recordReaderBy4ByteOffset;
 
     private byte version;
     private int pageNumber;
@@ -22,7 +23,7 @@ public class ReadableSlottedPage implements ReadPage {
 
     public ReadableSlottedPage(byte[] readData) {
         this.readBuffer = ByteBuffer.wrap(readData).asReadOnlyBuffer();
-        this.recordReader = new RecordReader(POINTER_SIZE, readData.length);
+        this.recordReaderBy4ByteOffset = new RecordReaderBy4ByteOffset(DATA_OFFSET, readBuffer, readBuffer.limit());
         readHeaders();
 
     }
@@ -62,11 +63,10 @@ public class ReadableSlottedPage implements ReadPage {
                 if (!hasNext()) {
                     return -1;
                 }
-                int bytesToRead = recordReader.read(writeBuffer, this.current, readBuffer);
+                int bytesToRead = recordReaderBy4ByteOffset.read(writeBuffer, this.current);
                 this.current++; // Move to next slot
                 return bytesToRead;
             }
-
 
             @Override
             public boolean hasNext() {
@@ -77,7 +77,7 @@ public class ReadableSlottedPage implements ReadPage {
 
     @Override
     public int record(int index, byte[] writeBuffer) {
-        return recordReader.read(writeBuffer, index, readBuffer);
+        return recordReaderBy4ByteOffset.read(writeBuffer, index);
     }
 
     @Override
