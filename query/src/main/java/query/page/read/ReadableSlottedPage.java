@@ -55,36 +55,18 @@ public class ReadableSlottedPage implements ReadPage {
         return new PageIterator() {
             int current = 0;
             final int total = totalTuple;
-            final ByteBuffer localBuffer = buffer;
+            final ByteBuffer readBuffer = buffer;
 
             @Override
-            public int next(byte[] buffer) {
+            public int next(byte[] writeBuffer) {
                 if (!hasNext()) {
                     return -1;
                 }
-                int slotIndex = (data.length - (current * POINTER_SIZE)) - POINTER_SIZE;
-                int startPosition = startPosition(slotIndex);
-                int bytesToRead = localBuffer.getInt(slotIndex) - startPosition; // Bytes to read from current position
-
-                readTuple(buffer, startPosition, bytesToRead);
-
-                current++; // Move to next slot
+                int bytesToRead = read(writeBuffer, this.current, readBuffer);
+                this.current++; // Move to next slot
                 return bytesToRead;
             }
 
-            public void readTuple(byte[] buffer, int startPos, int bytesToRead) {
-                for (int start = 0; start < bytesToRead; start++) {
-                    buffer[start] = localBuffer.get(startPos + start);
-                }
-            }
-
-            public int startPosition(int slotIndex) {
-                if (current == 0) {
-                    return PageOffSets.DATA_OFFSET;
-                } else {
-                    return localBuffer.getInt(slotIndex + POINTER_SIZE);
-                }
-            }
 
             @Override
             public boolean hasNext() {
@@ -95,10 +77,7 @@ public class ReadableSlottedPage implements ReadPage {
 
     @Override
     public int record(int index, byte[] rawData) {
-        int slotIndex = (data.length - (index * POINTER_SIZE)) - POINTER_SIZE;
-        int startPosition = startPosition(index, slotIndex);
-        int bytesToRead = buffer.getInt(slotIndex) - startPosition;
-        readTuple(rawData, startPosition, bytesToRead);
+        int bytesToRead = read(rawData, index, buffer);
         return bytesToRead;
     }
 
@@ -112,17 +91,26 @@ public class ReadableSlottedPage implements ReadPage {
         return ofInstant(ofEpochMilli(createdTs), systemDefault());
     }
 
-    private int startPosition(int record, int slotIndex) {
+    private int startPosition(int record, int slotIndex, ByteBuffer readBuffer) {
         if (record == 0) {
             return PageOffSets.DATA_OFFSET;
         } else {
-            return buffer.getInt(slotIndex + POINTER_SIZE);
+            return readBuffer.getInt(slotIndex + POINTER_SIZE);
         }
     }
 
-    private void readTuple(byte[] data, int startPos, int bytesToRead) {
+    private int readTuple(byte[] writeBuffer, int startPos, int bytesToRead, ByteBuffer readBuffer) {
         for (int start = 0; start < bytesToRead; start++) {
-            data[start] = buffer.get(startPos + start);
+            writeBuffer[start] = readBuffer.get(startPos + start);
         }
+        return bytesToRead;
+    }
+
+    private int read(byte[] writeBuffer, int record, ByteBuffer readBuffer) {
+        int slotIndex = (data.length - (record * POINTER_SIZE)) - POINTER_SIZE;
+        int startPosition = startPosition(record, slotIndex, readBuffer);
+        int bytesToRead = readBuffer.getInt(slotIndex) - startPosition; // Bytes to read from current position
+        bytesToRead = readTuple(writeBuffer, startPosition, bytesToRead, readBuffer);
+        return bytesToRead;
     }
 }

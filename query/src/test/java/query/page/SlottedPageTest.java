@@ -1,7 +1,6 @@
 package query.page;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.page.read.PageIterator;
 import query.page.read.ReadPage;
