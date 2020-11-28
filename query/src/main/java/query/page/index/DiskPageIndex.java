@@ -17,12 +17,13 @@ public class DiskPageIndex implements PageIndex {
     private final File dataFileLocation;
     private final RandomAccessFile index;
     private final RandomAccessFile data;
-
     private final byte[] pageBuffer;
     private final TreeMap<Integer, PageRecord> pages = new TreeMap<>();
 
+
     private boolean indexPageDirty = true;
     private int noOfPage = 0;
+
     private static final int MAX_PAGES = 100;
 
     private Map<Integer, ReadPage> recentPages = new LinkedHashMap<Integer, ReadPage>() {
@@ -54,18 +55,21 @@ public class DiskPageIndex implements PageIndex {
                 this.index.readByte();
                 this.pageSize = this.index.readInt();
                 this.noOfPage = this.index.readInt();
-
-                readPagesInfo();
-                PageRecord r = pages.lastEntry().getValue();
-                this.data.seek(r.pageOffSet + r.pageSize);
-                long pos = noOfPage * (4 + 8) + 1;
-                this.data.seek(pos);
+                seekToWriteLocation();
             }
 
             this.pageBuffer = new byte[this.pageSize];
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public void seekToWriteLocation() throws IOException {
+        readPagesInfo();
+        PageRecord r = pages.lastEntry().getValue();
+        this.data.seek(r.pageOffSet + r.pageSize);
+        long pos = noOfPage * (4 + 8) + 1;
+        this.data.seek(pos);
     }
 
 
