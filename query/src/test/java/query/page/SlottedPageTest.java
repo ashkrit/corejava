@@ -1,6 +1,5 @@
 package query.page;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import query.page.read.PageIterator;
 import query.page.read.ReadPage;
@@ -20,10 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SlottedPageTest {
 
+    byte version = (byte) 1;
 
     @Test
     public void writeHeader() {
-        WritePage page = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+
+        WritePage page = new WritableSlotPage(1024, version, 2, System.currentTimeMillis());
 
         byte[] data = page.commit();
 
@@ -39,7 +40,7 @@ public class SlottedPageTest {
     @Test
     public void read_headers() {
 
-        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024, version, 2, System.currentTimeMillis());
 
         byte[] data = expected.commit();
 
@@ -55,7 +56,7 @@ public class SlottedPageTest {
     @Test
     public void write_single_tuple() {
 
-        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024, version, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
 
@@ -75,7 +76,7 @@ public class SlottedPageTest {
     @Test
     public void skip_read_when_reached_to_end_of_buffer() {
 
-        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024, version, 2, System.currentTimeMillis());
 
 
         expected.write("James".getBytes());
@@ -95,7 +96,7 @@ public class SlottedPageTest {
 
     @Test
     public void write_multiple_records() {
-        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024, version, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
         expected.write("Bonds".getBytes());
@@ -117,7 +118,7 @@ public class SlottedPageTest {
 
     @Test
     public void handle_buffer_overflow() {
-        WritableSlotPage expected = new WritableSlotPage(16, (byte) 1, 2, System.currentTimeMillis());
+        WritableSlotPage expected = new WritableSlotPage(16, version, 2, System.currentTimeMillis());
 
         expected.write("AA".getBytes());
 
@@ -128,7 +129,7 @@ public class SlottedPageTest {
 
     @Test
     public void read_using_iterator_like_interface() {
-        WritePage expected = new WritableSlotPage(1024, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024, version, 2, System.currentTimeMillis());
 
         expected.write("James".getBytes());
         expected.write("Bonds".getBytes());
@@ -148,7 +149,6 @@ public class SlottedPageTest {
 
     }
 
-    @NotNull
     public List<String> collect(byte[] readBuffer, PageIterator itr) {
         List<String> records = new ArrayList<>();
         while (itr.hasNext()) {
@@ -162,7 +162,7 @@ public class SlottedPageTest {
     @Test
     public void support_multiple_iterator() {
 
-        WritePage expected = new WritableSlotPage(1024 * 64, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024 * 64, version, 2, System.currentTimeMillis());
 
         IntStream.range(0, 1000).forEach(i -> {
             expected.write(("James" + i).getBytes());
@@ -185,7 +185,7 @@ public class SlottedPageTest {
     @Test
     public void retrieve_record_by_offset() {
 
-        WritePage expected = new WritableSlotPage(1024 * 64, (byte) 1, 2, System.currentTimeMillis());
+        WritePage expected = new WritableSlotPage(1024 * 64, version, 2, System.currentTimeMillis());
         IntStream.range(0, 1000).forEach(i -> {
             expected.write(("James" + i).getBytes());
         });

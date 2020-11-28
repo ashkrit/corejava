@@ -12,7 +12,6 @@ import static query.page.PageOffSets.DATA_OFFSET;
 
 public class ReadableSlottedPage implements ReadPage {
 
-    public static final int POINTER_SIZE = 4;
     private final ByteBuffer readBuffer;
     private final RecordReaderBy4ByteOffset recordReaderBy4ByteOffset;
 
@@ -56,7 +55,6 @@ public class ReadableSlottedPage implements ReadPage {
         return new PageIterator() {
             int current = 0;
             final int total = totalTuple;
-            final ByteBuffer readBuffer = ReadableSlottedPage.this.readBuffer;
 
             @Override
             public int next(byte[] writeBuffer) {
