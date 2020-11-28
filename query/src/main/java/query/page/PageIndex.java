@@ -8,7 +8,7 @@ public interface PageIndex {
 
     int at(int pageNo, int record, byte[] writeBuffer);
 
-    default Collection<DiskPageIndex.PageRecord> pages() {
+    default Collection<PageRecord> pages() {
         return Collections.emptyList();
     }
 }
