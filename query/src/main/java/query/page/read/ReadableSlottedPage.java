@@ -94,6 +94,15 @@ public class ReadableSlottedPage implements ReadPage {
     }
 
     @Override
+    public int record(int index, byte[] rawData) {
+        int slotIndex = (data.length - (index * POINTER_SIZE)) - POINTER_SIZE;
+        int startPosition = startPosition(index, slotIndex);
+        int bytesToRead = buffer.getInt(slotIndex) - startPosition;
+        readTuple(rawData, startPosition, bytesToRead);
+        return bytesToRead;
+    }
+
+    @Override
     public String toString() {
         return String.format("SlotPage (CreatedAt: %s;Page: %s;Version: %s;Tuple Count: %s)", createdTime(), pageNumber, version, totalTuple);
     }
@@ -101,5 +110,19 @@ public class ReadableSlottedPage implements ReadPage {
     @Override
     public LocalDateTime createdTime() {
         return ofInstant(ofEpochMilli(createdTs), systemDefault());
+    }
+
+    private int startPosition(int record, int slotIndex) {
+        if (record == 0) {
+            return PageOffSets.DATA_OFFSET;
+        } else {
+            return buffer.getInt(slotIndex + POINTER_SIZE);
+        }
+    }
+
+    private void readTuple(byte[] data, int startPos, int bytesToRead) {
+        for (int start = 0; start < bytesToRead; start++) {
+            data[start] = buffer.get(startPos + start);
+        }
     }
 }

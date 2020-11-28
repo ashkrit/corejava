@@ -1,6 +1,7 @@
 package query.page;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.page.read.PageIterator;
 import query.page.read.ReadPage;
@@ -178,6 +179,27 @@ public class SlottedPageTest {
 
         assertAll(
                 () -> assertEquals(r1.get(), r2.get())
+        );
+
+    }
+
+    @Test
+    public void retrieve_record_by_offset() {
+
+        WritePage expected = new WritableSlotPage(1024 * 64, (byte) 1, 2, System.currentTimeMillis());
+        IntStream.range(0, 1000).forEach(i -> {
+            expected.write(("James" + i).getBytes());
+        });
+
+        byte[] data = expected.commit();
+        ReadPage page = ReadPage.create(data);
+        byte[] buffer = new byte[100];
+
+        assertAll(
+                () -> assertEquals("James0", new String(buffer, 0, page.record(0, buffer))),
+                () -> assertEquals("James5", new String(buffer, 0, page.record(5, buffer))),
+                () -> assertEquals("James100", new String(buffer, 0, page.record(100, buffer))),
+                () -> assertEquals("James999", new String(buffer, 0, page.record(999, buffer)))
         );
 
     }
