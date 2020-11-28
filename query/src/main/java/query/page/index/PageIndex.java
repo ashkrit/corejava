@@ -15,4 +15,6 @@ public interface PageIndex {
     default Collection<PageRecord> pages() {
         return Collections.emptyList();
     }
+
+    int noOfPages();
 }

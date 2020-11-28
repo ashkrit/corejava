@@ -10,16 +10,23 @@ public class InMemoryPageIndex implements PageIndex {
 
     private final Map<Integer, byte[]> pageIndex = new TreeMap<>();
     private final Map<Integer, ReadPage> loadedPage = new TreeMap<>();
+    private int pageCount = 0;
 
     @Override
     public void insert(int pageNumber, byte[] data) {
         pageIndex.put(pageNumber, data);
+        ++pageCount;
     }
 
     @Override
     public int at(int pageNo, int record, byte[] writeBuffer) {
         ReadPage page = readPage(pageNo);
         return page.record(record, writeBuffer);
+    }
+
+    @Override
+    public int noOfPages() {
+        return pageCount;
     }
 
     public ReadPage readPage(int pageNo) {

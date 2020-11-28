@@ -23,6 +23,14 @@ public class DiskPageIndex implements PageIndex {
 
     private boolean indexPageDirty = true;
     private int noOfPage = 0;
+    private static final int MAX_PAGES = 100;
+
+    private Map<Integer, ReadPage> recentPages = new LinkedHashMap<Integer, ReadPage>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Integer, ReadPage> eldest) {
+            return size() > MAX_PAGES;
+        }
+    };
 
     public DiskPageIndex(int pageSize, Path indexFile, boolean isNew) {
 
@@ -131,15 +139,22 @@ public class DiskPageIndex implements PageIndex {
     @Override
     public int at(int pageNo, int record, byte[] writeBuffer) {
         readPagesInfo();
-        PageRecord page = pages.get(pageNo);
+        ReadPage page = recentPages.computeIfAbsent(pageNo, this::readPage);
+        return page.record(record, writeBuffer);
+    }
+
+    private ReadPage readPage(int pageNo) {
+
         try {
+            PageRecord pageRecord = pages.get(pageNo);
             long start = this.data.getFilePointer();
-            this.data.seek(page.pageOffSet);
-            this.data.read(pageBuffer, 0, page.pageSize);
+
+            this.data.seek(pageRecord.pageOffSet);
+            this.data.read(pageBuffer, 0, pageRecord.pageSize);
+
             this.data.seek(start);
 
-            ReadPage pageData = new ReadableSlottedPage(pageBuffer);
-            return pageData.record(record, writeBuffer);
+            return new ReadableSlottedPage(pageBuffer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -151,6 +166,11 @@ public class DiskPageIndex implements PageIndex {
         return pages.values();
     }
 
+    @Override
+    public int noOfPages() {
+        return noOfPage;
+    }
+
     public void readPagesInfo() {
         if (isNotDirty()) {
             return;
@@ -160,7 +180,7 @@ public class DiskPageIndex implements PageIndex {
             long startPositionPos = this.index.getFilePointer();
             this.index.seek(0);
 
-            byte version = this.index.readByte();
+            byte version = this.index.readByte(); //Required for Skip
             int pageSize = this.index.readInt();
             int pageCount = this.index.readInt();
 
@@ -182,7 +202,6 @@ public class DiskPageIndex implements PageIndex {
     }
 
     public static PageIndex load(Path indexFile) {
-
         return new DiskPageIndex(0, indexFile, false);
     }
 
