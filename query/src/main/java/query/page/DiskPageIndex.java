@@ -27,8 +27,8 @@ public class DiskPageIndex implements PageIndex {
     public DiskPageIndex(int pageSize, Path indexFile, boolean isNew) {
 
         try {
-            this.indexFileLocation = indexFile.toFile();
-            this.dataFileLocation = new File(indexFileLocation + ".data");
+            this.indexFileLocation = new File(indexFile.toFile().getAbsolutePath() + ".index");
+            this.dataFileLocation = new File(indexFile.toFile().getAbsolutePath() + ".data");
 
             System.out.println("Index File " + indexFileLocation);
             System.out.println("Data File " + dataFileLocation);
@@ -194,8 +194,8 @@ public class DiskPageIndex implements PageIndex {
         }
     }
 
-    public static PageIndex create(int pageSize, Path indexFile) {
-        return new DiskPageIndex(pageSize, indexFile, true);
+    public static PageIndex create(int pageSize, Path baseFile) {
+        return new DiskPageIndex(pageSize, baseFile, true);
     }
 
     public static PageIndex load(Path indexFile) {

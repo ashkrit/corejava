@@ -20,8 +20,7 @@ public class PageIndexTest {
     @Test
     public void access_record_page_and_index() {
 
-
-        InMemoryPageIndex index = new InMemoryPageIndex();
+        PageIndex index = new InMemoryPageIndex();
 
         List<String> novels = asList("Casino Royale",
                 "Live and Let Die",
@@ -50,7 +49,7 @@ public class PageIndexTest {
 
         File f = new File(System.getProperty("java.io.tmpdir"), "datastore");
         f.mkdirs();
-        PageIndex index = DiskPageIndex.create(KB_8, new File(f, "index.1").toPath());
+        PageIndex index = DiskPageIndex.create(KB_8, new File(f, "store.1").toPath());
 
         IntStream.range(0, 10).forEach(pageIndex -> {
             List<String> records = IntStream
@@ -73,7 +72,7 @@ public class PageIndexTest {
 
         File f = new File(System.getProperty("java.io.tmpdir"), "datastore");
         f.mkdirs();
-        Path indexFile = new File(f, "index.2").toPath();
+        Path indexFile = new File(f, "store.2").toPath();
         logRecords(indexFile);
 
         PageIndex index = DiskPageIndex.load(indexFile);
@@ -83,7 +82,6 @@ public class PageIndexTest {
         assertEquals("record_(0,4)", new String(buffer, 0, index.at(0, 4, buffer)));
         assertEquals("record_(1,4)", new String(buffer, 0, index.at(1, 4, buffer)));
         assertEquals("record_(3,6)", new String(buffer, 0, index.at(3, 6, buffer)));
-
 
     }
 
