@@ -19,14 +19,13 @@ public class DiskPageIndex implements PageIndex {
     private final RandomAccessFile data;
 
     private final byte[] pageBuffer;
-    private final Map<Integer, PageRecord> pages = new TreeMap<>();
+    private final TreeMap<Integer, PageRecord> pages = new TreeMap<>();
 
     private boolean indexPageDirty = true;
     private int noOfPage = 0;
 
-    public DiskPageIndex(int pageSize, Path indexFile) {
-        this.pageSize = pageSize;
-        this.pageBuffer = new byte[pageSize];
+    public DiskPageIndex(int pageSize, Path indexFile, boolean isNew) {
+
         try {
             this.indexFileLocation = indexFile.toFile();
             this.dataFileLocation = new File(indexFileLocation + ".data");
@@ -37,13 +36,30 @@ public class DiskPageIndex implements PageIndex {
             this.index = new RandomAccessFile(indexFileLocation, "rw");
             this.data = new RandomAccessFile(dataFileLocation, "rw");
 
-            writeDataHeader(pageSize);
-            writeIndexHeader(pageSize);
+            if (isNew) {
+                this.pageSize = pageSize;
+                writeDataHeader(pageSize);
+                writeIndexHeader(pageSize);
+            } else {
 
+                this.index.seek(0);
+                this.index.readByte();
+                this.pageSize = this.index.readInt();
+                this.noOfPage = this.index.readInt();
+
+                readPagesInfo();
+                PageRecord r = pages.lastEntry().getValue();
+                this.data.seek(r.pageOffSet + r.pageSize);
+                long pos = noOfPage * (4 + 8) + 1;
+                this.data.seek(pos);
+            }
+
+            this.pageBuffer = new byte[this.pageSize];
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
+
 
     public void writeIndexHeader(int pageSize) throws IOException {
         this.index.writeByte((byte) 1);
@@ -61,7 +77,6 @@ public class DiskPageIndex implements PageIndex {
 
     @Override
     public void insert(int pageNumber, byte[] rawBytes) {
-
         noOfPage++;
         try {
             long recordOffset = writeData(rawBytes);
@@ -69,7 +84,6 @@ public class DiskPageIndex implements PageIndex {
             commitRecord();
             commitIndex();
             flush();
-
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -181,7 +195,12 @@ public class DiskPageIndex implements PageIndex {
     }
 
     public static PageIndex create(int pageSize, Path indexFile) {
-        return new DiskPageIndex(pageSize, indexFile);
+        return new DiskPageIndex(pageSize, indexFile, true);
+    }
+
+    public static PageIndex load(Path indexFile) {
+
+        return new DiskPageIndex(0, indexFile, false);
     }
 
 }

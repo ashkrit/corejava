@@ -5,6 +5,7 @@ import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -64,6 +65,36 @@ public class PageIndexTest {
         assertEquals("record_(1,4)", new String(buffer, 0, index.at(1, 4, buffer)));
         assertEquals("record_(3,6)", new String(buffer, 0, index.at(3, 6, buffer)));
 
+    }
+
+
+    @Test
+    public void read_loaded_page_index() {
+
+        File f = new File(System.getProperty("java.io.tmpdir"), "datastore");
+        f.mkdirs();
+        Path indexFile = new File(f, "index.2").toPath();
+        logRecords(indexFile);
+
+        PageIndex index = DiskPageIndex.load(indexFile);
+
+        byte[] buffer = new byte[100];
+
+        assertEquals("record_(0,4)", new String(buffer, 0, index.at(0, 4, buffer)));
+        assertEquals("record_(1,4)", new String(buffer, 0, index.at(1, 4, buffer)));
+        assertEquals("record_(3,6)", new String(buffer, 0, index.at(3, 6, buffer)));
+
+
+    }
+
+    public void logRecords(Path indexFile) {
+        PageIndex index = DiskPageIndex.create(KB_8, indexFile);
+        IntStream.range(0, 10).forEach(pageIndex -> {
+            List<String> records = IntStream
+                    .range(0, 100).mapToObj(record -> String.format("record_(%s,%s)", pageIndex, record))
+                    .collect(toList());
+            insert(index, pageIndex, records);
+        });
     }
 
     public void insert(PageIndex index, int pageNumber, List<String> records) {
