@@ -10,7 +10,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.*;
 
-public class DiskPageIndex implements PageIndex {
+public class DiskPageDirectory implements PageDirectory {
 
     private final int pageSize;
     private final File indexFileLocation;
@@ -33,7 +33,7 @@ public class DiskPageIndex implements PageIndex {
         }
     };
 
-    public DiskPageIndex(int pageSize, Path indexFile, boolean isNew) {
+    public DiskPageDirectory(int pageSize, Path indexFile, boolean isNew) {
 
         try {
             this.indexFileLocation = new File(indexFile.toFile().getAbsolutePath() + ".index");
@@ -201,12 +201,12 @@ public class DiskPageIndex implements PageIndex {
         }
     }
 
-    public static PageIndex create(int pageSize, Path baseFile) {
-        return new DiskPageIndex(pageSize, baseFile, true);
+    public static PageDirectory create(int pageSize, Path baseFile) {
+        return new DiskPageDirectory(pageSize, baseFile, true);
     }
 
-    public static PageIndex load(Path indexFile) {
-        return new DiskPageIndex(0, indexFile, false);
+    public static PageDirectory load(Path indexFile) {
+        return new DiskPageDirectory(0, indexFile, false);
     }
 
 }

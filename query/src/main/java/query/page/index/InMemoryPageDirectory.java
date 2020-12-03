@@ -6,7 +6,7 @@ import query.page.read.ReadableSlottedPage;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class InMemoryPageIndex implements PageIndex {
+public class InMemoryPageDirectory implements PageDirectory {
 
     private final Map<Integer, byte[]> pageIndex = new TreeMap<>();
     private final Map<Integer, ReadPage> loadedPage = new TreeMap<>();

@@ -1,9 +1,9 @@
 package query.page;
 
 import org.junit.jupiter.api.Test;
-import query.page.index.DiskPageIndex;
-import query.page.index.InMemoryPageIndex;
-import query.page.index.PageIndex;
+import query.page.index.DiskPageDirectory;
+import query.page.index.InMemoryPageDirectory;
+import query.page.index.PageDirectory;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
@@ -16,14 +16,14 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PageIndexTest {
+public class PageDirectoryTest {
 
     int KB_8 = 1024 * 8;
 
     @Test
     public void access_record_page_and_index() {
 
-        PageIndex index = new InMemoryPageIndex();
+        PageDirectory index = new InMemoryPageDirectory();
 
         List<String> novels = asList("Casino Royale",
                 "Live and Let Die",
@@ -52,7 +52,7 @@ public class PageIndexTest {
 
         File f = new File(System.getProperty("java.io.tmpdir"), "datastore");
         f.mkdirs();
-        PageIndex index = DiskPageIndex.create(KB_8, new File(f, "store.1").toPath());
+        PageDirectory index = DiskPageDirectory.create(KB_8, new File(f, "store.1").toPath());
 
         IntStream.range(0, 10).forEach(pageIndex -> {
             List<String> records = IntStream
@@ -78,7 +78,7 @@ public class PageIndexTest {
         Path indexFile = new File(f, "store.2").toPath();
         logRecords(indexFile);
 
-        PageIndex index = DiskPageIndex.load(indexFile);
+        PageDirectory index = DiskPageDirectory.load(indexFile);
 
         byte[] buffer = new byte[100];
 
@@ -89,7 +89,7 @@ public class PageIndexTest {
     }
 
     public void logRecords(Path indexFile) {
-        PageIndex index = DiskPageIndex.create(KB_8, indexFile);
+        PageDirectory index = DiskPageDirectory.create(KB_8, indexFile);
         IntStream.range(0, 10).forEach(pageIndex -> {
             List<String> records = IntStream
                     .range(0, 100).mapToObj(record -> String.format("record_(%s,%s)", pageIndex, record))
@@ -98,7 +98,7 @@ public class PageIndexTest {
         });
     }
 
-    public void insert(PageIndex index, int pageNumber, List<String> records) {
+    public void insert(PageDirectory index, int pageNumber, List<String> records) {
         WritePage page = new WritableSlotPage(KB_8, (byte) 0, pageNumber, System.currentTimeMillis());
         records.forEach(r -> page.write(r.getBytes()));
         index.insert(page.pageNumber(), page.commit());

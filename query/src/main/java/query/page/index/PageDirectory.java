@@ -7,7 +7,7 @@ import java.util.Collections;
  * Manages list of pages.
  * index is maintained in .index file and data is maintained in .data file
  */
-public interface PageIndex {
+public interface PageDirectory {
     void insert(int pageNumber, byte[] data);
 
     int at(int pageNo, int record, byte[] writeBuffer);
