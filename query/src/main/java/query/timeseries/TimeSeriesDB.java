@@ -12,9 +12,9 @@ public interface TimeSeriesDB {
 
     <T> EventInfo insert(T row);
 
-    void gt(LocalDateTime now, Function<EventInfo, Boolean> fn);
+    void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer);
 
-    void lt(LocalDateTime now, Function<EventInfo, Boolean> fn);
+    void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer);
 
-    void between(LocalDateTime start, LocalDateTime endTime, Function<EventInfo, Boolean> fn);
+    void between(LocalDateTime startTime, LocalDateTime endTime, Function<EventInfo, Boolean> consumer);
 }

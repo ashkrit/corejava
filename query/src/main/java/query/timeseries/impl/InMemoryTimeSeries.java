@@ -39,21 +39,21 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     }
 
     @Override
-    public void gt(LocalDateTime now, Function<EventInfo, Boolean> fn) {
-        process(fn, events.tailMap(now.format(f), true));
+    public void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer) {
+        process(consumer, events.tailMap(fromTime.format(f), true));
     }
 
     @Override
-    public void lt(LocalDateTime now, Function<EventInfo, Boolean> fn) {
-        process(fn, events.headMap(now.format(f), true));
+    public void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer) {
+        process(consumer, events.headMap(toTime.format(f), true));
     }
 
     @Override
-    public void between(LocalDateTime start, LocalDateTime endTime, Function<EventInfo, Boolean> fn) {
+    public void between(LocalDateTime startTime, LocalDateTime endTime, Function<EventInfo, Boolean> consumer) {
 
-        String startKey = start.format(f);
+        String startKey = startTime.format(f);
         String endKey = endTime.format(f);
-        process(fn, events.subMap(startKey, true, endKey, true));
+        process(consumer, events.subMap(startKey, true, endKey, true));
     }
 
     public void process(Function<EventInfo, Boolean> fn, ConcurrentNavigableMap<String, EventInfo> matched) {

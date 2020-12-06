@@ -219,26 +219,24 @@ public class TimeSeriesDBTest {
     }
 
     private Function<Object, EventInfo> toEventInfo(EventIdGenerator generator) {
-
-        Function<Object, EventInfo> fn = row -> {
+        return row -> {
             LightTaxiRide value = (LightTaxiRide) row;
             String eventId = generator.next(value.getPickupTime());
             Map<CharSequence, Integer> tags = new HashMap<CharSequence, Integer>() {{
-                put("totalamount", (int) value.getTotalAmount());
+                put("total_amount", (int) value.getTotalAmount());
                 put("date", Integer.parseInt(eventId.substring(0, 8)));
                 put("hour", Integer.parseInt(eventId.substring(8, 10)));
             }};
             return EventInfo
                     .newBuilder()
                     .setEventBody(getByteBuffer(value))
-                    .setEventType("TAXIRIDE")
+                    .setEventType("TAXI_RIDE")
                     .setEventTime(eventId)
                     .setHost("NA")
                     .setService("TAXI-NO")
                     .setTags(tags)
                     .build();
         };
-        return fn;
     }
 
     private ByteBuffer getByteBuffer(LightTaxiRide value) {
