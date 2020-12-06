@@ -186,6 +186,38 @@ public class TimeSeriesDBTest {
         assertEquals(10_000, l.get());
     }
 
+
+    @Test
+    public void verify_between_query() {
+
+        TimeSeriesDB db = new InMemoryTimeSeries();
+
+        db.register(LightTaxiRide.class, () -> {
+            EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
+            return toEventInfo(generator);
+        });
+
+        range(0, 10_000).mapToObj(t -> {
+            long now = System.currentTimeMillis();
+            long pickTime = now + TimeUnit.MINUTES.toMillis(t);
+            return LightTaxiRide.newBuilder()
+                    .setPickupTime(pickTime)
+                    .setDropOffTime(pickTime + TimeUnit.MINUTES.toMillis(ThreadLocalRandom.current().nextInt(50)))
+                    .setPassengerCount(2)
+                    .setTripDistance(2)
+                    .setTotalAmount(20)
+                    .build();
+        }).forEach(db::insert);
+
+        AtomicLong l = new AtomicLong();
+        db.between(LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(10), e -> {
+            l.incrementAndGet();
+            return true;
+        });
+
+        assertEquals(10_000, l.get());
+    }
+
     private Function<Object, EventInfo> toEventInfo(EventIdGenerator generator) {
 
         Function<Object, EventInfo> fn = row -> {

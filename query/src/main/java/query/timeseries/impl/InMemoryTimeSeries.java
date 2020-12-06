@@ -48,6 +48,14 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
         process(fn, events.headMap(now.format(f), true));
     }
 
+    @Override
+    public void between(LocalDateTime start, LocalDateTime endTime, Function<EventInfo, Boolean> fn) {
+
+        String startKey = start.format(f);
+        String endKey = endTime.format(f);
+        process(fn, events.subMap(startKey, true, endKey, true));
+    }
+
     public void process(Function<EventInfo, Boolean> fn, ConcurrentNavigableMap<String, EventInfo> matched) {
         for (Map.Entry<String, EventInfo> e : matched.entrySet()) {
             if (!fn.apply(e.getValue())) {

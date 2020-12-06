@@ -15,4 +15,6 @@ public interface TimeSeriesDB {
     void gt(LocalDateTime now, Function<EventInfo, Boolean> fn);
 
     void lt(LocalDateTime now, Function<EventInfo, Boolean> fn);
+
+    void between(LocalDateTime start, LocalDateTime endTime, Function<EventInfo, Boolean> fn);
 }
