@@ -1,10 +1,9 @@
 package query.timeseries;
 
-
 import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import query.timeseries.impl.InMemoryTimeSeries;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,13 +18,20 @@ import java.util.function.Function;
 
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TimeSeriesDBTest {
+abstract public class TimeSeriesDBContractTest {
+    TimeSeriesDB db;
+
+    @BeforeEach
+    public void init() {
+        create();
+    }
+
+    abstract void create();
 
     @Test
     public void recording_failed_when_event_mapper_is_not_register() {
-
-        TimeSeriesDB db = new InMemoryTimeSeries();
 
         LightTaxiRide ride = LightTaxiRide.newBuilder()
                 .setPickupTime(System.currentTimeMillis())
@@ -42,7 +48,6 @@ public class TimeSeriesDBTest {
     @Test
     public void record_event_when_mapping_is_found() {
 
-        TimeSeriesDB db = new InMemoryTimeSeries();
 
         LightTaxiRide ride = LightTaxiRide.newBuilder()
                 .setPickupTime(System.currentTimeMillis())
@@ -68,7 +73,6 @@ public class TimeSeriesDBTest {
     @Test
     public void allow_query_by_gt_event_time() {
 
-        TimeSeriesDB db = new InMemoryTimeSeries();
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
@@ -100,8 +104,6 @@ public class TimeSeriesDBTest {
     @Test
     public void allow_query_by_gt_event_time_using_limit_signal() {
 
-        TimeSeriesDB db = new InMemoryTimeSeries();
-
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
             return toEventInfo(generator);
@@ -129,7 +131,6 @@ public class TimeSeriesDBTest {
     @Test
     public void verify_gt_query_with_no_result() {
 
-        TimeSeriesDB db = new InMemoryTimeSeries();
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
@@ -157,8 +158,6 @@ public class TimeSeriesDBTest {
 
     @Test
     public void verify_lt_query() {
-
-        TimeSeriesDB db = new InMemoryTimeSeries();
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
@@ -190,7 +189,6 @@ public class TimeSeriesDBTest {
     @Test
     public void verify_between_query() {
 
-        TimeSeriesDB db = new InMemoryTimeSeries();
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
@@ -246,5 +244,4 @@ public class TimeSeriesDBTest {
             throw new UncheckedIOException(e);
         }
     }
-
 }
