@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class TimeSeriesDBImpl implements TimeSeriesDB {
+public class InMemoryTimeSeries implements TimeSeriesDB {
 
     private final Map<Class, Supplier<Function<Object, EventInfo>>> eventBuilder = new ConcurrentHashMap<>();
 
@@ -26,7 +26,6 @@ public class TimeSeriesDBImpl implements TimeSeriesDB {
 
     @Override
     public <T> EventInfo insert(T row) {
-
         Function<Object, EventInfo> fn = classValue.get(row.getClass());
         EventInfo event = fn.apply(row);
         return event;

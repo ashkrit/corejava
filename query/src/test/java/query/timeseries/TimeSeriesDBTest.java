@@ -5,7 +5,7 @@ import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import query.timeseries.impl.TimeSeriesDBImpl;
+import query.timeseries.impl.InMemoryTimeSeries;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -22,7 +22,7 @@ public class TimeSeriesDBTest {
     @Test
     public void recording_failed_when_event_mapper_is_not_register() {
 
-        TimeSeriesDB db = new TimeSeriesDBImpl();
+        TimeSeriesDB db = new InMemoryTimeSeries();
 
         LightTaxiRide ride = LightTaxiRide.newBuilder()
                 .setPickupTime(System.currentTimeMillis())
@@ -39,7 +39,7 @@ public class TimeSeriesDBTest {
     @Test
     public void record_event_when_mapping_is_found() {
 
-        TimeSeriesDB db = new TimeSeriesDBImpl();
+        TimeSeriesDB db = new InMemoryTimeSeries();
 
         LightTaxiRide ride = LightTaxiRide.newBuilder()
                 .setPickupTime(System.currentTimeMillis())
