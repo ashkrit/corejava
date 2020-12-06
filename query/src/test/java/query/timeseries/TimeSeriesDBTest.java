@@ -3,8 +3,6 @@ package query.timeseries;
 
 import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
-import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.timeseries.impl.InMemoryTimeSeries;
 
@@ -18,8 +16,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
+import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TimeSeriesDBTest {
@@ -78,7 +76,7 @@ public class TimeSeriesDBTest {
             return toEventInfo(generator);
         });
 
-        IntStream.range(0, 10_000).mapToObj(t -> {
+        range(0, 10_000).mapToObj(t -> {
             long now = System.currentTimeMillis();
             long pickTime = now + TimeUnit.MINUTES.toMillis(t);
             return LightTaxiRide.newBuilder()
@@ -91,7 +89,7 @@ public class TimeSeriesDBTest {
         }).forEach(db::insert);
 
         AtomicLong l = new AtomicLong();
-        db.from(LocalDateTime.now().minusDays(1), e -> {
+        db.gt(LocalDateTime.now().minusDays(1), e -> {
             l.incrementAndGet();
             return true;
         });

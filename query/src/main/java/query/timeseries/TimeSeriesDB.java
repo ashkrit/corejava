@@ -12,5 +12,5 @@ public interface TimeSeriesDB {
 
     <T> EventInfo insert(T row);
 
-    void from(LocalDateTime now, Function<EventInfo, Boolean> fn);
+    void gt(LocalDateTime now, Function<EventInfo, Boolean> fn);
 }

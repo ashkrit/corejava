@@ -40,7 +40,7 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     }
 
     @Override
-    public void from(LocalDateTime now, Function<EventInfo, Boolean> fn) {
+    public void gt(LocalDateTime now, Function<EventInfo, Boolean> fn) {
         ConcurrentNavigableMap<String, EventInfo> matched = events.tailMap(now.format(f));
         for (Map.Entry<String, EventInfo> e : matched.entrySet()) {
             if (!fn.apply(e.getValue())) {
