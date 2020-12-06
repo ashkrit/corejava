@@ -4,6 +4,8 @@ import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import query.timeseries.id.EventIdGenerator;
+import query.timeseries.id.SystemTimeIdGenerator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -20,8 +22,8 @@ import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-abstract public class TimeSeriesDBContractTest {
-    TimeSeriesDB db;
+abstract public class TimeSeriesStoreContractTest {
+    TimeSeriesStore db;
 
     @BeforeEach
     public void init() {

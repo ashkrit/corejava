@@ -3,7 +3,7 @@ package query.timeseries.impl;
 import model.avro.EventInfo;
 import query.timeseries.sst.InMemorySSTable;
 import query.timeseries.sst.SortedStringTable;
-import query.timeseries.TimeSeriesDB;
+import query.timeseries.TimeSeriesStore;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class InMemoryTimeSeries implements TimeSeriesDB {
+public class BasicTimeSeriesDatabase implements TimeSeriesStore {
 
     private final Map<Class, Supplier<Function<Object, EventInfo>>> eventBuilder = new ConcurrentHashMap<>();
     private final ClassValue<Function<Object, EventInfo>> classValue = new ClassValue<Function<Object, EventInfo>>() {
@@ -25,11 +25,11 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private final SortedStringTable<EventInfo> inMemorySortedStringTable;
 
-    public InMemoryTimeSeries(SortedStringTable<EventInfo> ssTable) {
+    public BasicTimeSeriesDatabase(SortedStringTable<EventInfo> ssTable) {
         this.inMemorySortedStringTable = ssTable;
     }
 
-    public InMemoryTimeSeries() {
+    public BasicTimeSeriesDatabase() {
         this(new InMemorySSTable<>(Integer.MAX_VALUE));
     }
 

@@ -1,4 +1,4 @@
-package query.timeseries;
+package query.timeseries.app;
 
 import model.avro.TaxiRide;
 

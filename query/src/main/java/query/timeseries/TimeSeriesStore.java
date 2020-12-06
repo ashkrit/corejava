@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface TimeSeriesDB {
+public interface TimeSeriesStore {
 
     <T> void register(Class<T> cls, Supplier<Function<Object, EventInfo>> fn);
 

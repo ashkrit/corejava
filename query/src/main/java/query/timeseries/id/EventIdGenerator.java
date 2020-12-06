@@ -1,4 +1,4 @@
-package query.timeseries;
+package query.timeseries.id;
 
 public interface EventIdGenerator {
     String next();

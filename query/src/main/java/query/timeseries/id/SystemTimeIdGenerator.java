@@ -1,4 +1,6 @@
-package query.timeseries;
+package query.timeseries.id;
+
+import query.timeseries.id.EventIdGenerator;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
