@@ -49,6 +49,21 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
         }
     }
 
+    @Override
+    public Collection<PageRecord<V>> buffers() {
+        return readOnlyBuffer.values();
+    }
+
+    @Override
+    public void update(int pageId, PageRecord<V> page) {
+        readOnlyBuffer.put(pageId, page);
+    }
+
+    @Override
+    public void remove(int pageId) {
+        readOnlyBuffer.remove(pageId);
+    }
+
     private void allocateNewIfFull() {
         int elementCount = currentSize.incrementAndGet();
 
@@ -74,9 +89,9 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
                 .setPageId(pageId)
                 .setMinValue(extractTime(old.firstKey()))
                 .setMaxValue((extractTime(old.lastKey())))
-                .setOffSet(0)//This will be based on offset
+                .setOffSet(0)// In memory pages will have this set to 0
                 .build();
-        readOnlyBuffer.put(pageId, new PageRecord<>(old, pageInfo));
+        readOnlyBuffer.put(pageId, new InMemoryPageRecord<>(old, pageInfo));
         currentSize.set(0);
     }
 
