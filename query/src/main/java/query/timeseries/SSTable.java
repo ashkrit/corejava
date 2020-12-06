@@ -1,6 +1,7 @@
 package query.timeseries;
 
-import java.util.ArrayList;
+import model.avro.SSTablePage;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -8,14 +9,13 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 public class SSTable<V> {
 
     private final AtomicReference<NavigableMap<String, V>> currentBuffer = new AtomicReference<>(new ConcurrentSkipListMap<>());
-    private final NavigableMap<Integer, NavigableMap<String, V>> readOnlyBuffer = new ConcurrentSkipListMap<>();
+    private final NavigableMap<Integer, PageRecord<V>> readOnlyBuffer = new ConcurrentSkipListMap<>();
     private final int chunkSize;
     private final AtomicInteger currentSize = new AtomicInteger();
     private final AtomicInteger currentPage = new AtomicInteger();
@@ -32,7 +32,11 @@ public class SSTable<V> {
     public void iterate(String from, String to, Function<V, Boolean> consumer) {
         NavigableMap<String, V> current = currentStore();
         Collection<NavigableMap<String, V>> oldValues = readOnlyBuffer
-                .entrySet().stream().map(Map.Entry::getValue).collect(toList());
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .map(PageRecord::getPageData)
+                .collect(toList());
 
         if (from != null && to != null) {
             _iterate(current, oldValues, consumer, bt(from, to));
@@ -51,14 +55,31 @@ public class SSTable<V> {
             for (; isFull(currentSize.get()); ) {
                 NavigableMap<String, V> old = currentStore();
                 if (currentBuffer.compareAndSet(old, new ConcurrentSkipListMap<>())) {
-                    readOnlyBuffer.put(currentPage.incrementAndGet(), old);
-                    currentSize.set(0);
+                    closeOldPage(old);
                     break;
                 } else {
                     //Lost the race. Try again but mostly it will exit loop
                 }
             }
         }
+    }
+
+    private void closeOldPage(NavigableMap<String, V> old) {
+
+        int pageId = currentPage.incrementAndGet();
+        SSTablePage pageInfo = SSTablePage
+                .newBuilder()
+                .setPageId(pageId)
+                .setMinValue(extractTime(old.firstKey()))
+                .setMaxValue((extractTime(old.lastKey())))
+                .setOffSet(0)//This will be based on offset
+                .build();
+        readOnlyBuffer.put(pageId, new PageRecord<>(old, pageInfo));
+        currentSize.set(0);
+    }
+
+    private long extractTime(String s) {
+        return Long.parseLong(s.substring(0, 14));
     }
 
     private boolean isFull(int value) {
@@ -101,5 +122,24 @@ public class SSTable<V> {
 
     private Function<NavigableMap<String, V>, NavigableMap<String, V>> gt(String from) {
         return i -> i.tailMap(from, true);
+    }
+
+
+    static class PageRecord<V> {
+        public final NavigableMap<String, V> pageData;
+        public final SSTablePage pageInfo;
+
+        PageRecord(NavigableMap<String, V> pageData, SSTablePage pageInfo) {
+            this.pageData = pageData;
+            this.pageInfo = pageInfo;
+        }
+
+        public NavigableMap<String, V> getPageData() {
+            return pageData;
+        }
+
+        public SSTablePage getPageInfo() {
+            return pageInfo;
+        }
     }
 }
