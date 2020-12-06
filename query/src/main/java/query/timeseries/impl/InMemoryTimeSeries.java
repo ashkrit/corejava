@@ -39,12 +39,12 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
 
     @Override
     public void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer) {
-        ssTable.iterate(fromTime.format(f), null, consumer);
+        ssTable._iterate(fromTime.format(f), null, consumer);
     }
 
     @Override
     public void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer) {
-        ssTable.iterate(null, toTime.format(f), consumer);
+        ssTable._iterate(null, toTime.format(f), consumer);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
 
         String startKey = startTime.format(f);
         String endKey = endTime.format(f);
-        ssTable.iterate(startKey, endKey, consumer);
+        ssTable._iterate(startKey, endKey, consumer);
     }
 
 }
