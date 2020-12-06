@@ -15,4 +15,6 @@ public interface SortedStringTable<V> {
     void update(int pageId, PageRecord<V> page);
 
     void remove(int pageId);
+
+    void flush();
 }

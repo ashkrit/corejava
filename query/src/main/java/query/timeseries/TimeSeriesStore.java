@@ -17,4 +17,7 @@ public interface TimeSeriesStore {
     void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer);
 
     void between(LocalDateTime startTime, LocalDateTime endTime, Function<EventInfo, Boolean> consumer);
+
+    default void flush() {
+    }
 }

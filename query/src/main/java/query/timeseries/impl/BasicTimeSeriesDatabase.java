@@ -64,4 +64,9 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
         inMemorySortedStringTable.iterate(startKey, endKey, consumer);
     }
 
+    @Override
+    public void flush() {
+
+    }
+
 }

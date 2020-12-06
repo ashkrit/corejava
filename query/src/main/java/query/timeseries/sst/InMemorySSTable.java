@@ -64,6 +64,11 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
         readOnlyBuffer.remove(pageId);
     }
 
+    @Override
+    public void flush() {
+
+    }
+
     private void allocateNewIfFull() {
         int elementCount = currentSize.incrementAndGet();
 
