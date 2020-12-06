@@ -1,7 +1,8 @@
 package query.timeseries.impl;
 
 import model.avro.EventInfo;
-import query.timeseries.SSTable;
+import query.timeseries.sst.InMemorySSTable;
+import query.timeseries.sst.SortedStringTable;
 import query.timeseries.TimeSeriesDB;
 
 import java.time.LocalDateTime;
@@ -22,14 +23,14 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     };
 
     private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private final SSTable<EventInfo> ssTable;
+    private final SortedStringTable<EventInfo> inMemorySortedStringTable;
 
-    public InMemoryTimeSeries(SSTable<EventInfo> ssTable) {
-        this.ssTable = ssTable;
+    public InMemoryTimeSeries(SortedStringTable<EventInfo> ssTable) {
+        this.inMemorySortedStringTable = ssTable;
     }
 
     public InMemoryTimeSeries() {
-        this(new SSTable<>(Integer.MAX_VALUE));
+        this(new InMemorySSTable<>(Integer.MAX_VALUE));
     }
 
     @Override
@@ -41,18 +42,18 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     public <T> EventInfo insert(T row) {
         Function<Object, EventInfo> fn = classValue.get(row.getClass());
         EventInfo event = fn.apply(row);
-        ssTable.append(event.getEventTime().toString(), event);
+        inMemorySortedStringTable.append(event.getEventTime().toString(), event);
         return event;
     }
 
     @Override
     public void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer) {
-        ssTable.iterate(fromTime.format(f), null, consumer);
+        inMemorySortedStringTable.iterate(fromTime.format(f), null, consumer);
     }
 
     @Override
     public void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer) {
-        ssTable.iterate(null, toTime.format(f), consumer);
+        inMemorySortedStringTable.iterate(null, toTime.format(f), consumer);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
 
         String startKey = startTime.format(f);
         String endKey = endTime.format(f);
-        ssTable.iterate(startKey, endKey, consumer);
+        inMemorySortedStringTable.iterate(startKey, endKey, consumer);
     }
 
 }

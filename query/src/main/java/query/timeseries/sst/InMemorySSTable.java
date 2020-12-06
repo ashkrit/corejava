@@ -1,4 +1,4 @@
-package query.timeseries;
+package query.timeseries.sst;
 
 import model.avro.SSTablePage;
 
@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
-public class SSTable<V> {
+public class InMemorySSTable<V> implements SortedStringTable<V> {
 
     private final AtomicReference<NavigableMap<String, V>> currentBuffer = new AtomicReference<>(new ConcurrentSkipListMap<>());
     private final NavigableMap<Integer, PageRecord<V>> readOnlyBuffer = new ConcurrentSkipListMap<>();
@@ -20,15 +20,17 @@ public class SSTable<V> {
     private final AtomicInteger currentSize = new AtomicInteger();
     private final AtomicInteger currentPage = new AtomicInteger();
 
-    public SSTable(int chunkSize) {
+    public InMemorySSTable(int chunkSize) {
         this.chunkSize = chunkSize;
     }
 
+    @Override
     public void append(String key, V value) {
         allocateNewIfFull();
         currentStore().put(key, value);
     }
 
+    @Override
     public void iterate(String from, String to, Function<V, Boolean> consumer) {
         NavigableMap<String, V> current = currentStore();
         Collection<NavigableMap<String, V>> oldValues = readOnlyBuffer
@@ -98,7 +100,7 @@ public class SSTable<V> {
         }
     }
 
-    public boolean process(Function<V, Boolean> fn, NavigableMap<String, V> matched) {
+    private boolean process(Function<V, Boolean> fn, NavigableMap<String, V> matched) {
         for (Map.Entry<String, V> e : matched.entrySet()) {
             if (!fn.apply(e.getValue())) {
                 return false;
@@ -125,21 +127,4 @@ public class SSTable<V> {
     }
 
 
-    static class PageRecord<V> {
-        public final NavigableMap<String, V> pageData;
-        public final SSTablePage pageInfo;
-
-        PageRecord(NavigableMap<String, V> pageData, SSTablePage pageInfo) {
-            this.pageData = pageData;
-            this.pageInfo = pageInfo;
-        }
-
-        public NavigableMap<String, V> getPageData() {
-            return pageData;
-        }
-
-        public SSTablePage getPageInfo() {
-            return pageInfo;
-        }
-    }
 }
