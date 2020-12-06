@@ -9,9 +9,6 @@ import query.timeseries.impl.TimeSeriesDBImpl;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,20 +52,20 @@ public class TimeSeriesDBTest {
 
         db.register(LightTaxiRide.class, () -> {
 
+            EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
             AtomicInteger counter = new AtomicInteger();
             DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
             Function<Object, EventInfo> fn = row -> {
-                int eventSequence = counter.incrementAndGet() / 10_000;
+
                 LightTaxiRide value = (LightTaxiRide) row;
 
-                LocalDateTime localDateTime = fromMillSeconds(value.getPickupTime());
-                String eventTIme = localDateTime.format(f);
+                String eventId = generator.next(value.getPickupTime());
 
                 Map<CharSequence, Integer> tags = new HashMap<CharSequence, Integer>() {{
                     put("totalamount", (int) value.getTotalAmount());
-                    put("date", Integer.parseInt(eventTIme.substring(0, 8)));
-                    put("hour", Integer.parseInt(eventTIme.substring(8, 10)));
+                    put("date", Integer.parseInt(eventId.substring(0, 8)));
+                    put("hour", Integer.parseInt(eventId.substring(8, 10)));
                 }};
 
 
@@ -76,7 +73,7 @@ public class TimeSeriesDBTest {
                         .newBuilder()
                         .setEventBody(getByteBuffer(value))
                         .setEventType("TAXIRIDE")
-                        .setEventTime(eventTIme + "/" + eventSequence)
+                        .setEventTime(eventId)
                         .setHost("NA")
                         .setService("TAXI-NO")
                         .setTags(tags)
@@ -101,11 +98,6 @@ public class TimeSeriesDBTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-
-    private static LocalDateTime fromMillSeconds(long ms) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), ZoneId.systemDefault());
     }
 
 }
