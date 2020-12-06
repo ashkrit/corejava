@@ -8,6 +8,6 @@
        {"name": "eventTime",  "type": "string"},
        {"name": "eventType", "type": "string"},
        {"name": "eventBody", "type": "bytes"},
-       {"name": "tags", "type": {"type": "map", "values": "long" } , "default": {}}
+       {"name": "tags", "type": {"type": "map", "values": "int" } , "default": {}}
   ]
 }
