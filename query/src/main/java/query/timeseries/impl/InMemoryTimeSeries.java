@@ -15,7 +15,6 @@ import java.util.function.Supplier;
 public class InMemoryTimeSeries implements TimeSeriesDB {
 
     private final Map<Class, Supplier<Function<Object, EventInfo>>> eventBuilder = new ConcurrentHashMap<>();
-
     private final ClassValue<Function<Object, EventInfo>> classValue = new ClassValue<Function<Object, EventInfo>>() {
         @Override
         protected Function<Object, EventInfo> computeValue(Class type) {
@@ -24,7 +23,7 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     };
 
     private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private ConcurrentSkipListMap<String, EventInfo> events = new ConcurrentSkipListMap<>();
+    private final ConcurrentSkipListMap<String, EventInfo> events = new ConcurrentSkipListMap<>();
 
     @Override
     public <T> void register(Class<T> cls, Supplier<Function<Object, EventInfo>> fn) {
