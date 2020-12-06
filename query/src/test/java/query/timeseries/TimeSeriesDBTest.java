@@ -70,7 +70,6 @@ public class TimeSeriesDBTest {
 
         TimeSeriesDB db = new InMemoryTimeSeries();
 
-
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
             return toEventInfo(generator);
@@ -95,6 +94,35 @@ public class TimeSeriesDBTest {
         });
 
         assertEquals(10_000, l.get());
+    }
+
+
+    @Test
+    public void allow_query_by_gt_event_time_using_limit_signal() {
+
+        TimeSeriesDB db = new InMemoryTimeSeries();
+
+        db.register(LightTaxiRide.class, () -> {
+            EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
+            return toEventInfo(generator);
+        });
+
+        range(0, 10_000).mapToObj(t -> {
+            long now = System.currentTimeMillis();
+            long pickTime = now + TimeUnit.MINUTES.toMillis(t);
+            return LightTaxiRide.newBuilder()
+                    .setPickupTime(pickTime)
+                    .setDropOffTime(pickTime + TimeUnit.MINUTES.toMillis(ThreadLocalRandom.current().nextInt(50)))
+                    .setPassengerCount(2)
+                    .setTripDistance(2)
+                    .setTotalAmount(20)
+                    .build();
+        }).forEach(db::insert);
+
+        AtomicLong l = new AtomicLong();
+        db.gt(LocalDateTime.now().minusDays(1), e -> l.incrementAndGet() < 5);
+
+        assertEquals(5, l.get());
     }
 
     private Function<Object, EventInfo> toEventInfo(EventIdGenerator generator) {
