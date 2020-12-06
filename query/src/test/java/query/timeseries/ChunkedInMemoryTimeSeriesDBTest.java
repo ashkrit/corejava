@@ -1,12 +1,11 @@
 package query.timeseries;
 
-import org.junit.jupiter.api.Disabled;
-import query.timeseries.impl.ChunkedInMemoryTimeSeries;
+import query.timeseries.impl.InMemoryTimeSeries;
 
-@Disabled
+
 public class ChunkedInMemoryTimeSeriesDBTest extends TimeSeriesDBContractTest {
     @Override
     void create() {
-        db = new ChunkedInMemoryTimeSeries();
+        db = new InMemoryTimeSeries(new SSTable<>(10));
     }
 }
