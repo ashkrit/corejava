@@ -1,0 +1,20 @@
+{
+  "namespace": "model.avro",
+  "type": "record",
+  "name": "TaxiRide",
+  "fields": [
+       {"name": "vendorId", "type": "string"},
+       {"name": "pickupTime",  "type": "long"},
+       {"name": "dropOffTime",  "type": "long"},
+       {"name": "passengerCount", "type": "int"},
+       {"name": "tripDistance", "type": "float"},
+       {"name": "totalAmount", "type": "float"},
+       {"name": "fareAmount", "type": "float"},
+       {"name": "extraAmount", "type": "float"},
+       {"name": "taxAmount", "type": "float"},
+       {"name": "tipAmount", "type": "float"},
+       {"name": "tollsAmount", "type": "float"},
+       {"name": "improvementSurcharge", "type": "float"},
+       {"name": "congestionSurcharge", "type": "float"}
+  ]
+}

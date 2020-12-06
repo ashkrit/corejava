@@ -1,0 +1,12 @@
+{
+  "namespace": "model.avro",
+  "type": "record",
+  "name": "LightTaxiRide",
+  "fields": [
+       {"name": "pickupTime",  "type": "long"},
+       {"name": "dropOffTime",  "type": "long"},
+       {"name": "passengerCount", "type": "int"},
+       {"name": "tripDistance", "type": "float"},
+       {"name": "totalAmount", "type": "float"}
+  ]
+}
