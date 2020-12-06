@@ -22,7 +22,7 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     };
 
     private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private final SSTable<EventInfo> ssTable = new SSTable<>();
+    private final SSTable<EventInfo> ssTable = new SSTable<>(10);
 
     @Override
     public <T> void register(Class<T> cls, Supplier<Function<Object, EventInfo>> fn) {
