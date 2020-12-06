@@ -41,17 +41,15 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
 
     @Override
     public void gt(LocalDateTime now, Function<EventInfo, Boolean> fn) {
-        ConcurrentNavigableMap<String, EventInfo> matched = events.tailMap(now.format(f));
-        for (Map.Entry<String, EventInfo> e : matched.entrySet()) {
-            if (!fn.apply(e.getValue())) {
-                break;
-            }
-        }
+        process(fn, events.tailMap(now.format(f), true));
     }
 
     @Override
     public void lt(LocalDateTime now, Function<EventInfo, Boolean> fn) {
-        ConcurrentNavigableMap<String, EventInfo> matched = events.headMap(now.format(f), true);
+        process(fn, events.headMap(now.format(f), true));
+    }
+
+    public void process(Function<EventInfo, Boolean> fn, ConcurrentNavigableMap<String, EventInfo> matched) {
         for (Map.Entry<String, EventInfo> e : matched.entrySet()) {
             if (!fn.apply(e.getValue())) {
                 break;
