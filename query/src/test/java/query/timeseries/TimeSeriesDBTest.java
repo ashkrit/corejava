@@ -4,16 +4,21 @@ package query.timeseries;
 import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.timeseries.impl.InMemoryTimeSeries;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -62,7 +67,38 @@ public class TimeSeriesDBTest {
         );
     }
 
-    @NotNull
+    @Test
+    public void allow_query_by_gt_event_time() {
+
+        TimeSeriesDB db = new InMemoryTimeSeries();
+
+
+        db.register(LightTaxiRide.class, () -> {
+            EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
+            return toEventInfo(generator);
+        });
+
+        IntStream.range(0, 10_000).mapToObj(t -> {
+            long now = System.currentTimeMillis();
+            long pickTime = now + TimeUnit.MINUTES.toMillis(t);
+            return LightTaxiRide.newBuilder()
+                    .setPickupTime(pickTime)
+                    .setDropOffTime(pickTime + TimeUnit.MINUTES.toMillis(ThreadLocalRandom.current().nextInt(50)))
+                    .setPassengerCount(2)
+                    .setTripDistance(2)
+                    .setTotalAmount(20)
+                    .build();
+        }).forEach(db::insert);
+
+        AtomicLong l = new AtomicLong();
+        db.from(LocalDateTime.now().minusDays(1), e -> {
+            l.incrementAndGet();
+            return true;
+        });
+
+        assertEquals(10_000, l.get());
+    }
+
     private Function<Object, EventInfo> toEventInfo(EventIdGenerator generator) {
 
         Function<Object, EventInfo> fn = row -> {

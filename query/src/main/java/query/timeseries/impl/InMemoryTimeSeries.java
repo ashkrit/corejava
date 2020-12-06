@@ -3,8 +3,12 @@ package query.timeseries.impl;
 import model.avro.EventInfo;
 import query.timeseries.TimeSeriesDB;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -19,6 +23,9 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
         }
     };
 
+    private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private ConcurrentSkipListMap<String, EventInfo> events = new ConcurrentSkipListMap<>();
+
     @Override
     public <T> void register(Class<T> cls, Supplier<Function<Object, EventInfo>> fn) {
         eventBuilder.put(cls, fn);
@@ -28,6 +35,17 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     public <T> EventInfo insert(T row) {
         Function<Object, EventInfo> fn = classValue.get(row.getClass());
         EventInfo event = fn.apply(row);
+        events.put(event.getEventTime().toString(), event);
         return event;
+    }
+
+    @Override
+    public void from(LocalDateTime now, Function<EventInfo, Boolean> fn) {
+        ConcurrentNavigableMap<String, EventInfo> matched = events.tailMap(now.format(f));
+        for (Map.Entry<String, EventInfo> e : matched.entrySet()) {
+            if (!fn.apply(e.getValue())) {
+                break;
+            }
+        }
     }
 }
