@@ -33,18 +33,18 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
     public <T> EventInfo insert(T row) {
         Function<Object, EventInfo> fn = classValue.get(row.getClass());
         EventInfo event = fn.apply(row);
-        ssTable.inset(event.getEventTime().toString(), event);
+        ssTable.append(event.getEventTime().toString(), event);
         return event;
     }
 
     @Override
     public void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer) {
-        ssTable._iterate(fromTime.format(f), null, consumer);
+        ssTable.iterate(fromTime.format(f), null, consumer);
     }
 
     @Override
     public void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer) {
-        ssTable._iterate(null, toTime.format(f), consumer);
+        ssTable.iterate(null, toTime.format(f), consumer);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class InMemoryTimeSeries implements TimeSeriesDB {
 
         String startKey = startTime.format(f);
         String endKey = endTime.format(f);
-        ssTable._iterate(startKey, endKey, consumer);
+        ssTable.iterate(startKey, endKey, consumer);
     }
 
 }

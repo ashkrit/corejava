@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class SSTable<V> {
 
@@ -21,9 +24,23 @@ public class SSTable<V> {
         this.chunkSize = chunkSize;
     }
 
-    public void inset(String key, V value) {
+    public void append(String key, V value) {
         allocateNewIfFull();
         currentStore().put(key, value);
+    }
+
+    public void iterate(String from, String to, Function<V, Boolean> consumer) {
+        NavigableMap<String, V> current = currentStore();
+        Collection<NavigableMap<String, V>> oldValues = readOnlyBuffer
+                .entrySet().stream().map(Map.Entry::getValue).collect(toList());
+
+        if (from != null && to != null) {
+            _iterate(current, oldValues, consumer, bt(from, to));
+        } else if (from != null) {
+            _iterate(current, oldValues, consumer, gt(from));
+        } else if (to != null) {
+            _iterate(current, oldValues, consumer, lt(to));
+        }
     }
 
     private void allocateNewIfFull() {
@@ -44,28 +61,16 @@ public class SSTable<V> {
         }
     }
 
-    public boolean isFull(int value) {
+    private boolean isFull(int value) {
         return value > chunkSize;
     }
 
-    public void _iterate(String from, String to, Function<V, Boolean> consumer) {
-        NavigableMap<String, V> current = currentStore();
-        Collection<NavigableMap<String, V>> oldValues = new ArrayList<>(readOnlyBuffer.descendingMap().values());
+    private void _iterate(NavigableMap<String, V> current, Collection<NavigableMap<String, V>> oldValues,
+                          Function<V, Boolean> consumer, Function<NavigableMap<String, V>, NavigableMap<String, V>> operator) {
 
-        if (from != null && to != null) {
-            _iterate(current, oldValues, consumer, bt(from, to));
-        } else if (from != null) {
-            _iterate(current, oldValues, consumer, gt(from));
-        } else if (to != null) {
-            _iterate(current, oldValues, consumer, lt(to));
-        }
-    }
-
-    private void _iterate(NavigableMap<String, V> current, Collection<NavigableMap<String, V>> oldValues, Function<V, Boolean> consumer, Function<NavigableMap<String, V>, NavigableMap<String, V>> filter) {
-
-        if (process(consumer, filter.apply(current))) {
+        if (process(consumer, operator.apply(current))) {
             for (NavigableMap<String, V> buffer : oldValues) {
-                if (!process(consumer, filter.apply(buffer))) {
+                if (!process(consumer, operator.apply(buffer))) {
                     break;
                 }
             }
