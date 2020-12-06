@@ -20,7 +20,6 @@ public class DiskPageDirectory implements PageDirectory {
     private final byte[] pageBuffer;
     private final TreeMap<Integer, PageRecord> pages = new TreeMap<>();
 
-
     private boolean indexPageDirty = true;
     private int noOfPage = 0;
 

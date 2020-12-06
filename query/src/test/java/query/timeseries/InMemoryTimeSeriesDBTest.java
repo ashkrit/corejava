@@ -10,5 +10,4 @@ public class InMemoryTimeSeriesDBTest extends TimeSeriesDBContractTest {
         db = new InMemoryTimeSeries();
     }
 
-
 }
