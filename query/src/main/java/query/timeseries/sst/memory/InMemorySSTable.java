@@ -63,11 +63,6 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
     }
 
     @Override
-    public void update(int pageId, PageRecord<V> page) {
-        readOnlyBuffer.put(pageId, page);
-    }
-
-    @Override
     public void remove(int pageId) {
         readOnlyBuffer.remove(pageId);
     }

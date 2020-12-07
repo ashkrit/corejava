@@ -12,8 +12,6 @@ public interface SortedStringTable<V> {
     // API for saving SST table for persistence storage
     Collection<PageRecord<V>> buffers();
 
-    void update(int pageId, PageRecord<V> page);
-
     void remove(int pageId);
 
     void flush();

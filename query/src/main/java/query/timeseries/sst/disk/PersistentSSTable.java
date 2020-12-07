@@ -45,13 +45,20 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
 
     @Override
     public void iterate(String from, String to, Function<V, Boolean> consumer) {
-        underlyingStore.iterate(from, to, consumer);
+        iterateMemoryPages(from, to, consumer);
+        iterateDiskPages(from, to, consumer);
 
+    }
+
+    private void iterateMemoryPages(String from, String to, Function<V, Boolean> consumer) {
+        underlyingStore.iterate(from, to, consumer);
+    }
+
+    private void iterateDiskPages(String from, String to, Function<V, Boolean> consumer) {
         recordsScanned = 0;
         int scannedPages = 0;
         Function<NavigableMap<String, V>, NavigableMap<String, V>> filter = predicate(from, to);
 
-        //Iterate over disk
         int pageCount = this.indexBlock.noOfPages();
         byte[] buffer = new byte[1024];
         NavigableMap<String, V> pageData = new TreeMap<>();
@@ -73,7 +80,6 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
         }
 
         System.out.println("Disk Scan " + recordsScanned + " Scanned pages " + scannedPages);
-
     }
 
     private void loadPageData(byte[] buffer, NavigableMap<String, V> pageData, ReadPage dataPage) {
@@ -110,11 +116,6 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     }
 
     @Override
-    public void update(int pageId, PageRecord<V> page) {
-        throw new IllegalArgumentException("Not supported");
-    }
-
-    @Override
     public void remove(int pageId) {
         throw new IllegalArgumentException("Not supported");
     }
@@ -133,9 +134,9 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     private void writeIndexBlock(List<SSTablePage> pageList) {
         int indexPageCount = 0;
         int indexRecordCount = 0;
-        if (this.indexPage == null) {
-            this.indexPage = this.indexBlock.newPage();
-        }
+
+        newIndexPageIfRequired();
+
         for (SSTablePage page : pageList) {
             byte[] pageBytes = toPageRecord(page);
             indexRecordCount++;
@@ -152,13 +153,17 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
         System.out.println("Index Pages " + indexPageCount + " Index Record " + indexRecordCount + " Capacity " + indexPage.capacity());
     }
 
+    private void newIndexPageIfRequired() {
+        if (this.indexPage == null) {
+            this.indexPage = this.indexBlock.newPage();
+        }
+    }
+
     private List<SSTablePage> writeDataBlock(List<PageRecord<V>> buffers) {
         int recordCount = 0;
         List<SSTablePage> pageList = new ArrayList<>();
 
-        if (this.dataPage == null) {
-            this.dataPage = this.dataBlock.newPage();
-        }
+        newDataPageIfRequired();
 
         SSTablePage pageInfo = null;
 
@@ -182,6 +187,12 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
         return pageList;
 
 
+    }
+
+    private void newDataPageIfRequired() {
+        if (this.dataPage == null) {
+            this.dataPage = this.dataBlock.newPage();
+        }
     }
 
     private void commitPageAndAllocateNew(List<SSTablePage> pageList, SSTablePage pageInfo) {
