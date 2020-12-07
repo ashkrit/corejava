@@ -21,20 +21,27 @@ public class DiskPageAllocator implements PageAllocator {
         header.pageSize = pageSize;
         if (dataLocation.toFile().exists()) {
             this.rafBlock = new BlockRandomAccessFile(SafeIO.open(dataLocation));
-            byte[] headerData = new byte[Header.SIZE];
-            rafBlock.read(0, headerData);
-            header.fromBytes(headerData);
+            readHeader();
         } else {
             SafeIO.createNewFile(dataLocation);
             this.rafBlock = new BlockRandomAccessFile(SafeIO.open(dataLocation));
-            rafBlock.write(0, header.toBytes());
+            writeHeader();
         }
+    }
+
+    public void writeHeader() {
+        rafBlock.write(0, header.toBytes());
+    }
+
+    private void readHeader() {
+        rafBlock.read(0, header.dataBuffer);
+        header.fromBytes(header.dataBuffer);
     }
 
     @Override
     public WritePage newPage() {
         WritePage page = newPage(nextPage(), now());
-        rafBlock.write(0, header.toBytes());
+        writeHeader();
         return page;
     }
 
@@ -48,7 +55,7 @@ public class DiskPageAllocator implements PageAllocator {
     @Override
     public ReadPage readPage(int pageId) {
         long readPosition = header.pageOffSet(pageId);
-        byte[] pageBuffer = new byte[header.pageSize];
+        byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(readPosition, pageBuffer);
         return new ReadableSlottedPage(pageBuffer);
     }

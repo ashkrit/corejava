@@ -8,8 +8,10 @@ public class Header {
     public int currentPageNo;
     public static int SIZE = 1 + 4 + 4;
 
+    public byte[] dataBuffer = new byte[SIZE];
+
     public byte[] toBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(SIZE);
+        ByteBuffer buffer = ByteBuffer.wrap(dataBuffer);
         buffer.put(version);
         buffer.putInt(pageSize);
         buffer.putInt(currentPageNo);
@@ -31,5 +33,9 @@ public class Header {
     public long pageOffSet(int pageId) {
         long pageOffset = (pageId - 1) * 1L * pageSize;
         return Header.SIZE + pageOffset;
+    }
+
+    public byte[] allocatePageBuffer() {
+        return new byte[pageSize];
     }
 }
