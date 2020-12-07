@@ -3,25 +3,14 @@ package query.timeseries.sst;
 import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
 import org.junit.jupiter.api.Test;
-import query.timeseries.TimeSeriesStore;
 import query.timeseries.id.EventIdGenerator;
-import query.timeseries.id.SystemTimeIdGenerator;
-import query.timeseries.impl.BasicTimeSeriesDatabase;
-import query.timeseries.sst.disk.DiskSSTable;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-
-import static java.util.stream.IntStream.range;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class DiskSSTableTest {
 

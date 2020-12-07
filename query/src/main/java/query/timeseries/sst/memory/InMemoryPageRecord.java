@@ -1,10 +1,12 @@
-package query.timeseries.sst;
+package query.timeseries.sst.memory;
 
-import model.avro.SSTablePage;
+import model.avro.page.SSTablePage;
+import query.timeseries.sst.PageRecord;
 
 import java.util.NavigableMap;
 
 public class InMemoryPageRecord<V> implements PageRecord<V> {
+
     public final NavigableMap<String, V> pageData;
     public final SSTablePage pageInfo;
 
@@ -22,4 +24,6 @@ public class InMemoryPageRecord<V> implements PageRecord<V> {
     public SSTablePage getPageInfo() {
         return pageInfo;
     }
+
+
 }

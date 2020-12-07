@@ -1,7 +1,7 @@
 package query.timeseries;
 
 import query.timeseries.impl.BasicTimeSeriesDatabase;
-import query.timeseries.sst.InMemorySSTable;
+import query.timeseries.sst.memory.InMemorySSTable;
 
 public class PersistentTimeSeriesDatabaseTest extends TimeSeriesStoreContractTest {
     @Override

@@ -1,6 +1,9 @@
-package query.timeseries.sst;
+package query.timeseries.sst.memory;
 
-import model.avro.SSTablePage;
+
+import model.avro.page.SSTablePage;
+import query.timeseries.sst.PageRecord;
+import query.timeseries.sst.SortedStringTable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -89,19 +92,16 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
     private void closeOldPage(NavigableMap<String, V> old) {
 
         int pageId = currentPage.incrementAndGet();
+
         SSTablePage pageInfo = SSTablePage
                 .newBuilder()
                 .setPageId(pageId)
-                .setMinValue(extractTime(old.firstKey()))
-                .setMaxValue((extractTime(old.lastKey())))
+                .setMinValue(old.firstKey())
+                .setMaxValue(old.lastKey())
                 .setOffSet(0)// In memory pages will have this set to 0
                 .build();
         readOnlyBuffer.put(pageId, new InMemoryPageRecord<>(old, pageInfo));
         currentSize.set(0);
-    }
-
-    private long extractTime(String s) {
-        return Long.parseLong(s.substring(0, 14));
     }
 
     private boolean isFull(int value) {

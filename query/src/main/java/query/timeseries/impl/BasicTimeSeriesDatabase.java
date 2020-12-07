@@ -1,7 +1,7 @@
 package query.timeseries.impl;
 
 import model.avro.EventInfo;
-import query.timeseries.sst.InMemorySSTable;
+import query.timeseries.sst.memory.InMemorySSTable;
 import query.timeseries.sst.SortedStringTable;
 import query.timeseries.TimeSeriesStore;
 

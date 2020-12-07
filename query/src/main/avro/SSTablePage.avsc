@@ -1,11 +1,11 @@
 {
-  "namespace": "model.avro",
+  "namespace": "model.avro.page",
   "type": "record",
   "name": "SSTablePage",
   "fields": [
        {"name": "pageId", "type": "int"},
-       {"name": "minValue",  "type": "long"},
-       {"name": "maxValue",  "type": "long"},
+       {"name": "minValue",  "type": "string"},
+       {"name": "maxValue",  "type": "string"},
        {"name": "offSet", "type": "long"}
   ]
 }

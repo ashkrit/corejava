@@ -1,6 +1,5 @@
 package query.page.allocator;
 
-import query.page.ApplicationClock;
 import query.page.read.ReadPage;
 import query.page.read.ReadableSlottedPage;
 import query.page.write.WritableSlotPage;
