@@ -23,7 +23,12 @@ public class DiskPageAllocator implements PageAllocator {
         header.version = version;
         header.pageSize = pageSize;
         this.dataLocation = dataLocation;
-        if (!dataLocation.toFile().exists()) {
+        if (dataLocation.toFile().exists()) {
+            this.raf = SafeIO.open(dataLocation);
+            byte[] headerData = new byte[Header.SIZE];
+            SafeIO.read(raf, 0, headerData);
+            header.fromBytes(headerData);
+        } else {
             SafeIO.createNewFile(dataLocation);
             this.raf = SafeIO.open(dataLocation);
             SafeIO.write(raf, header.toBytes());

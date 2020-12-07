@@ -102,4 +102,34 @@ public class DiskPageAllocatorTest {
         );
     }
 
+    @Test
+    public void read_pages_from_saved_file() {
+
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
+        PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
+
+        range(0, 10).forEach($ -> {
+            WritePage page = pa.newPage();
+            page.write(("Hello" + page.pageNumber()).getBytes());
+            page.write(("World" + page.pageNumber()).getBytes());
+            pa.commit(page);
+        });
+
+
+        PageAllocator anotherPage = new DiskPageAllocator((byte) 1, 1024, dataFile);
+        byte[] buffer = new byte[1024];
+        assertAll(
+                () -> {
+                    ReadPage p = anotherPage.readPage(1);
+                    assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
+                    assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
+                },
+                () -> {
+                    ReadPage p = anotherPage.readPage(10);
+                    assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
+                    assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
+                }
+        );
+    }
+
 }
