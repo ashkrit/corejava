@@ -41,7 +41,6 @@ public class WritableSlotPage implements WritePage {
 
     private int dataWriteIndex = PageOffSets.DATA_OFFSET;
 
-
     public WritableSlotPage(int pageSize, byte version, int pageNumber, long createdTs) {
         this.data = new byte[pageSize];
         this.version = version;

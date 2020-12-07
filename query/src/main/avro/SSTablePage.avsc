@@ -6,6 +6,6 @@
        {"name": "pageId", "type": "int"},
        {"name": "minValue",  "type": "long"},
        {"name": "maxValue",  "type": "long"},
-       {"name": "offSet", "type": "int"}
+       {"name": "offSet", "type": "long"}
   ]
 }
