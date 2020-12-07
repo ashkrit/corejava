@@ -52,7 +52,7 @@ public class NYTaxiRides {
             return TaxiRideBuilder.toEventInfo(generator);
         });
 
-        //insert(path, fields, es, store);
+        insert(path, fields, es, store);
         System.out.println("Read to accept query");
         new BufferedReader(new InputStreamReader(System.in))
                 .lines()
@@ -117,6 +117,7 @@ public class NYTaxiRides {
         AtomicInteger flushRequest = new AtomicInteger();
         lines
                 .skip(1)
+                .skip((100_000 * 10) * 7)
                 .limit(100_000 * 10)
                 .map(r -> r.split(","))
                 .map(values -> TaxiRideBuilder.createTaxiRide(fields, values))
