@@ -1,4 +1,4 @@
-package query.page.allocator;
+package query.page.io;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,14 +20,6 @@ public class SafeIO {
         try {
             return new RandomAccessFile(location.toFile().getAbsolutePath(), "rw");
         } catch (FileNotFoundException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public static void write(RandomAccessFile raf, byte[] data) {
-        try {
-            raf.write(data);
-        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
