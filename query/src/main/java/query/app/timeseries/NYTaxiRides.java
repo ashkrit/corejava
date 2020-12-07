@@ -98,16 +98,23 @@ public class NYTaxiRides {
     private static void executeQuery(TimeSeriesStore store, String[] parts, String op, Function<EventInfo, Boolean> processor) {
         DateTimeFormatter datePattern = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
-        if (op.equals("bt")) {
-            LocalDateTime start = LocalDateTime.parse(parts[2], datePattern);
-            LocalDateTime end = LocalDateTime.parse(parts[3], datePattern);
-            store.between(start, end, processor);
-        } else if (op.equals("gt")) {
-            LocalDateTime start = LocalDateTime.parse(parts[2], datePattern);
-            store.gt(start, processor);
-        } else if (op.equals("lt")) {
-            LocalDateTime start = LocalDateTime.parse(parts[2], datePattern);
-            store.lt(start, processor);
+        switch (op) {
+            case "bt": {
+                LocalDateTime start = LocalDateTime.parse(parts[2], datePattern);
+                LocalDateTime end = LocalDateTime.parse(parts[3], datePattern);
+                store.between(start, end, processor);
+                break;
+            }
+            case "gt": {
+                LocalDateTime start = LocalDateTime.parse(parts[2], datePattern);
+                store.gt(start, processor);
+                break;
+            }
+            case "lt": {
+                LocalDateTime start = LocalDateTime.parse(parts[2], datePattern);
+                store.lt(start, processor);
+                break;
+            }
         }
     }
 
