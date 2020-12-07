@@ -3,13 +3,14 @@ package query.timeseries.sst;
 import model.avro.EventInfo;
 import model.avro.LightTaxiRide;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.timeseries.TimeSeriesStore;
 import query.timeseries.id.EventIdGenerator;
 import query.timeseries.id.SystemTimeIdGenerator;
-import query.timeseries.impl.BasicTimeSeriesDatabase;
-import query.timeseries.sst.disk.DiskSSTable;
+import query.timeseries.impl.DefaultTimeSeriesDatabase;
+import query.timeseries.sst.disk.PersistentSSTable;
+import query.timeseries.sst.disk.RecordSerializer;
+import query.timeseries.sst.disk.StoreLocation;
 import query.timeseries.sst.memory.InMemorySSTable;
 
 import java.io.File;
@@ -29,7 +30,9 @@ import java.util.function.Function;
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DiskSSTableTest {
+public class PersistentSSTableTest {
+
+    public static final int KB = 1024;
 
     @Test
     public void stores_pages_to_disk_and_drain_read_buffer() {
@@ -38,26 +41,15 @@ public class DiskSSTableTest {
         storeLocation.mkdirs();
         Arrays.stream(storeLocation.listFiles()).forEach(File::delete);
 
-        SortedStringTable<EventInfo> store = new DiskSSTable<>(new InMemorySSTable<>(10),
-                storeLocation, "taxi_events", toBytes(), null, null);
-        TimeSeriesStore db = new BasicTimeSeriesDatabase(store);
+        SortedStringTable<EventInfo> store = new PersistentSSTable<>(new InMemorySSTable<>(10), new StoreLocation(storeLocation, "taxi_events"), new RecordSerializer<>(KB, toBytes(), null, null));
+        TimeSeriesStore db = TimeSeriesStore.create(store);
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
             return toEventInfo(generator);
         });
 
-        range(0, 10_000).mapToObj(t -> {
-            long now = System.currentTimeMillis();
-            long pickTime = now + TimeUnit.MINUTES.toMillis(t);
-            return LightTaxiRide.newBuilder()
-                    .setPickupTime(pickTime)
-                    .setDropOffTime(pickTime + TimeUnit.MINUTES.toMillis(ThreadLocalRandom.current().nextInt(50)))
-                    .setPassengerCount(2)
-                    .setTripDistance(2)
-                    .setTotalAmount(20)
-                    .build();
-        }).forEach(db::insert);
+        insertRecords(db);
 
         store.flush();
 
@@ -76,20 +68,30 @@ public class DiskSSTableTest {
         storeLocation.mkdirs();
         Arrays.stream(storeLocation.listFiles()).forEach(File::delete);
 
-        SortedStringTable<EventInfo> store = new DiskSSTable<>(new InMemorySSTable<>(500), storeLocation, "taxi_events", toBytes(), b -> {
-            try {
-                return EventInfo.fromByteBuffer(b);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }, e -> e.getEventTime().toString());
-        TimeSeriesStore db = new BasicTimeSeriesDatabase(store);
+        RecordSerializer<EventInfo> eventInfoRecordSerializer = new RecordSerializer<>(KB, toBytes(), b -> fromBytes(b), e -> e.getEventTime().toString());
+
+        SortedStringTable<EventInfo> store = new PersistentSSTable<>(new InMemorySSTable<>(500), new StoreLocation(storeLocation, "taxi_events"), eventInfoRecordSerializer);
+        TimeSeriesStore db = TimeSeriesStore.create(store);
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
             return toEventInfo(generator);
         });
 
+        insertRecords(db);
+
+        store.flush();
+
+        AtomicInteger counter = new AtomicInteger();
+        db.gt(LocalDateTime.now().minusDays(100), x -> {
+            counter.incrementAndGet();
+            return true;
+        });
+
+        assertEquals(10_000, counter.get());
+    }
+
+    public void insertRecords(TimeSeriesStore db) {
         range(0, 10_000).mapToObj(t -> {
             long now = System.currentTimeMillis();
             long pickTime = now + TimeUnit.MINUTES.toMillis(t);
@@ -101,15 +103,14 @@ public class DiskSSTableTest {
                     .setTotalAmount(20)
                     .build();
         }).forEach(db::insert);
+    }
 
-        store.flush();
-        AtomicInteger counter = new AtomicInteger();
-        db.gt(LocalDateTime.now().minusDays(100), x -> {
-            counter.incrementAndGet();
-            return true;
-        });
-
-        assertEquals(10_000, counter.get());
+    private EventInfo fromBytes(ByteBuffer b) {
+        try {
+            return EventInfo.fromByteBuffer(b);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @NotNull

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class BasicTimeSeriesDatabase implements TimeSeriesStore {
+public class DefaultTimeSeriesDatabase implements TimeSeriesStore {
 
     private final Map<Class, Supplier<Function<Object, EventInfo>>> eventBuilder = new ConcurrentHashMap<>();
     private final ClassValue<Function<Object, EventInfo>> classValue = new ClassValue<Function<Object, EventInfo>>() {
@@ -23,13 +23,13 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
     };
 
     private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private final SortedStringTable<EventInfo> sstable;
+    private final SortedStringTable<EventInfo> ssTable;
 
-    public BasicTimeSeriesDatabase(SortedStringTable<EventInfo> ssTable) {
-        this.sstable = ssTable;
+    public DefaultTimeSeriesDatabase(SortedStringTable<EventInfo> ssTable) {
+        this.ssTable = ssTable;
     }
 
-    public BasicTimeSeriesDatabase() {
+    public DefaultTimeSeriesDatabase() {
         this(new InMemorySSTable<>(Integer.MAX_VALUE));
     }
 
@@ -42,18 +42,18 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
     public <T> EventInfo insert(T row) {
         Function<Object, EventInfo> fn = classValue.get(row.getClass());
         EventInfo event = fn.apply(row);
-        sstable.append(event.getEventTime().toString(), event);
+        ssTable.append(event.getEventTime().toString(), event);
         return event;
     }
 
     @Override
     public void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer) {
-        sstable.iterate(fromTime.format(f), null, consumer);
+        ssTable.iterate(fromTime.format(f), null, consumer);
     }
 
     @Override
     public void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer) {
-        sstable.iterate(null, toTime.format(f), consumer);
+        ssTable.iterate(null, toTime.format(f), consumer);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
 
         String startKey = startTime.format(f);
         String endKey = endTime.format(f);
-        sstable.iterate(startKey, endKey, consumer);
+        ssTable.iterate(startKey, endKey, consumer);
     }
 
     @Override

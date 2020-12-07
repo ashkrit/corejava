@@ -15,12 +15,10 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Function;
 
-public class DiskSSTable<V> implements SortedStringTable<V> {
+public class PersistentSSTable<V> implements SortedStringTable<V> {
 
     public static final int BUFFER_FULL = -1;
     private final SortedStringTable<V> underlyingStore;
-    private final File storeLocation;
-    private final String storeName;
     private final PageAllocator dataBlock;
     private final PageAllocator indexBlock;
     private final Function<V, byte[]> toBytes;
@@ -31,16 +29,13 @@ public class DiskSSTable<V> implements SortedStringTable<V> {
     private WritePage dataPage;
     private int recordsScanned = 0;
 
-    public DiskSSTable(SortedStringTable<V> underlyingStore, File storeLocation, String storeName,
-                       Function<V, byte[]> toBytes, Function<ByteBuffer, V> fromBytes, Function<V, String> pk) {
+    public PersistentSSTable(SortedStringTable<V> underlyingStore, StoreLocation location, RecordSerializer<V> recordSerializer) {
         this.underlyingStore = underlyingStore;
-        this.storeLocation = storeLocation;
-        this.storeName = storeName;
-        this.dataBlock = new DiskPageAllocator((byte) 1, 1024, new File(storeLocation, storeName + ".1.data").toPath());
-        this.indexBlock = new DiskPageAllocator((byte) 1, 1024, new File(storeLocation, storeName + ".1.index").toPath());
-        this.toBytes = toBytes;
-        this.fromBytes = fromBytes;
-        this.pk = pk;
+        this.dataBlock = new DiskPageAllocator((byte) 1, recordSerializer.getPageSize(), new File(location.getRoot(), location.getStoreName() + ".1.data").toPath());
+        this.indexBlock = new DiskPageAllocator((byte) 1, recordSerializer.getPageSize(), new File(location.getRoot(), location.getStoreName() + ".1.index").toPath());
+        this.toBytes = recordSerializer.getToBytes();
+        this.fromBytes = recordSerializer.getFromBytes();
+        this.pk = recordSerializer.getPk();
     }
 
     @Override
