@@ -1,5 +1,6 @@
 package query.page;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import query.page.allocator.DiskPageAllocator;
 import query.page.allocator.HeapPageAllocator;
@@ -22,9 +23,7 @@ public class DiskPageAllocatorTest {
     @Test
     public void create_disk_pages() {
 
-        File f = new File(System.getProperty("java.io.tmpdir"), System.currentTimeMillis() + "");
-        f.mkdirs();
-        Path dataFile = Paths.get(f.getAbsolutePath(), "disk.1.data");
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
 
         PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
         LocalDateTime now = fromTs(now());
@@ -46,10 +45,20 @@ public class DiskPageAllocatorTest {
         );
     }
 
-    @Test
-    public void read_heap_pages() {
+    @NotNull
+    private Path dataFilePath(String fileName) {
+        File f = new File(System.getProperty("java.io.tmpdir"), "datastore");
+        f.mkdirs();
+        Path dataFile = Paths.get(f.getAbsolutePath(), fileName);
+        return dataFile;
+    }
 
-        PageAllocator pa = new HeapPageAllocator((byte) 1, 1024);
+    @Test
+    public void read_disk_pages() {
+
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
+        PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
+
         WritePage page = pa.newPage();
 
         page.write("Hello".getBytes());
