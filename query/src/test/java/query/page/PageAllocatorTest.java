@@ -8,7 +8,9 @@ import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
+import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
 import static query.page.ApplicationClock.fromTs;
 import static query.page.ApplicationClock.now;
@@ -52,6 +54,32 @@ public class PageAllocatorTest {
         assertAll(
                 () -> assertEquals("Hello", new String(buffer, 0, p.record(0, buffer))),
                 () -> assertEquals("World", new String(buffer, 0, p.record(1, buffer)))
+        );
+    }
+
+
+    @Test
+    public void read_multiple_pages() {
+        PageAllocator pa = new HeapPageAllocator((byte) 1, 1024);
+        range(0, 10).forEach($ -> {
+            WritePage page = pa.newPage();
+            page.write(("Hello" + page.pageNumber()).getBytes());
+            page.write(("World" + page.pageNumber()).getBytes());
+            pa.commit(page);
+        });
+
+        byte[] buffer = new byte[1024];
+        assertAll(
+                () -> {
+                    ReadPage p = pa.readPage(1);
+                    assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
+                    assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
+                },
+                () -> {
+                    ReadPage p = pa.readPage(10);
+                    assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
+                    assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
+                }
         );
     }
 }
