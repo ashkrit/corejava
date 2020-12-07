@@ -25,15 +25,15 @@ public interface TimeSeriesStore {
     default void flush() {
     }
 
-    static TimeSeriesStore create() {
+    static TimeSeriesStore memory() {
         return new DefaultTimeSeriesDatabase();
     }
 
-    static TimeSeriesStore create(int chunk) {
+    static TimeSeriesStore memory(int chunk) {
         return new DefaultTimeSeriesDatabase(new InMemorySSTable<>(chunk));
     }
 
-    static TimeSeriesStore create(SortedStringTable<EventInfo> chunk) {
-        return new DefaultTimeSeriesDatabase(chunk);
+    static TimeSeriesStore persistence(SortedStringTable<EventInfo> store) {
+        return new DefaultTimeSeriesDatabase(store);
     }
 }

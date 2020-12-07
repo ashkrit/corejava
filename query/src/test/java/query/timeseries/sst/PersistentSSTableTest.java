@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import query.timeseries.TimeSeriesStore;
 import query.timeseries.id.EventIdGenerator;
 import query.timeseries.id.SystemTimeIdGenerator;
-import query.timeseries.impl.DefaultTimeSeriesDatabase;
 import query.timeseries.sst.disk.PersistentSSTable;
 import query.timeseries.sst.disk.RecordSerializer;
 import query.timeseries.sst.disk.StoreLocation;
@@ -42,7 +41,7 @@ public class PersistentSSTableTest {
         Arrays.stream(storeLocation.listFiles()).forEach(File::delete);
 
         SortedStringTable<EventInfo> store = new PersistentSSTable<>(new InMemorySSTable<>(10), new StoreLocation(storeLocation, "taxi_events"), new RecordSerializer<>(KB, toBytes(), null, null));
-        TimeSeriesStore db = TimeSeriesStore.create(store);
+        TimeSeriesStore db = TimeSeriesStore.persistence(store);
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
@@ -71,7 +70,7 @@ public class PersistentSSTableTest {
         RecordSerializer<EventInfo> eventInfoRecordSerializer = new RecordSerializer<>(KB, toBytes(), b -> fromBytes(b), e -> e.getEventTime().toString());
 
         SortedStringTable<EventInfo> store = new PersistentSSTable<>(new InMemorySSTable<>(500), new StoreLocation(storeLocation, "taxi_events"), eventInfoRecordSerializer);
-        TimeSeriesStore db = TimeSeriesStore.create(store);
+        TimeSeriesStore db = TimeSeriesStore.persistence(store);
 
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
