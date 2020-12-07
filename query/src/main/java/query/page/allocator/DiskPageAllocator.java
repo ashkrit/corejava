@@ -8,7 +8,6 @@ import query.page.write.WritePage;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,10 +48,11 @@ public class DiskPageAllocator implements PageAllocator {
     }
 
     @Override
-    public void commit(WritePage page) {
+    public long commit(WritePage page) {
         long writePosition = header.pageOffSet(page.pageNumber());
         rafBlock.write(writePosition, page.commit());
         rafBlock.commit();
+        return writePosition;
     }
 
     @Override

@@ -36,8 +36,9 @@ public class HeapPageAllocator implements PageAllocator {
     }
 
     @Override
-    public void commit(WritePage page) {
+    public long commit(WritePage page) {
         pages.put(page.pageNumber(), page);
+        return 0;
     }
 
     @Override

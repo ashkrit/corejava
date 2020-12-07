@@ -8,7 +8,7 @@ import java.util.List;
 public interface PageAllocator {
     WritePage newPage();
 
-    void commit(WritePage page);
+    long commit(WritePage page);
 
     ReadPage readByPageId(int pageId);
 

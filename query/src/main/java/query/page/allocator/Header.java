@@ -6,7 +6,7 @@ public class Header {
     public byte version;
     public int pageSize;
     public int currentPageNo;
-    public static int SIZE = 1 + 4 + 4;
+    public static int SIZE = 1 + 4 + 4; // Make sure to update this when field is added/removed
 
     public byte[] dataBuffer = new byte[SIZE];
 
