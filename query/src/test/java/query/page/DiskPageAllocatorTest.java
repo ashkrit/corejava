@@ -2,9 +2,7 @@ package query.page;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
-import query.page.allocator.DiskPageAllocator;
-import query.page.allocator.HeapPageAllocator;
-import query.page.allocator.PageAllocator;
+import query.page.allocator.*;
 import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
@@ -12,6 +10,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
@@ -126,6 +125,38 @@ public class DiskPageAllocatorTest {
                 },
                 () -> {
                     ReadPage p = anotherPage.readPage(10);
+                    assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
+                    assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
+                }
+        );
+    }
+
+
+    @Test
+    public void load_page_metadata() {
+
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
+        PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
+
+        range(0, 10).forEach($ -> {
+            WritePage page = pa.newPage();
+            page.write(("Hello" + page.pageNumber()).getBytes());
+            page.write(("World" + page.pageNumber()).getBytes());
+            pa.commit(page);
+        });
+
+        List<PageInfo> pages = pa.pages();
+        byte[] buffer = new byte[1024];
+        assertAll(
+                () -> {
+                    PageInfo pageInfo = pages.get(0);
+                    ReadPage p = pa.readPage(pageInfo.pageOff);
+                    assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
+                    assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
+                },
+                () -> {
+                    PageInfo pageInfo = pages.get(9);
+                    ReadPage p = pa.readPage(pageInfo.pageOff);
                     assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
                 }

@@ -3,11 +3,13 @@ package query.page.allocator;
 import query.page.io.BlockRandomAccessFile;
 import query.page.io.SafeIO;
 import query.page.read.ReadPage;
-import query.page.read.ReadableSlottedPage;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static query.page.ApplicationClock.now;
 
@@ -57,7 +59,7 @@ public class DiskPageAllocator implements PageAllocator {
         long readPosition = header.pageOffSet(pageId);
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(readPosition, pageBuffer);
-        return new ReadableSlottedPage(pageBuffer);
+        return ReadPage.create(pageBuffer);
     }
 
     @Override
@@ -75,7 +77,23 @@ public class DiskPageAllocator implements PageAllocator {
         return header.version;
     }
 
-    private WritableSlotPage newPage(int page, long createdTs) {
+    @Override
+    public List<PageInfo> pages() {
+        readHeader();
+        return IntStream
+                .range(0, header.currentPageNo)
+                .mapToObj(index -> new PageInfo(index + 1, header.pageOffSet(index + 1)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReadPage readPage(long offSet) {
+        byte[] pageBuffer = header.allocatePageBuffer();
+        rafBlock.read(offSet, pageBuffer);
+        return ReadPage.create(pageBuffer);
+    }
+
+    private WritePage newPage(int page, long createdTs) {
         return new WritableSlotPage(header.pageSize, header.version, page, createdTs);
     }
 
