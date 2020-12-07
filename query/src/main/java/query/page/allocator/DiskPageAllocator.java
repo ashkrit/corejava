@@ -6,6 +6,8 @@ import query.page.read.ReadPage;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,10 +19,12 @@ public class DiskPageAllocator implements PageAllocator {
 
     private final Header header = new Header();
     private final BlockRandomAccessFile rafBlock;
+    private final Path dataLocation;
 
     public DiskPageAllocator(byte version, int pageSize, Path dataLocation) {
         header.version = version;
         header.pageSize = pageSize;
+        this.dataLocation = dataLocation;
         if (dataLocation.toFile().exists()) {
             this.rafBlock = new BlockRandomAccessFile(SafeIO.open(dataLocation));
             readHeader();
@@ -98,6 +102,11 @@ public class DiskPageAllocator implements PageAllocator {
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(offSet, pageBuffer);
         return ReadPage.create(pageBuffer);
+    }
+
+    @Override
+    public String dataLocation() {
+        return "file:" + dataLocation;
     }
 
 

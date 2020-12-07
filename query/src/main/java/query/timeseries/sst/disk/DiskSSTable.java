@@ -37,9 +37,6 @@ public class DiskSSTable<V> implements SortedStringTable<V> {
         this.indexBlock = new DiskPageAllocator((byte) 1, 1024, new File(storeLocation, storeName + ".1.index").toPath());
         this.toBytes = toBytes;
 
-        System.out.println("Data " + new File(storeLocation, storeName + ".1.data").toPath());
-        System.out.println("Index " + new File(storeLocation, storeName + ".1.index").toPath());
-
     }
 
     @Override
@@ -138,5 +135,10 @@ public class DiskSSTable<V> implements SortedStringTable<V> {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s [\n Index=%s \n Data=%s \n]", this.getClass().getSimpleName(), indexBlock.dataLocation(), dataBlock.dataLocation());
     }
 }

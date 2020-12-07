@@ -3,6 +3,7 @@ package query.page.allocator;
 import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
+import java.net.URI;
 import java.util.List;
 
 public interface PageAllocator {
@@ -25,5 +26,7 @@ public interface PageAllocator {
     default ReadPage readByPageOffset(long offSet) {
         throw new IllegalArgumentException("Not applicable");
     }
+
+    String dataLocation();
 
 }

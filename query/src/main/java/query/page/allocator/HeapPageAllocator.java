@@ -5,6 +5,8 @@ import query.page.read.ReadableSlottedPage;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,5 +60,10 @@ public class HeapPageAllocator implements PageAllocator {
     @Override
     public byte version() {
         return version;
+    }
+
+    @Override
+    public String dataLocation() {
+        return "memory:" + pageSize;
     }
 }

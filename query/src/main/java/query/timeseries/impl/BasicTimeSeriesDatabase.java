@@ -23,10 +23,10 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
     };
 
     private final DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-    private final SortedStringTable<EventInfo> inMemorySortedStringTable;
+    private final SortedStringTable<EventInfo> sstable;
 
     public BasicTimeSeriesDatabase(SortedStringTable<EventInfo> ssTable) {
-        this.inMemorySortedStringTable = ssTable;
+        this.sstable = ssTable;
     }
 
     public BasicTimeSeriesDatabase() {
@@ -42,18 +42,18 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
     public <T> EventInfo insert(T row) {
         Function<Object, EventInfo> fn = classValue.get(row.getClass());
         EventInfo event = fn.apply(row);
-        inMemorySortedStringTable.append(event.getEventTime().toString(), event);
+        sstable.append(event.getEventTime().toString(), event);
         return event;
     }
 
     @Override
     public void gt(LocalDateTime fromTime, Function<EventInfo, Boolean> consumer) {
-        inMemorySortedStringTable.iterate(fromTime.format(f), null, consumer);
+        sstable.iterate(fromTime.format(f), null, consumer);
     }
 
     @Override
     public void lt(LocalDateTime toTime, Function<EventInfo, Boolean> consumer) {
-        inMemorySortedStringTable.iterate(null, toTime.format(f), consumer);
+        sstable.iterate(null, toTime.format(f), consumer);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BasicTimeSeriesDatabase implements TimeSeriesStore {
 
         String startKey = startTime.format(f);
         String endKey = endTime.format(f);
-        inMemorySortedStringTable.iterate(startKey, endKey, consumer);
+        sstable.iterate(startKey, endKey, consumer);
     }
 
     @Override

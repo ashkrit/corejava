@@ -43,6 +43,7 @@ public class DiskSSTableTest {
         });
         TimeSeriesStore db = new BasicTimeSeriesDatabase(store);
 
+        System.out.println(store);
         db.register(LightTaxiRide.class, () -> {
             EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
             return toEventInfo(generator);
