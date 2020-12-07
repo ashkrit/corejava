@@ -97,6 +97,17 @@ public class DiskPageAllocator implements PageAllocator {
 
     @Override
     public ReadPage readByPageOffset(long offSet) {
+
+        long pageOffset = offSet - Header.SIZE;
+        if (pageOffset % header.pageSize != 0) {
+            throw new IllegalArgumentException(String.format("Page Offset is invalid by %s", pageOffset % header.pageSize));
+        }
+
+        long pageNo = pageOffset / header.pageSize;
+        if (pageNo > header.currentPageNo - 1) {
+            throw new IllegalArgumentException(String.format("Page Offset is overflowing - accessed page ", pageNo));
+        }
+
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(offSet, pageBuffer);
         return ReadPage.create(pageBuffer);

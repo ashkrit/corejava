@@ -178,11 +178,31 @@ public class DiskPageAllocatorTest {
             pa.commit(page);
         });
 
-        Assertions.assertAll(
+        assertAll(
                 () -> assertThrows(IllegalArgumentException.class, () -> pa.readByPageId(100)),
                 () -> assertThrows(IllegalArgumentException.class, () -> pa.readByPageId(-10))
         );
 
+    }
+
+    @Test
+    public void failed_for_invalid_page_offset() {
+
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
+        PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
+
+        range(0, 10).forEach($ -> {
+            WritePage page = pa.newPage();
+            page.write(("Hello" + page.pageNumber()).getBytes());
+            page.write(("World" + page.pageNumber()).getBytes());
+            pa.commit(page);
+        });
+
+        PageInfo lastPage = pa.pages().get(9);
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class, () -> pa.readByPageOffset(lastPage.pageOff + 1024)), // Out of page
+                () -> assertThrows(IllegalArgumentException.class, () -> pa.readByPageOffset(100)) // Invalid offset
+        );
 
     }
 
