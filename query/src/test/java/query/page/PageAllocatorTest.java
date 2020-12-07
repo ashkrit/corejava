@@ -1,8 +1,10 @@
 package query.page;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.page.allocator.HeapPageAllocator;
 import query.page.allocator.PageAllocator;
+import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
 import java.time.LocalDateTime;
@@ -31,6 +33,25 @@ public class PageAllocatorTest {
                 () -> assertEquals(1007, page.capacity()),
                 () -> assertEquals(0, page.noOfTuple()),
                 () -> assertTrue(page.createdTime().isAfter(now))
+        );
+    }
+
+    @Test
+    public void read_heap_pages() {
+
+        PageAllocator pa = new HeapPageAllocator((byte) 1, 1024);
+        WritePage page = pa.newPage();
+
+        page.write("Hello".getBytes());
+        page.write("World".getBytes());
+        pa.commit(page);
+
+        ReadPage p = pa.readPage(page.pageNumber());
+
+        byte[] buffer = new byte[1024];
+        assertAll(
+                () -> assertEquals("Hello", new String(buffer, 0, p.record(0, buffer))),
+                () -> assertEquals("World", new String(buffer, 0, p.record(1, buffer)))
         );
     }
 }

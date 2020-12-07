@@ -2,6 +2,7 @@ package query.page.allocator;
 
 import query.page.ApplicationClock;
 import query.page.read.ReadPage;
+import query.page.read.ReadableSlottedPage;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
@@ -23,10 +24,7 @@ public class HeapPageAllocator implements PageAllocator {
 
     @Override
     public WritePage newPage() {
-        int page = nextPage();
-        long createdTs = now();
-        pages.put(page, newPage(page, createdTs));
-        return pages.get(page);
+        return newPage(nextPage(), now());
     }
 
     private WritableSlotPage newPage(int page, long createdTs) {
@@ -39,12 +37,12 @@ public class HeapPageAllocator implements PageAllocator {
 
     @Override
     public void commit(WritePage page) {
-
+        pages.put(page.pageNumber(), page);
     }
 
     @Override
     public ReadPage readPage(int pageId) {
-        return null;
+        return new ReadableSlottedPage(pages.get(pageId).commit());
     }
 
     @Override
