@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.function.Function;
 
 public class RecordSerializer<V> {
-    private final Function<V, byte[]> toBytes;
-    private final Function<ByteBuffer, V> fromBytes;
-    private final Function<V, String> pk;
-    private final int pageSize;
+    public final Function<V, byte[]> toBytes;
+    public final Function<ByteBuffer, V> fromBytes;
+    public final Function<V, String> pk;
+    public final int pageSize;
 
     public RecordSerializer(int pageSize, Function<V, byte[]> toBytes, Function<ByteBuffer, V> fromBytes, Function<V, String> toPk) {
         this.pageSize = pageSize;

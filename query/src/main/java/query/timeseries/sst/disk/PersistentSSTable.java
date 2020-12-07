@@ -1,6 +1,7 @@
 package query.timeseries.sst.disk;
 
 import model.avro.page.SSTablePage;
+import org.jetbrains.annotations.NotNull;
 import query.page.allocator.DiskPageAllocator;
 import query.page.allocator.PageAllocator;
 import query.page.read.ReadPage;
@@ -13,7 +14,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class PersistentSSTable<V> implements SortedStringTable<V> {
 
@@ -21,9 +24,7 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     private final SortedStringTable<V> underlyingStore;
     private final PageAllocator dataBlock;
     private final PageAllocator indexBlock;
-    private final Function<V, byte[]> toBytes;
-    private final Function<ByteBuffer, V> fromBytes;
-    private final Function<V, String> pk;
+    private final RecordSerializer<V> recordSerializer;
 
     private WritePage indexPage;
     private WritePage dataPage;
@@ -31,11 +32,14 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
 
     public PersistentSSTable(SortedStringTable<V> underlyingStore, StoreLocation location, RecordSerializer<V> recordSerializer) {
         this.underlyingStore = underlyingStore;
-        this.dataBlock = new DiskPageAllocator((byte) 1, recordSerializer.getPageSize(), new File(location.getRoot(), location.getStoreName() + ".1.data").toPath());
-        this.indexBlock = new DiskPageAllocator((byte) 1, recordSerializer.getPageSize(), new File(location.getRoot(), location.getStoreName() + ".1.index").toPath());
-        this.toBytes = recordSerializer.getToBytes();
-        this.fromBytes = recordSerializer.getFromBytes();
-        this.pk = recordSerializer.getPk();
+        this.recordSerializer = recordSerializer;
+        this.dataBlock = allocate(location, recordSerializer, location.getStoreName() + ".1.data");
+        this.indexBlock = allocate(location, recordSerializer, location.getStoreName() + ".1.index");
+    }
+
+    @NotNull
+    public DiskPageAllocator allocate(StoreLocation location, RecordSerializer<V> recordSerializer, String name) {
+        return new DiskPageAllocator((byte) 1, recordSerializer.getPageSize(), new File(location.getRoot(), name).toPath());
     }
 
     @Override
@@ -47,7 +51,6 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     public void iterate(String from, String to, Function<V, Boolean> consumer) {
         iterateMemoryPages(from, to, consumer);
         iterateDiskPages(from, to, consumer);
-
     }
 
     private void iterateMemoryPages(String from, String to, Function<V, Boolean> consumer) {
@@ -57,7 +60,10 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     private void iterateDiskPages(String from, String to, Function<V, Boolean> consumer) {
         recordsScanned = 0;
         int scannedPages = 0;
+        int skippedPages = 0;
+
         Function<NavigableMap<String, V>, NavigableMap<String, V>> filter = predicate(from, to);
+        Predicate<SSTablePage> pageFilter = pagePredicate(from, to);
 
         int pageCount = this.indexBlock.noOfPages();
         byte[] buffer = new byte[1024];
@@ -71,23 +77,30 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
                 int bytesRead = indexPage.record(indexPageRecordCounter, buffer);
                 scannedPages++;
                 SSTablePage pageIndex = readIndexRecord(buffer, bytesRead);
-                loadPageData(buffer, pageData, this.dataBlock.readByPageId(pageIndex.getPageId()));
 
-                if (!process(consumer, filter.apply(pageData))) {
-                    return;
+                if (pageFilter.test(pageIndex)) {
+                    loadPageData(buffer, pageData, this.dataBlock.readByPageId(pageIndex.getPageId()));
+                    if (!process(consumer, filter.apply(pageData))) {
+                        return;
+                    }
+                } else {
+                    skippedPages++;
                 }
             }
         }
+        System.out.println("Disk Scan " + recordsScanned + " Scanned pages " + scannedPages + " Skip pages " + skippedPages);
+    }
 
-        System.out.println("Disk Scan " + recordsScanned + " Scanned pages " + scannedPages);
+    private boolean isInRange(SSTablePage pageIndex, String value) {
+        return value.compareTo(pageIndex.getMinValue().toString()) >= 0 && value.compareTo(pageIndex.getMaxValue().toString()) <= 0;
     }
 
     private void loadPageData(byte[] buffer, NavigableMap<String, V> pageData, ReadPage dataPage) {
         pageData.clear();
         for (int rows = 0; rows < dataPage.totalRecords(); rows++) {
             int size = dataPage.record(rows, buffer);
-            V recordToSearch = fromBytes.apply(ByteBuffer.wrap(buffer, 0, size));
-            pageData.put(pk.apply(recordToSearch), recordToSearch);
+            V recordToSearch = recordSerializer.fromBytes.apply(ByteBuffer.wrap(buffer, 0, size));
+            pageData.put(recordSerializer.pk.apply(recordToSearch), recordToSearch);
         }
     }
 
@@ -98,6 +111,18 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
             return gt(from);
         } else if (to != null) {
             return lt(to);
+        }
+        throw new IllegalArgumentException("Not supported");
+    }
+
+
+    private Predicate<SSTablePage> pagePredicate(String from, String to) {
+        if (from != null && to != null) {
+            return p -> isInRange(p, from) || isInRange(p, to);
+        } else if (from != null) {
+            return p -> p.getMinValue().toString().compareTo(from) >= 0;
+        } else if (to != null) {
+            return p -> p.getMaxValue().toString().compareTo(to) <= 0;
         }
         throw new IllegalArgumentException("Not supported");
     }
@@ -171,7 +196,7 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
             pageInfo = buffer.getPageInfo();
             NavigableMap<String, V> pageData = buffer.getPageData();
             for (V row : pageData.values()) {
-                byte[] recordBytes = toBytes.apply(row);
+                byte[] recordBytes = recordSerializer.toBytes.apply(row);
                 recordCount++;
                 if (dataPage.write(recordBytes) == BUFFER_FULL) {
                     commitPageAndAllocateNew(pageList, pageInfo);

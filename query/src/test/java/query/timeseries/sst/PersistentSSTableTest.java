@@ -90,6 +90,36 @@ public class PersistentSSTableTest {
         assertEquals(10_000, counter.get());
     }
 
+    @Test
+    public void skip_disk_pages_based_on_filter() {
+
+        File storeLocation = new File(System.getProperty("java.io.tmpdir"), "events-reads-skip");
+        storeLocation.mkdirs();
+        Arrays.stream(storeLocation.listFiles()).forEach(File::delete);
+
+        RecordSerializer<EventInfo> eventInfoRecordSerializer = new RecordSerializer<>(KB, toBytes(), b -> fromBytes(b), e -> e.getEventTime().toString());
+
+        SortedStringTable<EventInfo> store = new PersistentSSTable<>(new InMemorySSTable<>(500), new StoreLocation(storeLocation, "taxi_events"), eventInfoRecordSerializer);
+        TimeSeriesStore db = TimeSeriesStore.persistence(store);
+
+        db.register(LightTaxiRide.class, () -> {
+            EventIdGenerator generator = new SystemTimeIdGenerator(10_000);
+            return toEventInfo(generator);
+        });
+
+        insertRecords(db);
+
+        store.flush();
+
+        AtomicInteger counter = new AtomicInteger();
+        db.gt(LocalDateTime.now().plusDays(100), x -> {
+            counter.incrementAndGet();
+            return true;
+        });
+
+        assertEquals(0, counter.get());
+    }
+
     public void insertRecords(TimeSeriesStore db) {
         range(0, 10_000).mapToObj(t -> {
             long now = System.currentTimeMillis();

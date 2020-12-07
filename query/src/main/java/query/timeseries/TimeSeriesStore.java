@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 
 public interface TimeSeriesStore {
 
-
     <T> void register(Class<T> cls, Supplier<Function<Object, EventInfo>> fn);
 
     <T> EventInfo insert(T row);
