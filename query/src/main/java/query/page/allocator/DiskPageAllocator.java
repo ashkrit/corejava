@@ -6,8 +6,6 @@ import query.page.read.ReadPage;
 import query.page.write.WritableSlotPage;
 import query.page.write.WritePage;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,9 +59,7 @@ public class DiskPageAllocator implements PageAllocator {
 
     @Override
     public ReadPage readByPageId(int pageId) {
-
         header.checkPageNumber(pageId);
-
         long readPosition = header.pageOffSet(pageId);
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(readPosition, pageBuffer);

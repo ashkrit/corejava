@@ -93,14 +93,16 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
 
         int pageId = currentPage.incrementAndGet();
 
-        SSTablePage pageInfo = SSTablePage
-                .newBuilder()
-                .setPageId(pageId)
-                .setMinValue(old.firstKey())
-                .setMaxValue(old.lastKey())
-                .setOffSet(0)// In memory pages will have this set to 0
-                .build();
-        readOnlyBuffer.put(pageId, new InMemoryPageRecord<>(old, pageInfo));
+        if (!old.isEmpty()) {
+            SSTablePage pageInfo = SSTablePage
+                    .newBuilder()
+                    .setPageId(pageId)
+                    .setMinValue(old.firstKey())
+                    .setMaxValue(old.lastKey())
+                    .setOffSet(0)// In memory pages will have this set to 0
+                    .build();
+            readOnlyBuffer.put(pageId, new InMemoryPageRecord<>(old, pageInfo));
+        }
         currentSize.set(0);
     }
 

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -58,6 +57,7 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     }
 
     private void iterateDiskPages(String from, String to, Function<V, Boolean> consumer) {
+
         recordsScanned = 0;
         int scannedPages = 0;
         int skippedPages = 0;
@@ -71,7 +71,7 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
 
         for (int indexPageCounter = 1; indexPageCounter <= pageCount; indexPageCounter++) {
             ReadPage indexPage = this.indexBlock.readByPageId(indexPageCounter);
-            System.out.println("Page:" + indexPage);
+            //System.out.println("Page:" + indexPage);
             for (int indexPageRecordCounter = 0; indexPageRecordCounter < indexPage.totalRecords(); indexPageRecordCounter++) {
 
                 int bytesRead = indexPage.record(indexPageRecordCounter, buffer);
@@ -146,7 +146,7 @@ public class PersistentSSTable<V> implements SortedStringTable<V> {
     }
 
     @Override
-    public void flush() {
+    public synchronized void flush() {
         List<PageRecord<V>> pages = new ArrayList<>(buffers());
         if (pages.isEmpty()) return;
 

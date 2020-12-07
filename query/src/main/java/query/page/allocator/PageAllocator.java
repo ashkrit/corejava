@@ -3,7 +3,6 @@ package query.page.allocator;
 import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
-import java.net.URI;
 import java.util.List;
 
 public interface PageAllocator {

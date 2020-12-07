@@ -66,7 +66,7 @@ public class DefaultTimeSeriesDatabase implements TimeSeriesStore {
 
     @Override
     public void flush() {
-
+        this.ssTable.flush();
     }
 
 }
