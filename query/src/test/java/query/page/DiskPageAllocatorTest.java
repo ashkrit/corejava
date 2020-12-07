@@ -54,7 +54,7 @@ public class DiskPageAllocatorTest {
     }
 
     @Test
-    public void read_disk_pages() {
+    public void read_single_disk_pages() {
 
         Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
         PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
@@ -76,8 +76,10 @@ public class DiskPageAllocatorTest {
 
 
     @Test
-    public void read_multiple_pages() {
-        PageAllocator pa = new HeapPageAllocator((byte) 1, 1024);
+    public void read_multiple_disk_pages() {
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
+        PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
+
         range(0, 10).forEach($ -> {
             WritePage page = pa.newPage();
             page.write(("Hello" + page.pageNumber()).getBytes());
