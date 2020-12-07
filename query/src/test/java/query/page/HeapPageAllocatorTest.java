@@ -47,7 +47,7 @@ public class HeapPageAllocatorTest {
         page.write("World".getBytes());
         pa.commit(page);
 
-        ReadPage p = pa.readPage(page.pageNumber());
+        ReadPage p = pa.readByPageId(page.pageNumber());
 
         byte[] buffer = new byte[1024];
         assertAll(
@@ -70,12 +70,12 @@ public class HeapPageAllocatorTest {
         byte[] buffer = new byte[1024];
         assertAll(
                 () -> {
-                    ReadPage p = pa.readPage(1);
+                    ReadPage p = pa.readByPageId(1);
                     assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
                 },
                 () -> {
-                    ReadPage p = pa.readPage(10);
+                    ReadPage p = pa.readByPageId(10);
                     assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
                 }

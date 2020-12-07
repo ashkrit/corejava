@@ -8,6 +8,7 @@ import query.page.write.WritePage;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -55,7 +56,15 @@ public class DiskPageAllocator implements PageAllocator {
     }
 
     @Override
-    public ReadPage readPage(int pageId) {
+    public ReadPage readByPageId(int pageId) {
+
+        if (pageId < 0) {
+            throw new IllegalArgumentException("Page no is not positive - " + pageId);
+        }
+        if (pageId > header.currentPageNo) {
+            throw new IllegalArgumentException(String.format("Invalid page %s , max page is %s", pageId, header.currentPageNo));
+        }
+
         long readPosition = header.pageOffSet(pageId);
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(readPosition, pageBuffer);
@@ -87,7 +96,7 @@ public class DiskPageAllocator implements PageAllocator {
     }
 
     @Override
-    public ReadPage readPage(long offSet) {
+    public ReadPage readByPageOffset(long offSet) {
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(offSet, pageBuffer);
         return ReadPage.create(pageBuffer);

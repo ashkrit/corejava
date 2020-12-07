@@ -1,6 +1,7 @@
 package query.page;
 
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.page.allocator.*;
 import query.page.read.ReadPage;
@@ -64,7 +65,7 @@ public class DiskPageAllocatorTest {
         page.write("World".getBytes());
         pa.commit(page);
 
-        ReadPage p = pa.readPage(page.pageNumber());
+        ReadPage p = pa.readByPageId(page.pageNumber());
 
         byte[] buffer = new byte[1024];
         assertAll(
@@ -89,12 +90,12 @@ public class DiskPageAllocatorTest {
         byte[] buffer = new byte[1024];
         assertAll(
                 () -> {
-                    ReadPage p = pa.readPage(1);
+                    ReadPage p = pa.readByPageId(1);
                     assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
                 },
                 () -> {
-                    ReadPage p = pa.readPage(10);
+                    ReadPage p = pa.readByPageId(10);
                     assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
                 }
@@ -119,12 +120,12 @@ public class DiskPageAllocatorTest {
         byte[] buffer = new byte[1024];
         assertAll(
                 () -> {
-                    ReadPage p = anotherPage.readPage(1);
+                    ReadPage p = anotherPage.readByPageId(1);
                     assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
                 },
                 () -> {
-                    ReadPage p = anotherPage.readPage(10);
+                    ReadPage p = anotherPage.readByPageId(10);
                     assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
                 }
@@ -150,17 +151,39 @@ public class DiskPageAllocatorTest {
         assertAll(
                 () -> {
                     PageInfo pageInfo = pages.get(0);
-                    ReadPage p = pa.readPage(pageInfo.pageOff);
+                    ReadPage p = pa.readByPageOffset(pageInfo.pageOff);
                     assertEquals("Hello1", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World1", new String(buffer, 0, p.record(1, buffer)));
                 },
                 () -> {
                     PageInfo pageInfo = pages.get(9);
-                    ReadPage p = pa.readPage(pageInfo.pageOff);
+                    ReadPage p = pa.readByPageOffset(pageInfo.pageOff);
                     assertEquals("Hello10", new String(buffer, 0, p.record(0, buffer)));
                     assertEquals("World10", new String(buffer, 0, p.record(1, buffer)));
                 }
         );
+    }
+
+
+    @Test
+    public void failed_for_invalid_page_number() {
+
+        Path dataFile = dataFilePath("disk.1.data." + System.nanoTime());
+        PageAllocator pa = new DiskPageAllocator((byte) 1, 1024, dataFile);
+
+        range(0, 10).forEach($ -> {
+            WritePage page = pa.newPage();
+            page.write(("Hello" + page.pageNumber()).getBytes());
+            page.write(("World" + page.pageNumber()).getBytes());
+            pa.commit(page);
+        });
+
+        Assertions.assertAll(
+                () -> assertThrows(IllegalArgumentException.class, () -> pa.readByPageId(100)),
+                () -> assertThrows(IllegalArgumentException.class, () -> pa.readByPageId(-10))
+        );
+
+
     }
 
 }

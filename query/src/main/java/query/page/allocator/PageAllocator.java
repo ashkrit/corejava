@@ -10,7 +10,7 @@ public interface PageAllocator {
 
     void commit(WritePage page);
 
-    ReadPage readPage(int pageId);
+    ReadPage readByPageId(int pageId);
 
     int noOfPages();
 
@@ -22,7 +22,7 @@ public interface PageAllocator {
         throw new IllegalArgumentException("Not applicable");
     }
 
-    default ReadPage readPage(long offSet) {
+    default ReadPage readByPageOffset(long offSet) {
         throw new IllegalArgumentException("Not applicable");
     }
 

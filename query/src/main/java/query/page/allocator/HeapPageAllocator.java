@@ -41,7 +41,7 @@ public class HeapPageAllocator implements PageAllocator {
     }
 
     @Override
-    public ReadPage readPage(int pageId) {
+    public ReadPage readByPageId(int pageId) {
         return new ReadableSlottedPage(pages.get(pageId).commit());
     }
 
