@@ -1,6 +1,5 @@
 package query.page;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.page.allocator.HeapPageAllocator;
 import query.page.allocator.PageAllocator;
@@ -8,14 +7,13 @@ import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
 import java.time.LocalDateTime;
-import java.util.stream.IntStream;
 
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
 import static query.page.ApplicationClock.fromTs;
 import static query.page.ApplicationClock.now;
 
-public class PageAllocatorTest {
+public class HeapPageAllocatorTest {
 
     @Test
     public void create_heap_pages() {
@@ -82,4 +80,5 @@ public class PageAllocatorTest {
                 }
         );
     }
+
 }
