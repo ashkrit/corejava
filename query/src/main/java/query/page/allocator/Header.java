@@ -38,4 +38,31 @@ public class Header {
     public byte[] allocatePageBuffer() {
         return new byte[pageSize];
     }
+
+    public void checkPageNumber(int pageId) {
+        if (pageId < 0) {
+            throw new IllegalArgumentException("Page no is not positive - " + pageId);
+        }
+        if (pageId > currentPageNo) {
+            throw new IllegalArgumentException(String.format("Invalid page %s , max page is %s", pageId, currentPageNo));
+        }
+    }
+
+    public void checkPageOffset(long offSet) {
+
+        if (offSet < 0) {
+            throw new IllegalArgumentException("Offset  is not positive - " + offSet);
+        }
+
+        long pageOffset = offSet - SIZE;
+        long misalignedBytes = pageOffset % pageSize;
+        if (misalignedBytes != 0) {
+            throw new IllegalArgumentException(String.format("Page Offset is invalid by %s", misalignedBytes));
+        }
+
+        long pageNo = pageOffset / pageSize;
+        if (pageNo > currentPageNo - 1) {
+            throw new IllegalArgumentException(String.format("Page Offset is overflowing - accessed page ", pageNo));
+        }
+    }
 }

@@ -58,18 +58,14 @@ public class DiskPageAllocator implements PageAllocator {
     @Override
     public ReadPage readByPageId(int pageId) {
 
-        if (pageId < 0) {
-            throw new IllegalArgumentException("Page no is not positive - " + pageId);
-        }
-        if (pageId > header.currentPageNo) {
-            throw new IllegalArgumentException(String.format("Invalid page %s , max page is %s", pageId, header.currentPageNo));
-        }
+        header.checkPageNumber(pageId);
 
         long readPosition = header.pageOffSet(pageId);
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(readPosition, pageBuffer);
         return ReadPage.create(pageBuffer);
     }
+
 
     @Override
     public int noOfPages() {
@@ -98,20 +94,12 @@ public class DiskPageAllocator implements PageAllocator {
     @Override
     public ReadPage readByPageOffset(long offSet) {
 
-        long pageOffset = offSet - Header.SIZE;
-        if (pageOffset % header.pageSize != 0) {
-            throw new IllegalArgumentException(String.format("Page Offset is invalid by %s", pageOffset % header.pageSize));
-        }
-
-        long pageNo = pageOffset / header.pageSize;
-        if (pageNo > header.currentPageNo - 1) {
-            throw new IllegalArgumentException(String.format("Page Offset is overflowing - accessed page ", pageNo));
-        }
-
+        header.checkPageOffset(offSet);
         byte[] pageBuffer = header.allocatePageBuffer();
         rafBlock.read(offSet, pageBuffer);
         return ReadPage.create(pageBuffer);
     }
+
 
     private WritePage newPage(int page, long createdTs) {
         return new WritableSlotPage(header.pageSize, header.version, page, createdTs);
