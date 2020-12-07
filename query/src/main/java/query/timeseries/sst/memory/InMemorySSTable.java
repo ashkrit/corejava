@@ -23,6 +23,8 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
     private final AtomicInteger currentSize = new AtomicInteger();
     private final AtomicInteger currentPage = new AtomicInteger();
 
+    private int recordsScanned = 0;
+
     public InMemorySSTable(int chunkSize) {
         this.chunkSize = chunkSize;
     }
@@ -35,6 +37,7 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
 
     @Override
     public void iterate(String from, String to, Function<V, Boolean> consumer) {
+        recordsScanned = 0;
         NavigableMap<String, V> current = currentStore();
         Collection<NavigableMap<String, V>> oldValues = readOnlyBuffer
                 .entrySet()
@@ -50,6 +53,8 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
         } else if (to != null) {
             _iterate(current, oldValues, consumer, lt(to));
         }
+
+        System.out.println("Memory Scanned " + recordsScanned);
     }
 
     @Override
@@ -122,6 +127,7 @@ public class InMemorySSTable<V> implements SortedStringTable<V> {
 
     private boolean process(Function<V, Boolean> fn, NavigableMap<String, V> matched) {
         for (Map.Entry<String, V> e : matched.entrySet()) {
+            recordsScanned++;
             if (!fn.apply(e.getValue())) {
                 return false;
             }
