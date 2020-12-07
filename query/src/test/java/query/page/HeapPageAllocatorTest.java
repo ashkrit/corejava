@@ -7,6 +7,7 @@ import query.page.read.ReadPage;
 import query.page.write.WritePage;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.IntStream.range;
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +21,7 @@ public class HeapPageAllocatorTest {
         PageAllocator pa = new HeapPageAllocator((byte) 1, 1024);
         LocalDateTime now = fromTs(now());
 
-        ApplicationClock.provider = () -> System.currentTimeMillis() + 1000; // Move clock
+        ApplicationClock.provider = () -> System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10); // Move clock
 
         WritePage page = pa.newPage();
 
