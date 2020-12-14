@@ -8,12 +8,12 @@ import java.util.function.Consumer;
 
 public class SkipList<K extends Comparable, V> implements Iterable<SkipList.SkipNode<K, V>> {
 
-    private SkipNodeHead<K, V> root = new SkipNodeHead<>(null);
+    private final SkipNodeHead<K, V> root = new SkipNodeHead<>(null);
 
     public void insert(K key, V value) {
 
         SkipNode<K, V> node = new SkipNode<>(key, value, 0, null);
-        SkipNode<K, V> headNode = root.head.get();
+        SkipNode<K, V> headNode = head();
         if (headNode == null) {
             if (!root.casHead(null, node)) {
                 insertKey(node);
@@ -23,45 +23,55 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
         }
     }
 
-    private void insertKey(SkipNode<K, V> newNode) {
+    private SkipNode<K, V> insertKey(SkipNode<K, V> newNode) {
 
-        while (true) {
-            SkipNode<K, V> currentNode = root.head.get();
+        for (; ; ) {
+
+            SkipNode<K, V> currentNode = head();
             SkipNode<K, V> previousNode = null;
+
             while (currentNode != null) {
+
                 int matchValue = newNode.key.compareTo(currentNode.key);
                 if (matchValue == 0) {
-                    return;
+                    return null; //Key already exists
                 } else if (matchValue > 0) {
                     previousNode = currentNode;
                     currentNode = currentNode.nextNode();
+                    continue;
                 } else if (matchValue < 0) {
                     newNode.casNext(null, currentNode);
                     if (previousNode == null) {
                         if (root.casHead(currentNode, newNode)) {
-                            return;
+                            return newNode;
                         } else {
                             //CAS failed , try again
                             System.out.printf("Old %s, New %s", currentNode, newNode);
-                            currentNode = root.head.get();
+                            currentNode = head();
                             previousNode = null;
+                            continue;
                         }
                     } else if (previousNode != null) {
                         if (previousNode.casNext(currentNode, newNode)) {
-                            return;
+                            return newNode;
                         } else {
                             //CAS failed , try again
                             System.out.printf("Previous -> Old %s, New %s", currentNode, newNode);
-                            currentNode = root.head.get();
+                            currentNode = head();
                             previousNode = null;
+                            continue;
                         }
                     }
                 }
             }
             if (previousNode.casNext(currentNode, newNode)) {
-                return;
+                return newNode;
             }
         }
+    }
+
+    private SkipNode<K, V> head() {
+        return root.head.get();
     }
 
     @Override
