@@ -31,7 +31,6 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
             SkipNode<K, V> previousNode = null;
 
             while (currentNode != null) {
-
                 int matchValue = newNode.key.compareTo(currentNode.key);
                 if (matchValue == 0) {
                     return null; //Key already exists
@@ -41,7 +40,7 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
                     continue;
                 } else if (matchValue < 0) {
                     newNode.casNext(null, currentNode);
-                    if (previousNode == null) {
+                    if (isPreviousNull(previousNode)) {
                         if (root.casHead(currentNode, newNode)) {
                             return newNode;
                         } else {
@@ -66,8 +65,14 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
             }
             if (previousNode.casNext(currentNode, newNode)) {
                 return newNode;
+            } else {
+                continue;
             }
         }
+    }
+
+    private boolean isPreviousNull(SkipNode<K, V> previousNode) {
+        return previousNode == null;
     }
 
     private SkipNode<K, V> head() {
