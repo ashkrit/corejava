@@ -1,6 +1,8 @@
 package query.skiplist;
 
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,18 +36,30 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
     private SkipNode<K, V> insertKey(SkipNode<K, V> newNode) {
 
         //No of Skips
+        SkipNode<K, V> skipNode = createSkipLevels(newNode);
+        return insertByLevel(skipNode);
+    }
+
+    private SkipNode<K, V> createSkipLevels(SkipNode<K, V> newNode) {
         SkipNode<K, V> current = newNode;
-        SkipNode<K, V> down = null;
+        SkipNode<K, V> downNode = null;
         while (ThreadLocalRandom.current().nextBoolean()) {
             int level = current.level + 1;
             levels.computeIfAbsent(level, i -> new SkipNodeHead<>(null, level));
-            SkipNode<K, V> nextNode = new SkipNode<>(newNode.key, newNode.value, level, null);
-            current.up = nextNode;
-            current.down = down;
-            down = current;
-            current = newNode;
+
+            SkipNode<K, V> nextLevelNode = new SkipNode<>(current.key, current.value, level, null);
+            current.up = nextLevelNode;
+            current.down = downNode;
+
+            downNode = current;
+            current = nextLevelNode;
         }
 
+        return newNode;
+    }
+
+    @Nullable
+    private SkipNode<K, V> insertByLevel(SkipNode<K, V> newNode) {
         for (; ; ) {
             SkipNode<K, V> currentNode = head(newNode.level);
             SkipNode<K, V> previousNode = null;
