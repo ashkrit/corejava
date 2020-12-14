@@ -16,19 +16,12 @@ public class SkipListTest {
     public void insert_small_number_of_keys_in_order() {
 
         SkipList<Integer, Integer> list = new SkipList<>();
+
         IntStream
                 .range(0, 10_000).forEach(x -> list.insert(x, x));
 
         Assertions.assertAll(
-                () -> {
-                    Iterator<SkipNode<Integer, Integer>> itr = list.iterator();
-                    int count = 0;
-                    while (itr.hasNext()) {
-                        itr.next();
-                        count++;
-                    }
-                    assertEquals(10_000, count);
-                },
+                () -> assertEquals(10_000, list.size()),
                 () -> {
                     Iterator<SkipNode<Integer, Integer>> itr = list.iterator();
                     int current = itr.next().key;
@@ -38,4 +31,5 @@ public class SkipListTest {
                     }
                 });
     }
+
 }

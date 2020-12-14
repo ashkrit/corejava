@@ -1,9 +1,6 @@
 package query.skiplist;
 
-import org.jetbrains.annotations.NotNull;
-import sun.misc.Unsafe;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.concurrent.atomic.AtomicReference;
@@ -67,7 +64,6 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
         }
     }
 
-    @NotNull
     @Override
     public Iterator<SkipNode<K, V>> iterator() {
 
@@ -115,7 +111,7 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
         final boolean casNext(SkipNode<K, V> current, SkipNode<K, V> next) {
             boolean r = this.next.compareAndSet(current, next);
             if (r) {
-                System.out.println("Done " + next);
+                //System.out.println("Done " + next);
             }
             return r;
         }
@@ -147,18 +143,13 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
     }
 
 
-    private static final sun.misc.Unsafe UNSAFE;
-    private static final long nextOffSet;
-
-    static {
-        try {
-            Field f = Unsafe.class.getDeclaredField("theUnsafe");
-            f.setAccessible(true);
-            UNSAFE = (Unsafe) f.get(null);
-            Class<?> k = SkipList.SkipNode.class;
-            nextOffSet = UNSAFE.objectFieldOffset(k.getDeclaredField("next"));
-        } catch (Exception e) {
-            throw new Error(e);
+    long size() {
+        Iterator<SkipNode<K, V>> itr = iterator();
+        long count = 0;
+        while (itr.hasNext()) {
+            itr.next();
+            count++;
         }
+        return count;
     }
 }
