@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -14,16 +15,15 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
     private final ConcurrentMap<Integer, SkipNodeHead<K, V>> levels = new ConcurrentHashMap<>();
 
     public SkipList() {
-
-        levels.put(LEVEL_0, new SkipNodeHead<>(null));
+        levels.put(LEVEL_0, new SkipNodeHead<>(null, LEVEL_0));
     }
 
     public void insert(K key, V value) {
 
         SkipNode<K, V> node = new SkipNode<>(key, value, LEVEL_0, null);
-        SkipNode<K, V> headNode = head();
+        SkipNode<K, V> headNode = head(node.level);
         if (headNode == null) {
-            if (!headContainer().casHead(null, node)) {
+            if (!headContainer(node.level).casHead(null, node)) {
                 insertKey(node);
             }
         } else {
@@ -33,11 +33,22 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
 
     private SkipNode<K, V> insertKey(SkipNode<K, V> newNode) {
 
+        //No of Skips
+        SkipNode<K, V> current = newNode;
+        SkipNode<K, V> down = null;
+        while (ThreadLocalRandom.current().nextBoolean()) {
+            int level = current.level + 1;
+            levels.computeIfAbsent(level, i -> new SkipNodeHead<>(null, level));
+            SkipNode<K, V> nextNode = new SkipNode<>(newNode.key, newNode.value, level, null);
+            current.up = nextNode;
+            current.down = down;
+            down = current;
+            current = newNode;
+        }
+
         for (; ; ) {
-
-            SkipNode<K, V> currentNode = head();
+            SkipNode<K, V> currentNode = head(newNode.level);
             SkipNode<K, V> previousNode = null;
-
             while (currentNode != null) {
                 int matchValue = newNode.key.compareTo(currentNode.key);
                 if (matchValue == 0) {
@@ -49,12 +60,12 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
                 } else if (matchValue < 0) {
                     newNode.casNext(null, currentNode);
                     if (isPreviousNull(previousNode)) {
-                        if (headContainer().casHead(currentNode, newNode)) {
+                        if (headContainer(newNode.level).casHead(currentNode, newNode)) {
                             return newNode;
                         } else {
                             //CAS failed , try again
                             System.out.printf("Old %s, New %s", currentNode, newNode);
-                            currentNode = head();
+                            currentNode = head(newNode.level);
                             previousNode = null;
                             continue;
                         }
@@ -64,7 +75,7 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
                         } else {
                             //CAS failed , try again
                             System.out.printf("Previous -> Old %s, New %s", currentNode, newNode);
-                            currentNode = head();
+                            currentNode = head(newNode.level);
                             previousNode = null;
                             continue;
                         }
@@ -72,6 +83,7 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
                 }
             }
             if (previousNode.casNext(currentNode, newNode)) {
+                //Insert level
                 return newNode;
             } else {
                 continue;
@@ -83,19 +95,19 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
         return previousNode == null;
     }
 
-    private SkipNode<K, V> head() {
-        return levels.get(LEVEL_0).head.get();
+    private SkipNode<K, V> head(int level) {
+        return levels.get(level).head.get();
     }
 
-    private SkipNodeHead<K, V> headContainer() {
-        return levels.get(LEVEL_0);
+    private SkipNodeHead<K, V> headContainer(int level) {
+        return levels.get(level);
     }
 
     @Override
     public Iterator<SkipNode<K, V>> iterator() {
 
         return new Iterator<SkipNode<K, V>>() {
-            AtomicReference<SkipNode<K, V>> node = headContainer().head;
+            AtomicReference<SkipNode<K, V>> node = headContainer(LEVEL_0).head;
 
             @Override
             public boolean hasNext() {
@@ -127,6 +139,8 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
         public final K key;
         public final int level;
         public AtomicReference<SkipNode<K, V>> next;
+        private SkipNode<K, V> down;
+        private SkipNode<K, V> up;
 
         public SkipNode(K key, V value, int level, SkipNode<K, V> next) {
             this.key = key;
@@ -155,9 +169,11 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
 
     public static class SkipNodeHead<K extends Comparable, V> {
         public final AtomicReference<SkipNode<K, V>> head;
+        private final int level;
 
-        public SkipNodeHead(SkipNode<K, V> head) {
+        public SkipNodeHead(SkipNode<K, V> head, int level) {
             this.head = new AtomicReference<>(head);
+            this.level = level;
         }
 
         final boolean casHead(SkipNode<K, V> current, SkipNode<K, V> next) {
