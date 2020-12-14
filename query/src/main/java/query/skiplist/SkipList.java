@@ -3,19 +3,27 @@ package query.skiplist;
 
 import java.util.Iterator;
 import java.util.Spliterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class SkipList<K extends Comparable, V> implements Iterable<SkipList.SkipNode<K, V>> {
 
-    private final SkipNodeHead<K, V> root = new SkipNodeHead<>(null);
+    private final int LEVEL_0 = 0;
+    private final ConcurrentMap<Integer, SkipNodeHead<K, V>> levels = new ConcurrentHashMap<>();
+
+    public SkipList() {
+
+        levels.put(LEVEL_0, new SkipNodeHead<>(null));
+    }
 
     public void insert(K key, V value) {
 
-        SkipNode<K, V> node = new SkipNode<>(key, value, 0, null);
+        SkipNode<K, V> node = new SkipNode<>(key, value, LEVEL_0, null);
         SkipNode<K, V> headNode = head();
         if (headNode == null) {
-            if (!root.casHead(null, node)) {
+            if (!headContainer().casHead(null, node)) {
                 insertKey(node);
             }
         } else {
@@ -41,7 +49,7 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
                 } else if (matchValue < 0) {
                     newNode.casNext(null, currentNode);
                     if (isPreviousNull(previousNode)) {
-                        if (root.casHead(currentNode, newNode)) {
+                        if (headContainer().casHead(currentNode, newNode)) {
                             return newNode;
                         } else {
                             //CAS failed , try again
@@ -76,14 +84,18 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
     }
 
     private SkipNode<K, V> head() {
-        return root.head.get();
+        return levels.get(LEVEL_0).head.get();
+    }
+
+    private SkipNodeHead<K, V> headContainer() {
+        return levels.get(LEVEL_0);
     }
 
     @Override
     public Iterator<SkipNode<K, V>> iterator() {
 
         return new Iterator<SkipNode<K, V>>() {
-            AtomicReference<SkipNode<K, V>> node = root.head;
+            AtomicReference<SkipNode<K, V>> node = headContainer().head;
 
             @Override
             public boolean hasNext() {
