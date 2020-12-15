@@ -1,6 +1,5 @@
 package query.skiplist;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.skiplist.SkipList.SkipNode;
 
@@ -28,7 +27,7 @@ public class SkipListTest {
                     int current = itr.next().key;
                     while (itr.hasNext()) {
                         int next = itr.next().key;
-                        assertTrue(next - current == 1, String.format("Value %s,%s are out of order", current, next));
+                        assertEquals(next - current, 1, String.format("Value %s,%s are out of order", current, next));
                         current = next;
                     }
                 });
@@ -52,12 +51,41 @@ public class SkipListTest {
                     int current = itr.next().key;
                     while (itr.hasNext()) {
                         int next = itr.next().key;
-                        assertTrue(next - current == 1, String.format("Value %s,%s are out of order", current, next));
+                        assertEquals(next - current, 1, String.format("Value %s,%s are out of order", current, next));
                         current = next;
                     }
                 });
 
 
+    }
+
+    @Test
+    public void verify_search_using_level_index() {
+
+        SkipList<Integer, Integer> list = new SkipList<>();
+
+        IntStream
+                .range(0, 10_000).forEach(x -> list.insert(x, x));
+
+        logLevel(list);
+
+        assertAll(
+                () -> assertEquals(5737, list.get(5737)),
+                () -> assertEquals(6000, list.get(6000)),
+                () -> assertEquals(3029, list.get(3029))
+        );
+    }
+
+    private void logLevel(SkipList<Integer, Integer> list) {
+        for (int level = list.level(); level > 0; level--) {
+            Iterator<SkipNode<Integer, Integer>> itr = list.iterator(level);
+            System.out.print("Level " + level + "(");
+            while (itr.hasNext()) {
+                System.out.print(itr.next().key + ",");
+            }
+            System.out.print(")");
+            System.out.println();
+        }
     }
 
     private String sizeErrorMessage(SkipList<Integer, Integer> list) {
