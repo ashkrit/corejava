@@ -16,7 +16,13 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
     private static final int LEVEL_0 = 0;
     private final SkipNodeHead<K, V> head = new SkipNodeHead<>(null);
 
-    public void insert(K key, V value) {
+    private final BiConsumer<Integer, K> noOpLevelListener = (level, s) -> {
+    };
+
+    private final Consumer<K> noOpKeyListener = k -> {
+    };
+
+    public void put(K key, V value) {
 
         SkipNode<K, V> node = new SkipNode<>(key, value, LEVEL_0, null);
         SkipNode<K, V> headNode = head(node.level);
@@ -154,15 +160,10 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
     }
 
     public V get(K key) {
-        return get(key, (level, s) -> {
-            System.out.println();
-            System.out.printf("Searching level %s from key %s %n (", level, s);
-        }, k -> System.out.print(k + ","));
+        return get(key, noOpLevelListener, noOpKeyListener);
     }
 
     public V get(K key, BiConsumer<Integer, K> processor, Consumer<K> searchKey) {
-        System.out.println();
-        System.out.println("Searching " + key);
         int levels = head.currentLevel;
         for (int level = levels; level >= 0; ) {
             Iterator<SkipNode<K, V>> itr = iterator(level);
