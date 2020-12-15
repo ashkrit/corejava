@@ -9,8 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SkipListTest {
 
@@ -22,7 +21,7 @@ public class SkipListTest {
         IntStream
                 .range(0, 10_000).forEach(x -> list.insert(x, x));
 
-        Assertions.assertAll(
+        assertAll(
                 () -> assertEquals(10_000, list.size()),
                 () -> {
                     Iterator<SkipNode<Integer, Integer>> itr = list.iterator();
@@ -44,7 +43,9 @@ public class SkipListTest {
         IntStream
                 .range(0, 10_000).parallel().forEach(x -> list.insert(x, x));
 
-        Assertions.assertAll(
+        System.out.println(list);
+
+        assertAll(
                 () -> assertEquals(10_000, list.size(), () -> sizeErrorMessage(list)),
                 () -> {
                     Iterator<SkipNode<Integer, Integer>> itr = list.iterator();
@@ -55,6 +56,8 @@ public class SkipListTest {
                         current = next;
                     }
                 });
+
+
     }
 
     private String sizeErrorMessage(SkipList<Integer, Integer> list) {
