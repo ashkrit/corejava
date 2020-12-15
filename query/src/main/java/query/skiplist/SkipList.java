@@ -37,15 +37,16 @@ public class SkipList<K extends Comparable, V> implements Iterable<SkipList.Skip
 
     private SkipNode<K, V> insertKey(SkipNode<K, V> newNode) {
 
-        //No of Skips
         SkipNode<K, V> skipNode = createSkipLevels(newNode);
-        insertByLevel(skipNode);
-
-        while (skipNode.up != null) {
-            insertByLevel(skipNode.up);
-            skipNode = skipNode.up;
-        }
+        insertNodes(skipNode);
         return newNode;
+    }
+
+    private void insertNodes(SkipNode<K, V> skipNode) {
+        do {
+            insertByLevel(skipNode);
+            skipNode = skipNode.up;
+        } while (skipNode != null);
     }
 
     private SkipNode<K, V> createSkipLevels(SkipNode<K, V> newNode) {
