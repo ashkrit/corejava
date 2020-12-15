@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import query.skiplist.SkipList.SkipNode;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +29,8 @@ public class SkipListTest {
                     int current = itr.next().key;
                     while (itr.hasNext()) {
                         int next = itr.next().key;
-                        assertTrue(next > current, String.format("Value %s should be after %s", next, current));
+                        assertTrue(next - current == 1, String.format("Value %s,%s are out of order", current, next));
+                        current = next;
                     }
                 });
     }
@@ -42,15 +45,30 @@ public class SkipListTest {
                 .range(0, 10_000).parallel().forEach(x -> list.insert(x, x));
 
         Assertions.assertAll(
-                () -> assertEquals(10_000, list.size()),
+                () -> assertEquals(10_000, list.size(), () -> sizeErrorMessage(list)),
                 () -> {
                     Iterator<SkipNode<Integer, Integer>> itr = list.iterator();
                     int current = itr.next().key;
                     while (itr.hasNext()) {
                         int next = itr.next().key;
-                        assertTrue(next > current, String.format("Value %s should be after %s", next, current));
+                        assertTrue(next - current == 1, String.format("Value %s,%s are out of order", current, next));
+                        current = next;
                     }
                 });
+    }
+
+    private String sizeErrorMessage(SkipList<Integer, Integer> list) {
+        List<String> values = new ArrayList<>();
+        Iterator<SkipNode<Integer, Integer>> itr = list.iterator();
+        int current = itr.next().key;
+        while (itr.hasNext()) {
+            int next = itr.next().key;
+            if (next - current != 1) {
+                values.add(String.format("(%s;%s)", current, next));
+            }
+            current = next;
+        }
+        return values.toString();
     }
 
 }
