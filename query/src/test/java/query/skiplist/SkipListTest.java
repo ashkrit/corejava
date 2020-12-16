@@ -86,6 +86,19 @@ public class SkipListTest {
         );
     }
 
+    @Test
+    public void dump_levels_info() {
+        SkipList<Integer, Integer> actualContainer = new SkipList<>();
+        IntStream
+                .range(0, 10)
+                .forEach(x -> {
+                    actualContainer.put(x, x);
+                });
+
+        logLevel(actualContainer);
+
+    }
+
     private BiConsumer<Integer, Integer> levelListener(int searchKey) {
         return (level, key) -> {
             System.out.println();
@@ -94,7 +107,7 @@ public class SkipListTest {
     }
 
     private void logLevel(SkipList<Integer, Integer> list) {
-        for (int level = list.level(); level > 0; level--) {
+        for (int level = list.level(); level >= 0; level--) {
             Iterator<SkipNode<Integer, Integer>> itr = list.iterator(level);
             System.out.print("Level " + level + "(");
             while (itr.hasNext()) {
