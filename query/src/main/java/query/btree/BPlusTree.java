@@ -79,26 +79,52 @@ public class BPlusTree<K extends Comparable<K>, V> {
         return key.compareTo(key1) < 0;
     }
 
+    public boolean eq(K key, K key1) {
+        return key.compareTo(key1) == 0;
+    }
+
     public V get(K key) {
         return search(root, key, height);
     }
 
-    private V search(Node<K, V> root, K key, int height) {
-        NodeEntry<K, V>[] child = root.entries;
+    public void lt(K key, BiConsumer<K, V> consumer) {
+        ltSearch(key, root, height, consumer);
+    }
+
+    private V search(Node<K, V> node, K key, int height) {
+        NodeEntry<K, V>[] child = node.entries;
         if (height == 0) {
-            for (int index = 0; index < root.childCount; index++) {
+            for (int index = 0; index < node.childCount; index++) {
                 if (key.compareTo(child[index].key) == 0) {
                     return child[index].value;
                 }
             }
         } else {
-            for (int index = 0; index < root.childCount; index++) {
-                if (root.isLast(index + 1) || lessThan(key, root.entries[index + 1].key)) {
-                    return search(root.entries[index].next, key, height - 1);
+            for (int index = 0; index < node.childCount; index++) {
+                if (node.isLast(index + 1) || lessThan(key, node.entries[index + 1].key)) {
+                    return search(node.entries[index].next, key, height - 1);
                 }
             }
         }
         return null;
+    }
+
+    private void ltSearch(K key, Node<K, V> node, int height, BiConsumer<K, V> consumer) {
+        NodeEntry<K, V>[] child = node.entries;
+        if (height == 0) {
+            for (int index = 0; index < node.childCount; index++) {
+                if (child[index].key.compareTo(key) <= 0) {
+                    consumer.accept(child[index].key, child[index].value);
+                }
+            }
+        } else {
+            for (int index = 0; index < node.childCount; index++) {
+                if (node.entries[index].key.compareTo(key) <= 0) {
+                    ltSearch(key, node.entries[index].next, height - 1, consumer);
+                }
+            }
+        }
+
     }
 
     private static class Node<K extends Comparable<K>, V> {
