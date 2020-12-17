@@ -18,31 +18,34 @@ public class BPlusTree<K extends Comparable<K>, V> {
         Node<K, V> n = insert(root, key, value, height);
         size++;
         if (n == null) return;
+        linkNewNode(n);
+    }
 
-        Node<K, V> newNode = new Node<>(2);
-        newNode.entries[0] = new NodeEntry<>(root.entries[0].key, null, root);
-        newNode.entries[1] = new NodeEntry<>(n.entries[0].key, null, n);
-        root = newNode;
+    private void linkNewNode(Node<K, V> n) {
+        Node<K, V> newRoot = new Node<>(2);
+        newRoot.entries[0] = new NodeEntry<>(root.entries[0].key, null, root);
+        newRoot.entries[1] = new NodeEntry<>(n.entries[0].key, null, n);
+        root = newRoot;
         height++;
     }
 
     private Node<K, V> insert(Node<K, V> r, K key, V value, int height) {
-        int x;
+        int position;
         NodeEntry<K, V> t = new NodeEntry<>(key, value, null);
         if (height == 0) {
-            for (x = 0; x < r.childCount; x++) {
-                if (lessThan(key, r.entries[x].key)) {
+            for (position = 0; position < r.childCount; position++) {
+                if (lessThan(key, r.entries[position].key)) {
                     break;
                 }
             }
         } else {
-            for (x = 0; x < r.childCount; x++) {
-                int nextElement = x + 1;
+            for (position = 0; position < r.childCount; position++) {
+                int nextElement = position + 1;
                 if (r.isLast(nextElement) || lessThan(key, r.entries[nextElement].key)) {
 
-                    Node<K, V> c = insert(r.entries[x++].next, key, value, height - 1);
-
+                    Node<K, V> c = insert(r.entries[position++].next, key, value, height - 1);
                     if (c == null) return null;
+
                     t.key = c.entries[0].key;
                     t.value = null;
                     t.next = c;
@@ -51,13 +54,9 @@ public class BPlusTree<K extends Comparable<K>, V> {
             }
         }
 
-        //Create space for new element and shift elements to end
-        int noOfElementToCopy = r.childCount - x;
-        if (noOfElementToCopy >= 0) {
-            System.arraycopy(r.entries, x, r.entries, x + 1, noOfElementToCopy);
-        }
+        shiftElementToEnd(r, position);
 
-        r.entries[x] = t;
+        r.entries[position] = t;
         r.childCount++;
 
         if (r.childCount < MAX_CHILDREN) {
@@ -67,13 +66,20 @@ public class BPlusTree<K extends Comparable<K>, V> {
         }
     }
 
+    private void shiftElementToEnd(Node<K, V> r, int x) {
+        int noOfElementToCopy = r.childCount - x;
+        if (noOfElementToCopy >= 0) {
+            System.arraycopy(r.entries, x, r.entries, x + 1, noOfElementToCopy);
+        }
+    }
+
     private Node<K, V> split(Node<K, V> r) {
         int newChildCount = MAX_CHILDREN / 2;
-        Node<K, V> t = new Node<>(newChildCount);
         r.childCount = newChildCount;
-        System.arraycopy(r.entries, newChildCount, t.entries, 0, newChildCount);
 
-        return t;
+        Node<K, V> splitNode = new Node<>(newChildCount);
+        System.arraycopy(r.entries, newChildCount, splitNode.entries, 0, newChildCount);
+        return splitNode;
     }
 
     public boolean lessThan(K key, K key1) {
