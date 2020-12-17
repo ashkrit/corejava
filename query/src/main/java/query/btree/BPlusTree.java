@@ -24,7 +24,7 @@ public class BPlusTree<K extends Comparable<K>, V> {
     }
 
     private Node<K, V> insert(Node<K, V> r, K key, V value, int height) {
-        int x = 0;
+        int x;
         NodeEntry<K, V> t = new NodeEntry<>(key, value, null);
         if (height == 0) {
             for (x = 0; x < r.childCount; x++) {
@@ -51,6 +51,7 @@ public class BPlusTree<K extends Comparable<K>, V> {
         for (int i = r.childCount; i > x; i--) {
             r.entries[i] = r.entries[i - 1];
         }
+
         r.entries[x] = t;
         r.childCount++;
 
@@ -90,12 +91,33 @@ public class BPlusTree<K extends Comparable<K>, V> {
         } else {
             for (int index = 0; index < root.childCount; index++) {
                 if (root.isLast(index + 1) || lessThan(key, root.entries[index + 1].key)) {
-                    return (V) search(root.entries[index].next, key, height - 1);
+                    return search(root.entries[index].next, key, height - 1);
                 }
             }
         }
         return null;
     }
+
+    public String toString() {
+        return toString(root, height, "") + "\n";
+    }
+
+    private String toString(Node<K, V> h, int ht, String indent) {
+        StringBuilder s = new StringBuilder();
+        NodeEntry<K, V>[] children = h.entries;
+
+        if (ht == 0) {
+            for (int j = 0; j < h.childCount; j++) {
+                s.append(indent + children[j].key + " " + children[j].value + "\n");
+            }
+        } else {
+            for (int j = 0; j < h.childCount; j++) {
+                s.append(toString(children[j].next, ht - 1, indent));
+            }
+        }
+        return s.toString();
+    }
+
 
     private static class Node<K extends Comparable<K>, V> {
         private int childCount;
@@ -113,9 +135,9 @@ public class BPlusTree<K extends Comparable<K>, V> {
     private static class NodeEntry<K extends Comparable<K>, V> {
         private K key;
         private V value;
-        private Node next;
+        private Node<K, V> next;
 
-        private NodeEntry(K key, V value, Node next) {
+        private NodeEntry(K key, V value, Node<K, V> next) {
             this.key = key;
             this.value = value;
             this.next = next;

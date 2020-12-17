@@ -32,5 +32,8 @@ public class BPlusTreeTest {
                 () -> assertEquals("1", tree.get("1"))
         );
 
+
+        System.out.println(tree);
+
     }
 }
