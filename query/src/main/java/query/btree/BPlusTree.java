@@ -1,6 +1,7 @@
 package query.btree;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 
 public class BPlusTree<K extends Comparable<K>, V> {
 
@@ -88,7 +89,11 @@ public class BPlusTree<K extends Comparable<K>, V> {
     }
 
     public void lt(K key, BiConsumer<K, V> consumer) {
-        ltSearch(key, root, height, consumer);
+        _search(key, root, height, consumer, this.lte);
+    }
+
+    public void gt(K key, BiConsumer<K, V> consumer) {
+        _search(key, root, height, consumer, this.gte);
     }
 
     private V search(Node<K, V> node, K key, int height) {
@@ -109,23 +114,27 @@ public class BPlusTree<K extends Comparable<K>, V> {
         return null;
     }
 
-    private void ltSearch(K key, Node<K, V> node, int height, BiConsumer<K, V> consumer) {
+    private void _search(K key, Node<K, V> node, int height, BiConsumer<K, V> consumer, BiPredicate<K, K> predicate) {
+
         NodeEntry<K, V>[] child = node.entries;
         if (height == 0) {
             for (int index = 0; index < node.childCount; index++) {
-                if (child[index].key.compareTo(key) <= 0) {
+                if (predicate.test(child[index].key, key)) {
                     consumer.accept(child[index].key, child[index].value);
                 }
             }
         } else {
             for (int index = 0; index < node.childCount; index++) {
-                if (node.entries[index].key.compareTo(key) <= 0) {
-                    ltSearch(key, node.entries[index].next, height - 1, consumer);
+                if (predicate.test(node.entries[index].key, key)) {
+                    _search(key, node.entries[index].next, height - 1, consumer, predicate);
                 }
             }
         }
 
     }
+
+    private final BiPredicate<K, K> lte = (k1, k2) -> k1.compareTo(k2) <= 0;
+    private final BiPredicate<K, K> gte = (k1, k2) -> k1.compareTo(k2) >= 0;
 
     private static class Node<K extends Comparable<K>, V> {
         private int childCount;

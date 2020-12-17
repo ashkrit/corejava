@@ -1,14 +1,12 @@
 package query.btree;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BPlusTreeTest {
 
@@ -56,6 +54,27 @@ public class BPlusTreeTest {
         List<String> matchedKeys = new ArrayList<>();
         tree.lt("A", (k, v) -> matchedKeys.add(k));
 
-        Assertions.assertIterableEquals(Arrays.asList("1", "2", "A"), matchedKeys);
+        assertIterableEquals(Arrays.asList("1", "2", "A"), matchedKeys);
     }
+
+    @Test
+    public void greater_then_values() {
+
+        BPlusTree<String, String> tree = new BPlusTree<>();
+
+        tree.put("1", "1");
+        tree.put("A", "A");
+        tree.put("2", "2");
+        tree.put("C", "C");
+        tree.put("D", "D");
+        tree.put("B", "B");
+        tree.put("AA", "AA");
+
+        List<String> matchedKeys = new ArrayList<>();
+        tree.gt("A", (k, v) -> matchedKeys.add(k));
+
+        assertIterableEquals(Arrays.asList("A", "AA", "B", "C", "D"), matchedKeys);
+    }
+
+
 }
