@@ -1,5 +1,7 @@
 package query.btree;
 
+import java.util.function.BiConsumer;
+
 public class BPlusTree<K extends Comparable<K>, V> {
 
     public static final int MAX_CHILDREN = 4;
@@ -48,8 +50,10 @@ public class BPlusTree<K extends Comparable<K>, V> {
             }
         }
 
-        for (int i = r.childCount; i > x; i--) {
-            r.entries[i] = r.entries[i - 1];
+        //Create space for new element and shift elements to end
+        int noOfElementToCopy = r.childCount - x;
+        if (noOfElementToCopy >= 0) {
+            System.arraycopy(r.entries, x, r.entries, x + 1, noOfElementToCopy);
         }
 
         r.entries[x] = t;
@@ -66,9 +70,8 @@ public class BPlusTree<K extends Comparable<K>, V> {
         int newChildCount = MAX_CHILDREN / 2;
         Node<K, V> t = new Node<>(newChildCount);
         r.childCount = newChildCount;
-        for (int i = 0; i < newChildCount; i++) {
-            t.entries[i] = r.entries[newChildCount + i];
-        }
+        System.arraycopy(r.entries, newChildCount, t.entries, 0, newChildCount);
+
         return t;
     }
 
@@ -98,30 +101,9 @@ public class BPlusTree<K extends Comparable<K>, V> {
         return null;
     }
 
-    public String toString() {
-        return toString(root, height, "") + "\n";
-    }
-
-    private String toString(Node<K, V> h, int ht, String indent) {
-        StringBuilder s = new StringBuilder();
-        NodeEntry<K, V>[] children = h.entries;
-
-        if (ht == 0) {
-            for (int j = 0; j < h.childCount; j++) {
-                s.append(indent + children[j].key + " " + children[j].value + "\n");
-            }
-        } else {
-            for (int j = 0; j < h.childCount; j++) {
-                s.append(toString(children[j].next, ht - 1, indent));
-            }
-        }
-        return s.toString();
-    }
-
-
     private static class Node<K extends Comparable<K>, V> {
         private int childCount;
-        private final NodeEntry<K, V>[] entries = new NodeEntry[MAX_CHILDREN];
+        private final NodeEntry<K, V>[] entries = (NodeEntry<K, V>[]) new NodeEntry[MAX_CHILDREN];
 
         public Node(int size) {
             this.childCount = size;
@@ -151,5 +133,25 @@ public class BPlusTree<K extends Comparable<K>, V> {
 
     public int size() {
         return size;
+    }
+
+    public void forEach(BiConsumer<K, V> consumer) {
+        forEach(root, height, consumer);
+    }
+
+
+    private String forEach(Node<K, V> h, int ht, BiConsumer<K, V> consumer) {
+        StringBuilder s = new StringBuilder();
+        NodeEntry<K, V>[] children = h.entries;
+        if (ht == 0) {
+            for (int j = 0; j < h.childCount; j++) {
+                consumer.accept(children[j].key, children[j].value);
+            }
+        } else {
+            for (int j = 0; j < h.childCount; j++) {
+                forEach(children[j].next, ht - 1, consumer);
+            }
+        }
+        return s.toString();
     }
 }

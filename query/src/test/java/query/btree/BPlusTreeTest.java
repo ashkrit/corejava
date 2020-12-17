@@ -1,7 +1,6 @@
-package query;
+package query.btree;
 
 import org.junit.jupiter.api.Test;
-import query.btree.BPlusTree;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,8 +31,7 @@ public class BPlusTreeTest {
                 () -> assertEquals("1", tree.get("1"))
         );
 
-
-        System.out.println(tree);
+        tree.forEach((k, v) -> System.out.println(k + "->" + v));
 
     }
 }
