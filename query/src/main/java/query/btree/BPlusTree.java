@@ -29,40 +29,40 @@ public class BPlusTree<K extends Comparable<K>, V> {
         height++;
     }
 
-    private Node<K, V> insert(Node<K, V> r, K key, V value, int height) {
+    private Node<K, V> insert(Node<K, V> node, K key, V value, int height) {
         int position;
-        NodeEntry<K, V> t = new NodeEntry<>(key, value, null);
+        NodeEntry<K, V> tempNode = new NodeEntry<>(key, value, null);
         if (height == 0) {
-            for (position = 0; position < r.childCount; position++) {
-                if (lessThan(key, r.entries[position].key)) {
+            for (position = 0; position < node.childCount; position++) {
+                if (lessThan(key, node.entries[position].key)) {
                     break;
                 }
             }
         } else {
-            for (position = 0; position < r.childCount; position++) {
+            for (position = 0; position < node.childCount; position++) {
                 int nextElement = position + 1;
-                if (r.isLast(nextElement) || lessThan(key, r.entries[nextElement].key)) {
+                if (node.isLast(nextElement) || lessThan(key, node.entries[nextElement].key)) {
 
-                    Node<K, V> c = insert(r.entries[position++].next, key, value, height - 1);
-                    if (c == null) return null;
+                    Node<K, V> splitNode = insert(node.entries[position++].next, key, value, height - 1);
+                    if (splitNode == null) return null;
 
-                    t.key = c.entries[0].key;
-                    t.value = null;
-                    t.next = c;
+                    tempNode.key = splitNode.entries[0].key;
+                    tempNode.value = null;
+                    tempNode.next = splitNode;
                     break;
                 }
             }
         }
 
-        shiftElementToEnd(r, position);
+        shiftElementToEnd(node, position);
 
-        r.entries[position] = t;
-        r.childCount++;
+        node.entries[position] = tempNode;
+        node.childCount++;
 
-        if (r.childCount < MAX_CHILDREN) {
+        if (node.childCount < MAX_CHILDREN) {
             return null;
         } else {
-            return split(r);
+            return split(node);
         }
     }
 
