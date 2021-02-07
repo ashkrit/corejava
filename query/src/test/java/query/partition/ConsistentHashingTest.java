@@ -39,4 +39,27 @@ public class ConsistentHashingTest {
         );
 
     }
+
+
+    @Test
+    public void insert_and_get_key() {
+
+        HashFunction f = Hashing.murmur3_32();
+        ConsistentHashing<Node> hashing = new ConsistentHashing<>(v -> f.hashBytes(v).asInt(), 3, n -> n.name);
+
+        Map<String, Node> nodes = new HashMap<String, Node>() {{
+            put("NodeA", new Node("NodeA"));
+            put("NodeB", new Node("NodeB"));
+            put("NodeC", new Node("NodeC"));
+        }};
+
+
+        nodes.entrySet().stream().map(Map.Entry::getValue).forEach(hashing::add);
+
+        Node n = hashing.get("key1");
+        n.put("key1", "value1");
+
+        assertEquals("value1", hashing.get("key1").get("key1"));
+
+    }
 }

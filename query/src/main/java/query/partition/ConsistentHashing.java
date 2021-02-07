@@ -1,12 +1,9 @@
 package query.partition;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.NavigableMap;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -16,7 +13,7 @@ public class ConsistentHashing<T> {
 
     private final Function<byte[], Integer> hashFunction;
     private final int replica;
-    private final NavigableMap<Integer, T> ring = new TreeMap<>();
+    private final SortedMap<Integer, T> ring = new TreeMap<>();
     private final Function<T, String> nodeKey;
 
     public ConsistentHashing(Function<byte[], Integer> hashFunction, int replica, Function<T, String> nodeKey) {
@@ -38,5 +35,16 @@ public class ConsistentHashing<T> {
                 .entrySet()
                 .stream()
                 .collect(groupingBy(x -> x.getValue(), counting()));
+    }
+
+    public T get(Object key) {
+        int hash = hashFunction.apply(key.toString().getBytes());
+        return ring.getOrDefault(hash, findSlot(hash));
+    }
+
+    private T findSlot(int hash) {
+        SortedMap<Integer, T> tail = ring.tailMap(hash);
+        int keyHash = tail.isEmpty() ? ring.firstKey() : tail.firstKey();
+        return ring.get(keyHash);
     }
 }
