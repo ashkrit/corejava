@@ -20,7 +20,7 @@ public class Node {
         values.put(key, value);
     }
 
-    public Object get(String key) {
+    public Object get(Object key) {
         return values.get(key);
     }
 }

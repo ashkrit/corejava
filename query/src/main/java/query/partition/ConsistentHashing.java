@@ -10,7 +10,6 @@ import static java.util.stream.Collectors.groupingBy;
 
 public class ConsistentHashing<T> {
 
-
     private final Function<byte[], Integer> hashFunction;
     private final int replica;
     private final SortedMap<Integer, T> ring = new TreeMap<>();
@@ -30,14 +29,13 @@ public class ConsistentHashing<T> {
     }
 
     public Map<T, Long> nodes() {
-
         return ring
                 .entrySet()
                 .stream()
                 .collect(groupingBy(x -> x.getValue(), counting()));
     }
 
-    public T get(Object key) {
+    public T findSlot(Object key) {
         int hash = hashFunction.apply(key.toString().getBytes());
         return ring.getOrDefault(hash, findSlot(hash));
     }
