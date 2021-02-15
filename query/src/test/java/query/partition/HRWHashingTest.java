@@ -1,5 +1,7 @@
 package query.partition;
 
+import com.google.common.hash.Funnel;
+import com.google.common.hash.Hashing;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static query.partition.HRWHashing.defaultHash;
 
 public class HRWHashingTest {
 
@@ -39,7 +42,7 @@ public class HRWHashingTest {
 
 
     @Test
-    public void insert_and_get_key() {
+    public void find_node_with_max_score() {
 
         Map<String, Long> hash = new HashMap<String, Long>() {{
             put("key1_NodeA", Long.MAX_VALUE);
@@ -59,6 +62,26 @@ public class HRWHashingTest {
                 () -> assertEquals("NodeA", hashing.findSlot("key1").name),
                 () -> assertEquals("NodeB", hashing.findSlot("key2").name)
         );
+
+    }
+
+
+    @Test
+    public void put_and_get_value() {
+        Funnel<Node> nodeFunnel = (from, into) -> into.putBytes(from.name.getBytes());
+        Funnel<Object> keyFunnel = (from, into) -> into.putBytes(from.toString().getBytes());
+        HRWHashing hashing = new HRWHashing(defaultHash(nodeFunnel, keyFunnel, Hashing.murmur3_128()));
+
+        DistributedHashTable hashTable = new DistributedHashTable(hashing);
+
+        nodes.entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .forEach(hashing::add);
+
+        hashTable.put("key1", "value1");
+
+        assertEquals("value1", hashTable.get("key1"));
 
     }
 }
