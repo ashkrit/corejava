@@ -1,9 +1,9 @@
 package query.partition;
 
 public class DistributedHashTable {
-    private final ConsistentHashing<Node> hash;
+    private final DistributedHash<Node> hash;
 
-    public DistributedHashTable(ConsistentHashing<Node> hash) {
+    public DistributedHashTable(DistributedHash<Node> hash) {
         this.hash = hash;
     }
 

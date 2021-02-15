@@ -8,7 +8,7 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 
-public class ConsistentHashing<T> {
+public class ConsistentHashing<T> implements DistributedHash<T> {
 
     private final Function<byte[], Integer> hashFunction;
     private final int replica;
@@ -21,6 +21,7 @@ public class ConsistentHashing<T> {
         this.nodeKey = nodeKey;
     }
 
+    @Override
     public void add(T node) {
         for (int c = 0; c < replica; c++) {
             String key = String.format("%s_%s", nodeKey.apply(node), c);
@@ -28,6 +29,7 @@ public class ConsistentHashing<T> {
         }
     }
 
+    @Override
     public T findSlot(Object key) {
         int hash = hashFunction.apply(key.toString().getBytes());
         return ring.getOrDefault(hash, findClosestSlot(hash));

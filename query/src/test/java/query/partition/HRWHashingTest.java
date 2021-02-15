@@ -1,6 +1,5 @@
 package query.partition;
 
-import com.google.common.hash.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -22,13 +21,7 @@ public class HRWHashingTest {
     @Test
     public void add_nodes() {
 
-        Funnel<Node> nodeFunnel = (from, into) -> {
-        };
-
-        Funnel<Object> keyFunnel = (from, into) -> {
-        };
-
-        HRWHashing<Node, Object> hashing = new HRWHashing<>(nodeFunnel, keyFunnel);
+        HRWHashing<Node> hashing = new HRWHashing<>((n, k) -> 1L);
 
         nodes.entrySet()
                 .stream()
@@ -40,6 +33,31 @@ public class HRWHashingTest {
                 () -> assertEquals(1, nodeMappings.get(nodes.get("NodeA"))),
                 () -> assertEquals(1, nodeMappings.get(nodes.get("NodeB"))),
                 () -> assertEquals(1, nodeMappings.get(nodes.get("NodeC")))
+        );
+
+    }
+
+
+    @Test
+    public void insert_and_get_key() {
+
+        Map<String, Long> hash = new HashMap<String, Long>() {{
+            put("key1_NodeA", Long.MAX_VALUE);
+            put("key2_NodeB", Long.MAX_VALUE);
+        }};
+
+        HRWHashing<Node> hashing = new HRWHashing<>((n, k) -> {
+            String key = String.format("%s_%s", k.toString(), n.name);
+            return hash.getOrDefault(key, Long.valueOf(key.hashCode()));
+        });
+
+        nodes.entrySet()
+                .stream()
+                .map(Map.Entry::getValue).forEach(hashing::add);
+
+        assertAll(
+                () -> assertEquals("NodeA", hashing.findSlot("key1").name),
+                () -> assertEquals("NodeB", hashing.findSlot("key2").name)
         );
 
     }
