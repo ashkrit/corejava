@@ -27,7 +27,9 @@ public class ConsistentHashingTest {
         ConsistentHashing<Node> hashing = new ConsistentHashing<>(v -> f.hashBytes(v).asInt(), 3, n -> n.name);
 
 
-        nodes.entrySet().stream().map(Map.Entry::getValue).forEach(hashing::add);
+        nodes.entrySet()
+                .stream()
+                .map(Map.Entry::getValue).forEach(hashing::add);
 
         Map<Node, Long> nodeMappings = hashing.nodes();
 

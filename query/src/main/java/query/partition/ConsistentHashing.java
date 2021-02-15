@@ -28,21 +28,21 @@ public class ConsistentHashing<T> {
         }
     }
 
+    public T findSlot(Object key) {
+        int hash = hashFunction.apply(key.toString().getBytes());
+        return ring.getOrDefault(hash, findClosestSlot(hash));
+    }
+
+    private T findClosestSlot(int hash) {
+        SortedMap<Integer, T> tail = ring.tailMap(hash);
+        int keyHash = tail.isEmpty() ? ring.firstKey() : tail.firstKey();
+        return ring.get(keyHash);
+    }
+
     public Map<T, Long> nodes() {
         return ring
                 .entrySet()
                 .stream()
                 .collect(groupingBy(x -> x.getValue(), counting()));
-    }
-
-    public T findSlot(Object key) {
-        int hash = hashFunction.apply(key.toString().getBytes());
-        return ring.getOrDefault(hash, findSlot(hash));
-    }
-
-    private T findSlot(int hash) {
-        SortedMap<Integer, T> tail = ring.tailMap(hash);
-        int keyHash = tail.isEmpty() ? ring.firstKey() : tail.firstKey();
-        return ring.get(keyHash);
     }
 }
