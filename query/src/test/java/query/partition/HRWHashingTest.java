@@ -59,8 +59,8 @@ public class HRWHashingTest {
                 .map(Map.Entry::getValue).forEach(hashing::add);
 
         assertAll(
-                () -> assertEquals("NodeA", hashing.findSlot("key1").name),
-                () -> assertEquals("NodeB", hashing.findSlot("key2").name)
+                () -> assertEquals("NodeA", hashing.assignNode("key1").name),
+                () -> assertEquals("NodeB", hashing.assignNode("key2").name)
         );
 
     }

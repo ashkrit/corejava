@@ -12,7 +12,7 @@ public class DistributedHashTable {
     }
 
     private Node findSlot(Object key) {
-        return hash.findSlot(key);
+        return hash.assignNode(key);
     }
 
     public Object get(Object key) {

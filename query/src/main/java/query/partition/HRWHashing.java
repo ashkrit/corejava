@@ -36,7 +36,7 @@ public class HRWHashing<N> implements DistributedHash<N> {
                 .collect(groupingBy(x -> x.getValue(), counting()));
     }
 
-    public N findSlot(Object key) {
+    public N assignNode(Object key) {
 
         long value = Long.MIN_VALUE;
         N node = null;

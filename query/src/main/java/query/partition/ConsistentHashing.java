@@ -30,7 +30,7 @@ public class ConsistentHashing<T> implements DistributedHash<T> {
     }
 
     @Override
-    public T findSlot(Object key) {
+    public T assignNode(Object key) {
         int hash = hashFunction.apply(key.toString().getBytes());
         return ring.getOrDefault(hash, findClosestSlot(hash));
     }
