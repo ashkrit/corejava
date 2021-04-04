@@ -29,7 +29,7 @@ public class RangePartition<K extends Comparable, V> {
         }
 
         SortedMap<K, PartitionValues<K, V>> tail = partitions.headMap(key);
-        K pKey = tail.isEmpty() ? partitions.lastKey() : tail.lastKey();
+        K pKey = tail.isEmpty() ? partitions.firstKey() : tail.lastKey();
 
         PartitionValues<K, V> node = partitions.get(pKey);
         node.put(key, value);
@@ -45,7 +45,7 @@ public class RangePartition<K extends Comparable, V> {
         }
     }
 
-    public PartitionValues<K, V> getPartition(K key) {
+    public PartitionValues<K, V> partition(K key) {
         SortedMap<K, PartitionValues<K, V>> tail = partitions.headMap(key);
         if (tail.isEmpty()) {
             K maxKey = partitions.firstKey();
@@ -56,8 +56,8 @@ public class RangePartition<K extends Comparable, V> {
         }
     }
 
-    public V getValue(K key) {
-        return getPartition(key).get(key);
+    public V value(K key) {
+        return partition(key).get(key);
     }
 
     static class PartitionValues<K extends Comparable, V> {

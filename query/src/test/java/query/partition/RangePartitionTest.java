@@ -15,7 +15,7 @@ public class RangePartitionTest {
 
         range.put(1, "value1");
 
-        assertEquals("value1", range.getValue(1));
+        assertEquals("value1", range.value(1));
 
     }
 
@@ -29,9 +29,9 @@ public class RangePartitionTest {
         range.put(10, "value10");
 
         assertAll(
-                () -> assertEquals("value1", range.getValue(1)),
-                () -> assertEquals("value2", range.getValue(2)),
-                () -> assertEquals("value10", range.getValue(10))
+                () -> assertEquals("value1", range.value(1)),
+                () -> assertEquals("value2", range.value(2)),
+                () -> assertEquals("value10", range.value(10))
         );
 
     }
@@ -49,6 +49,6 @@ public class RangePartitionTest {
                 .range(5, 10)
                 .forEach(r -> range.put(r, "value" + r));
 
-        assertNotEquals(range.getPartition(0).name, range.getPartition(8).name);
+        assertNotEquals(range.partition(0).name, range.partition(8).name);
     }
 }
