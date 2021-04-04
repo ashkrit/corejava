@@ -1,6 +1,7 @@
 package query.partition;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -92,14 +93,11 @@ public class RangePartition<K extends Comparable, V> {
 
         public PartitionValues<K, V> split(String nodeId) {
             PartitionValues<K, V> splitNode = new PartitionValues<>(nodeId, capacity);
+
             int mid = values.size() / 2;
-            int current = 0;
-            for (K k : new ArrayList<>(values.keySet())) {
-                current++;
-                if (current >= mid) {
-                    splitNode.put(k, values.remove(k));
-                }
-            }
+            List<K> ks = new ArrayList<>(values.keySet()).subList(mid, values.size());
+            ks.forEach(k -> splitNode.put(k, values.remove(k)));
+
             return splitNode;
         }
     }
