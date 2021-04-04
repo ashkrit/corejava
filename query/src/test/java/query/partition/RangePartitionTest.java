@@ -2,8 +2,9 @@ package query.partition;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.stream.IntStream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RangePartitionTest {
 
@@ -33,6 +34,21 @@ public class RangePartitionTest {
                 () -> assertEquals("value10", range.getValue(10))
         );
 
+    }
 
+    @Test
+    public void check_node_split() {
+
+        RangePartition<Integer, String> range = new RangePartition<>(5);
+
+        IntStream
+                .range(0, 5)
+                .forEach(r -> range.put(r, "value" + r));
+
+        IntStream
+                .range(5, 10)
+                .forEach(r -> range.put(r, "value" + r));
+
+        assertNotEquals(range.getPartition(0).name, range.getPartition(8).name);
     }
 }
