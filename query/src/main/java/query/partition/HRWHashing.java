@@ -16,8 +16,8 @@ import static java.util.stream.Collectors.groupingBy;
 public class HRWHashing<N> implements DistributedHash<N> {
 
     private final BiFunction<N, Object, Long> hash;
-    private ConcurrentMap<Integer, N> nodes = new ConcurrentHashMap<>();
-    private AtomicInteger index = new AtomicInteger();
+    private final ConcurrentMap<Integer, N> nodes = new ConcurrentHashMap<>();
+    private final AtomicInteger index = new AtomicInteger();
 
     public HRWHashing(BiFunction<N, Object, Long> hash) {
         this.hash = hash;
