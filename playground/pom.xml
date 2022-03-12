@@ -15,6 +15,7 @@
         <avro.version>1.10.0</avro.version>
         <sbe.version>1.7.1</sbe.version>
         <rocksdb.version>6.13.3</rocksdb.version>
+        <dependencies.dependency.version></dependencies.dependency.version>
     </properties>
 
     <dependencies>
@@ -95,7 +96,7 @@
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-map</artifactId>
-            <version><!--replace with the latest version--></version>
+            <version>3.23ea0</version>
         </dependency>
 
         <!-- chronicle End -->
