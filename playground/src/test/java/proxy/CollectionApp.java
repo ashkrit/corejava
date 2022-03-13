@@ -4,7 +4,7 @@ public class CollectionApp {
 
     public static void main(String[] args) {
 
-        BigCollection<String> collection = new BigCollectionProxy<>(AwsCollection::new);
+        BigCollection<String> collection = BigCollectionDynamicProxy.create(AwsCollection::new);
 
         collection.add("Value1");
         collection.add("Value2");
@@ -12,7 +12,6 @@ public class CollectionApp {
         collection.forEach(System.out::println);
 
         System.out.println("Exists " + collection.exists("Value2"));
-
 
     }
 }
