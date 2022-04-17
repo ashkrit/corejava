@@ -9,3 +9,6 @@ http://ashkrit.blogspot.com/2020/07/data-encoding-and-storage.html
 
 ## histogram is not instagram
 http://ashkrit.blogspot.com/2020/10/histogram-is-not-instagram.html
+
+## Concurrent Heap data structure
+https://ashkrit.blogspot.com/2022/03/concurrent-heap-data-structure.html
