@@ -7,10 +7,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Supplier;
 
-public class BigCollectionDynamicProxy implements InvocationHandler {
+public class LoggerProxy implements InvocationHandler {
     private final Object realObject;
 
-    public BigCollectionDynamicProxy(Object realObject) {
+    public LoggerProxy(Object realObject) {
         this.realObject = realObject;
     }
 
@@ -27,6 +27,6 @@ public class BigCollectionDynamicProxy implements InvocationHandler {
     public static <V> BigCollection<V> create(Supplier<BigCollection<V>> supplier) {
         return (BigCollection<V>) Proxy.newProxyInstance(BigCollection.class.getClassLoader(),
                 new Class<?>[]{BigCollection.class},
-                new BigCollectionDynamicProxy(supplier.get()));
+                new LoggerProxy(supplier.get()));
     }
 }

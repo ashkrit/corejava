@@ -7,10 +7,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Supplier;
 
-public class BigCollectionTimingProxy implements InvocationHandler {
+public class TimingProxy implements InvocationHandler {
     private final Object realObject;
 
-    public BigCollectionTimingProxy(Object realObject) {
+    public TimingProxy(Object realObject) {
         this.realObject = realObject;
     }
 
@@ -28,6 +28,6 @@ public class BigCollectionTimingProxy implements InvocationHandler {
     public static <V> BigCollection<V> create(Supplier<BigCollection<V>> supplier) {
         return (BigCollection<V>) Proxy.newProxyInstance(BigCollection.class.getClassLoader(),
                 new Class<?>[]{BigCollection.class},
-                new BigCollectionTimingProxy(supplier.get()));
+                new TimingProxy(supplier.get()));
     }
 }
