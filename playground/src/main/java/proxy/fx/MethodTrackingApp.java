@@ -19,11 +19,9 @@ public class MethodTrackingApp {
         MethodTimingTracker tracker = new MethodTimingTracker();
         ResultCache cache = new ResultCache();
 
-        FXServiceAPI core = new FXServiceAPI("https://api.exchangerate.host", 1);
-
+        FXService core = new FXServiceAPI("https://api.exchangerate.host", 1);
         FXService timeRecorderProxy = create(FXService.class, new TimeRecorderProxy(core, tracker));
         FXService standInProxy = create(FXService.class, new StandInProcessingProxy(timeRecorderProxy, cache));
-
         FXService fx = standInProxy;
 
 
