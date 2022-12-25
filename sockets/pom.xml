@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source.version>12</maven.compiler.source.version>
-        <maven.compiler.target.version>12</maven.compiler.target.version>
+        <maven.compiler.source.version>19</maven.compiler.source.version>
+        <maven.compiler.target.version>19</maven.compiler.target.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <junit.jupiter.version>5.9.0</junit.jupiter.version>
     </properties>
@@ -45,9 +45,20 @@
                 <configuration>
                     <source>${maven.compiler.source.version}</source>
                     <target>${maven.compiler.target.version}</target>
-                    <release>12</release>
-                    <compilerArgs>--enable-preview</compilerArgs>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>${junit.jupiter.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
