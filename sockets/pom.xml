@@ -11,8 +11,8 @@
     <properties>
         <maven.compiler.source.version>12</maven.compiler.source.version>
         <maven.compiler.target.version>12</maven.compiler.target.version>
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-        <junit.jupiter.version>5.5.1</junit.jupiter.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <junit.jupiter.version>5.9.0</junit.jupiter.version>
     </properties>
 
     <dependencies>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.6</version>
+            <version>2.10</version>
         </dependency>
     </dependencies>
 
