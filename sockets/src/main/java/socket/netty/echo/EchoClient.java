@@ -1,4 +1,4 @@
-package socket.netty;
+package socket.netty.echo;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -12,7 +12,6 @@ import io.netty.util.CharsetUtil;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
-import java.util.Scanner;
 
 public class EchoClient {
 

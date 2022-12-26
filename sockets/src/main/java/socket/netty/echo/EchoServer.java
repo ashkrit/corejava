@@ -1,4 +1,4 @@
-package socket.netty;
+package socket.netty.echo;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
