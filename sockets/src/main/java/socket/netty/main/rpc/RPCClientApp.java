@@ -1,6 +1,8 @@
-package socket.netty.main;
+package socket.netty.main.rpc;
 
 import com.google.gson.Gson;
+import socket.netty.eventstore.ClientInfo;
+import socket.netty.main.RequestMessage;
 import socket.netty.rpc.RPCClient;
 import socket.netty.rpc.MessageFormat;
 import socket.netty.rpc.impl.client.NettyRPCClient;

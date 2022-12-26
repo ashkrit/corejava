@@ -1,5 +1,7 @@
 package socket.netty.main;
 
+import socket.netty.eventstore.ClientInfo;
+
 public class RequestMessage {
     public final String action;
     public final String messageId;

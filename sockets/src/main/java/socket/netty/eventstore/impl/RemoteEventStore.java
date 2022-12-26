@@ -1,6 +1,9 @@
-package socket.netty.main;
+package socket.netty.eventstore.impl;
 
 import com.google.gson.Gson;
+import socket.netty.eventstore.ClientInfo;
+import socket.netty.eventstore.EventStore;
+import socket.netty.main.RequestMessage;
 import socket.netty.rpc.MessageFormat;
 import socket.netty.PanicCodeExecutor;
 import socket.netty.rpc.RPCServer;

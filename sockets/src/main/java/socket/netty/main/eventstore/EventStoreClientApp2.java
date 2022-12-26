@@ -1,4 +1,7 @@
-package socket.netty.main;
+package socket.netty.main.eventstore;
+
+import socket.netty.eventstore.EventStore;
+import socket.netty.eventstore.impl.RemoteEventStore;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

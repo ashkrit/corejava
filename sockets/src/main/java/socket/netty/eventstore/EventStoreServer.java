@@ -1,6 +1,7 @@
-package socket.netty.main;
+package socket.netty.eventstore;
 
 import com.google.gson.Gson;
+import socket.netty.main.RequestMessage;
 import socket.netty.rpc.MessageFormat;
 import socket.netty.rpc.RPCClient;
 import socket.netty.rpc.RPCServer;
@@ -17,35 +18,49 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class EventStoreServerApp {
+public class EventStoreServer {
 
-    public static void main(String[] args) {
+    private final RPCServer server;
+    private final Map<String, ClientInfo> clients = new ConcurrentHashMap<>();
+    private Map<String, Consumer<byte[]>> messageProcessor = new HashMap<>();
 
-        int port = Integer.parseInt(args[0]);
-        RPCServer server = new NettyRPCServer(port);
-        Map<String, ClientInfo> clients = new ConcurrentHashMap<>();
-        Map<String, Consumer<byte[]>> messageProcessor = new HashMap<>();
-
+    public EventStoreServer(int port) {
+        this.server = new NettyRPCServer(port);
         messageProcessor.put("/register", register());
         messageProcessor.put("/publish", publish(clients));
 
         server.onMessage(onMessage(clients, messageProcessor));
+    }
 
+    public void start() {
         server.start();
+    }
 
-        System.out.println("Type close to disconnect");
+    public void stop() {
+        server.stop();
+    }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        reader.lines().filter(li -> !li.isEmpty()).forEach(cmd -> {
-            if (cmd.equalsIgnoreCase("stop")) {
-                server.stop();
-            } else {
-                System.out.println("Not supported command " + cmd);
-            }
+    private Consumer<byte[]> publish(Map<String, ClientInfo> clients) {
+        return message -> clients.forEach((key, value) -> {
+            RPCClient rpcClient = new NettyRPCClient(value.host, value.port);
+            rpcClient.send(message, MessageFormat.Json);
         });
     }
 
-    private static BiConsumer<MessageHeader, byte[]> onMessage(Map<String, ClientInfo> clients, Map<String, Consumer<byte[]>> messageProcessor) {
+    private Consumer<byte[]> register() {
+        return message -> {
+
+            RequestMessage map = new Gson().fromJson(new String(message), RequestMessage.class);
+            ClientInfo clientInfo = map.clientInfo;
+            RPCClient rpcClient = new NettyRPCClient(clientInfo.host, clientInfo.port);
+            rpcClient.send("Client registered".getBytes(), MessageFormat.String);
+
+        };
+    }
+
+
+
+    private BiConsumer<MessageHeader, byte[]> onMessage(Map<String, ClientInfo> clients, Map<String, Consumer<byte[]>> messageProcessor) {
 
         return (header, message) -> {
 
@@ -72,22 +87,5 @@ public class EventStoreServerApp {
         };
     }
 
-    private static Consumer<byte[]> publish(Map<String, ClientInfo> clients) {
-        return message -> clients.forEach((key, value) -> {
-            RPCClient rpcClient = new NettyRPCClient(value.host, value.port);
-            rpcClient.send(message, MessageFormat.Json);
-        });
-    }
-
-    private static Consumer<byte[]> register() {
-        return message -> {
-
-            RequestMessage map = new Gson().fromJson(new String(message), RequestMessage.class);
-            ClientInfo clientInfo = map.clientInfo;
-            RPCClient rpcClient = new NettyRPCClient(clientInfo.host, clientInfo.port);
-            rpcClient.send("Client registered".getBytes(), MessageFormat.String);
-
-        };
-    }
 
 }

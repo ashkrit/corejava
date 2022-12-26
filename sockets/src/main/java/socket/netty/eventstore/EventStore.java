@@ -1,4 +1,4 @@
-package socket.netty.main;
+package socket.netty.eventstore;
 
 import java.util.function.Consumer;
 

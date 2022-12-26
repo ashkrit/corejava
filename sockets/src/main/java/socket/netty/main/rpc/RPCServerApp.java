@@ -1,6 +1,7 @@
-package socket.netty.main;
+package socket.netty.main.rpc;
 
 import com.google.gson.Gson;
+import socket.netty.main.RequestMessage;
 import socket.netty.rpc.MessageFormat;
 import socket.netty.rpc.impl.server.NettyRPCServer;
 import socket.netty.rpc.RPCServer;
