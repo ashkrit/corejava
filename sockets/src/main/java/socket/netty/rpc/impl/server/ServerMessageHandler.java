@@ -1,12 +1,12 @@
-package socket.netty.impl.server;
+package socket.netty.rpc.impl.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import socket.netty.impl.MessageHandler;
-import socket.netty.impl.MessageHeader;
+import socket.netty.rpc.impl.MessageHandler;
+import socket.netty.rpc.impl.MessageHeader;
 
 import java.util.function.BiConsumer;
 

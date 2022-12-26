@@ -1,9 +1,9 @@
 package socket.netty.main;
 
 import com.google.gson.Gson;
-import socket.netty.RPCClient;
-import socket.netty.MessageFormat;
-import socket.netty.impl.client.NettyRPCClient;
+import socket.netty.rpc.RPCClient;
+import socket.netty.rpc.MessageFormat;
+import socket.netty.rpc.impl.client.NettyRPCClient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,14 +1,13 @@
 package socket.netty.main;
 
 import com.google.gson.Gson;
-import socket.netty.MessageFormat;
-import socket.netty.impl.server.NettyRPCServer;
-import socket.netty.RPCServer;
+import socket.netty.rpc.MessageFormat;
+import socket.netty.rpc.impl.server.NettyRPCServer;
+import socket.netty.rpc.RPCServer;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Map;
 
 public class RPCServerApp {
 

@@ -1,12 +1,12 @@
-package socket.netty.impl.server;
+package socket.netty.rpc.impl.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import socket.netty.impl.MessageHeader;
-import socket.netty.RPCServer;
+import socket.netty.rpc.impl.MessageHeader;
+import socket.netty.rpc.RPCServer;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;

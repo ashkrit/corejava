@@ -1,4 +1,4 @@
-package socket.netty;
+package socket.netty.rpc;
 
 import java.util.function.Consumer;
 

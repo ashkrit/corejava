@@ -1,4 +1,4 @@
-package socket.netty.impl.client;
+package socket.netty.rpc.impl.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -7,8 +7,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import socket.netty.MessageFormat;
-import socket.netty.RPCClient;
+import socket.netty.rpc.MessageFormat;
+import socket.netty.rpc.RPCClient;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;

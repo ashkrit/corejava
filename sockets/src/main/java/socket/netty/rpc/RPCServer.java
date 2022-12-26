@@ -1,7 +1,7 @@
-package socket.netty;
+package socket.netty.rpc;
 
-import socket.netty.impl.MessageHeader;
-import socket.netty.impl.server.ServerStatus;
+import socket.netty.rpc.impl.MessageHeader;
+import socket.netty.rpc.impl.server.ServerStatus;
 
 import java.util.function.BiConsumer;
 
