@@ -21,10 +21,12 @@ public class NettyRPCServer implements RPCServer {
     private NioEventLoopGroup group;
     private ChannelFuture channelFuture;
     private final ExecutorService es = Executors.newSingleThreadExecutor();
+    private volatile ServerStatus serverStatus = ServerStatus.Init;
     private BiConsumer<MessageHeader, byte[]> consumer = (header, message) -> {
         System.out.println("Header :" + header);
         System.out.println("Message :" + new String(message));
     };
+    private Exception error;
 
     public NettyRPCServer(int port) {
         this.port = port;
@@ -48,7 +50,14 @@ public class NettyRPCServer implements RPCServer {
             }
         });
 
-        this.channelFuture = b.bind();
+        execute(() -> {
+            this.channelFuture = b.bind().sync();
+            serverStatus = ServerStatus.Started;
+        }, e -> {
+            this.serverStatus = ServerStatus.BindError;
+            e.printStackTrace();
+            this.error = e;
+        });
         System.out.println("Server Started at " + localAddress);
     }
 
@@ -65,6 +74,16 @@ public class NettyRPCServer implements RPCServer {
     @Override
     public void onMessage(BiConsumer<MessageHeader, byte[]> consumer) {
         this.consumer = consumer;
+    }
+
+    @Override
+    public ServerStatus status() {
+        return serverStatus;
+    }
+
+    @Override
+    public int port() {
+        return port;
     }
 
 
