@@ -3,7 +3,7 @@ package socket.netty.main;
 import com.google.gson.Gson;
 import socket.netty.RPCClient;
 import socket.netty.MessageFormat;
-import socket.netty.impl.NettyRPCClient;
+import socket.netty.impl.client.NettyRPCClient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

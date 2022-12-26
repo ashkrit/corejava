@@ -2,7 +2,7 @@ package socket.netty.main;
 
 import com.google.gson.Gson;
 import socket.netty.MessageFormat;
-import socket.netty.impl.NetyRPCServer;
+import socket.netty.impl.server.NettyRPCServer;
 import socket.netty.RPCServer;
 
 import java.io.BufferedReader;
@@ -15,7 +15,7 @@ public class RPCServerApp {
     public static void main(String[] args) {
 
         int port = Integer.parseInt(args[0]);
-        RPCServer server = new NetyRPCServer(port);
+        RPCServer server = new NettyRPCServer(port);
         server.onMessage((header, message) -> {
 
             System.out.println("Header :" + header);
