@@ -2,20 +2,20 @@ package socket.netty.main;
 
 import com.google.gson.Gson;
 import socket.netty.MessageFormat;
-import socket.netty.impl.MessageQueueServer;
-import socket.netty.MessageServer;
+import socket.netty.impl.NetyRPCServer;
+import socket.netty.RPCServer;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Map;
 
-public class MessageServerApp {
+public class RPCServerApp {
 
     public static void main(String[] args) {
 
         int port = Integer.parseInt(args[0]);
-        MessageServer server = new MessageQueueServer(port);
+        RPCServer server = new NetyRPCServer(port);
         server.onMessage((header, message) -> {
 
             System.out.println("Header :" + header);

@@ -7,28 +7,34 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import socket.netty.MessageClient;
+import socket.netty.RPCClient;
 import socket.netty.MessageFormat;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static socket.netty.impl.MessageHandler.createHeader;
 
-public class MessageQueueClient implements MessageClient {
+public class NettyRPCClient implements RPCClient {
 
     private final String host;
     private final int port;
     private Consumer<byte[]> consumer = reply -> System.out.println("Reply :" + new String(reply));
+    private ExecutorService es = Executors.newCachedThreadPool();
 
-    public MessageQueueClient(String host, int port) {
+    public NettyRPCClient(String host, int port) {
         this.host = host;
         this.port = port;
     }
 
 
     public void send(byte[] message, MessageFormat format) {
+        es.submit(() -> _send(message, format));
+    }
 
+    private void _send(byte[] message, MessageFormat format) {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();

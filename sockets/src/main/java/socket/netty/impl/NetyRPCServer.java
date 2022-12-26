@@ -9,7 +9,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import socket.netty.impl.MessageHandler.MessageHeader;
-import socket.netty.MessageServer;
+import socket.netty.RPCServer;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
-public class MessageQueueServer implements MessageServer {
+public class NetyRPCServer implements RPCServer {
 
     private final int port;
     private NioEventLoopGroup group;
@@ -28,7 +28,7 @@ public class MessageQueueServer implements MessageServer {
         System.out.println("Message :" + new String(message));
     };
 
-    public MessageQueueServer(int port) {
+    public NetyRPCServer(int port) {
         this.port = port;
     }
 

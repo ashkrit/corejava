@@ -4,7 +4,7 @@ import socket.netty.impl.MessageHandler.MessageHeader;
 
 import java.util.function.BiConsumer;
 
-public interface MessageServer {
+public interface RPCServer {
 
     void start();
 

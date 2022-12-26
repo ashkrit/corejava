@@ -2,7 +2,7 @@ package socket.netty;
 
 import java.util.function.Consumer;
 
-public interface MessageClient {
+public interface RPCClient {
 
     void send(byte[] message, MessageFormat format);
 
