@@ -1,13 +1,12 @@
 package socket.netty.impl;
 
-import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 public class MessageHandler {
 
-    public static ByteBuf createHeader(int version, byte flag, byte format, int messageSize) {
-        ByteBuf header = Unpooled.buffer(MessagePacket.headerLength());
+    public static ByteBuf writeHeader(int version, byte flag, byte format, int messageSize) {
+        ByteBuf header = Unpooled.buffer(NetworkPacketMetaData.headerLength());
         header.writeByte(version);
         header.writeByte(flag);
         header.writeByte(format);
@@ -25,26 +24,6 @@ public class MessageHandler {
 
     public static int calculateFrameSize(ByteBuf header, ByteBuf messageBody) {
         return header.readableBytes() + messageBody.readableBytes();
-    }
-
-    public static class MessageHeader {
-        public final byte version;
-        public final byte flag;
-        public final byte format;
-        public final int messageSize;
-
-
-        public MessageHeader(byte version, byte flag, byte format, int messageSize) {
-            this.version = version;
-            this.flag = flag;
-            this.format = format;
-            this.messageSize = messageSize;
-        }
-
-        @Override
-        public String toString() {
-            return new Gson().toJson(this);
-        }
     }
 
 }

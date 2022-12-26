@@ -20,7 +20,7 @@ package socket.netty.impl;
  *
  */
 
-public class MessagePacket {
+public class NetworkPacketMetaData {
 
     static final int VERSION = 8;
     static final int FLAG = 8;

@@ -5,8 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import socket.netty.PanicCodeExecutor;
-import socket.netty.impl.MessageHandler.MessageHeader;
+import socket.netty.impl.MessageHeader;
 import socket.netty.RPCServer;
 
 import java.net.InetSocketAddress;
@@ -44,7 +43,7 @@ public class NettyRPCServer implements RPCServer {
         b.group(group).channel(NioServerSocketChannel.class).localAddress(localAddress).childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
-                ch.pipeline().addLast(new HeaderDecoder(), new ServerMessageHandler(consumer));
+                ch.pipeline().addLast(new HeaderMessageDecoder(), new ServerMessageHandler(consumer));
 
             }
         });

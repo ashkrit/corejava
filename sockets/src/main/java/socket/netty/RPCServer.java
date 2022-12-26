@@ -1,6 +1,6 @@
 package socket.netty;
 
-import socket.netty.impl.MessageHandler.MessageHeader;
+import socket.netty.impl.MessageHeader;
 
 import java.util.function.BiConsumer;
 

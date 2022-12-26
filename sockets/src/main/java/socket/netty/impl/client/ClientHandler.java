@@ -8,7 +8,7 @@ import socket.netty.impl.MessageHandler;
 
 import java.util.function.Consumer;
 
-import static socket.netty.impl.MessageHandler.createHeader;
+import static socket.netty.impl.MessageHandler.writeHeader;
 
 public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
@@ -27,7 +27,7 @@ public class ClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
 
         ByteBuf messageBuffer = Unpooled.copiedBuffer(message);
-        ByteBuf headerBuffer = createHeader(0, (byte) 0, messageType, messageBuffer.readableBytes());
+        ByteBuf headerBuffer = writeHeader(0, (byte) 0, messageType, messageBuffer.readableBytes());
 
         int frameSize = MessageHandler.calculateFrameSize(headerBuffer, messageBuffer);
 

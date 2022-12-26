@@ -6,14 +6,15 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import socket.netty.impl.MessageHandler;
+import socket.netty.impl.MessageHeader;
 
 import java.util.function.BiConsumer;
 
 public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
-    private final BiConsumer<MessageHandler.MessageHeader, byte[]> consumer;
+    private final BiConsumer<MessageHeader, byte[]> consumer;
 
-    public ServerMessageHandler(BiConsumer<MessageHandler.MessageHeader, byte[]> consumer) {
+    public ServerMessageHandler(BiConsumer<MessageHeader, byte[]> consumer) {
         this.consumer = consumer;
     }
 
@@ -21,7 +22,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext context, Object object) {
         ByteBuf in = (ByteBuf) object;
 
-        MessageHandler.MessageHeader header = MessageHandler.readHeader(in);
+        MessageHeader header = MessageHandler.readHeader(in);
         ByteBuf message = in.readBytes(header.messageSize);
 
         int readIndex = message.readerIndex();
@@ -32,7 +33,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         context.write(message); //Send same reply... This is not must
     }
 
-    private void decodeMessage(MessageHandler.MessageHeader header, ByteBuf message) {
+    private void decodeMessage(MessageHeader header, ByteBuf message) {
         byte[] rawBytes = new byte[message.readableBytes()];
         message.readBytes(rawBytes);
         consumer.accept(header, rawBytes);
