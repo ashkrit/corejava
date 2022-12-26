@@ -9,8 +9,6 @@ import socket.netty.rpc.impl.MessageHeader;
 import socket.netty.rpc.impl.client.NettyRPCClient;
 import socket.netty.rpc.impl.server.NettyRPCServer;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +26,6 @@ public class EventStoreServer {
         this.server = new NettyRPCServer(port);
         messageProcessor.put("/register", register());
         messageProcessor.put("/publish", publish(clients));
-
         server.onMessage(onMessage(clients, messageProcessor));
     }
 
@@ -50,7 +47,7 @@ public class EventStoreServer {
     private Consumer<byte[]> register() {
         return message -> {
 
-            RequestMessage map = new Gson().fromJson(new String(message), RequestMessage.class);
+            RequestMessage map = decode(message);
             ClientInfo clientInfo = map.clientInfo;
             RPCClient rpcClient = new NettyRPCClient(clientInfo.host, clientInfo.port);
             rpcClient.send("Client registered".getBytes(), MessageFormat.String);
@@ -59,32 +56,39 @@ public class EventStoreServer {
     }
 
 
-
     private BiConsumer<MessageHeader, byte[]> onMessage(Map<String, ClientInfo> clients, Map<String, Consumer<byte[]>> messageProcessor) {
 
         return (header, message) -> {
 
-            System.out.println("Header :" + header);
-            MessageFormat messageFormat = Arrays.stream(MessageFormat.values()).filter(format -> format.ordinal() == header.format).findAny().orElse(MessageFormat.String);
+            MessageFormat messageFormat = toMessageFormat(header);
 
             switch (messageFormat) {
                 case String -> System.out.println("String Message :" + new String(message));
-                case Json -> {
-                    RequestMessage map = new Gson().fromJson(new String(message), RequestMessage.class);
-                    System.out.println("Json Message :" + new Gson().toJson(map));
-                    ClientInfo clientInfo = map.clientInfo;
-                    clients.putIfAbsent(clientInfo.key(), clientInfo);
-
-                    System.out.println(String.format("Processing : %s , message id : %s", map.action, map.messageId));
-                    Consumer<byte[]> messageCOnsumer = messageProcessor.getOrDefault(map.action, $ -> System.out.println("No mapping for action:" + map.action));
-
-                    messageCOnsumer.accept(message);
-
-                }
+                case Json -> processAsJson(clients, messageProcessor, message);
             }
 
 
         };
+    }
+
+    private static void processAsJson(Map<String, ClientInfo> clients, Map<String, Consumer<byte[]>> messageProcessor, byte[] message) {
+        RequestMessage requestMessage = decode(message);
+        ClientInfo clientInfo = requestMessage.clientInfo;
+        clients.putIfAbsent(clientInfo.key(), clientInfo);
+        System.out.println(String.format("Processing : %s , message id : %s", requestMessage.action, requestMessage.messageId));
+        messageProcessor.getOrDefault(requestMessage.action, noAction(requestMessage)).accept(message);
+    }
+
+    private static RequestMessage decode(byte[] message) {
+        return new Gson().fromJson(new String(message), RequestMessage.class);
+    }
+
+    private static MessageFormat toMessageFormat(MessageHeader header) {
+        return Arrays.stream(MessageFormat.values()).filter(format -> format.ordinal() == header.format).findAny().orElse(MessageFormat.String);
+    }
+
+    private static Consumer<byte[]> noAction(RequestMessage map) {
+        return $ -> System.out.println("No mapping for action:" + map.action);
     }
 
 

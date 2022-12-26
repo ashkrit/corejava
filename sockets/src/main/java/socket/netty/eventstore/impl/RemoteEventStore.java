@@ -54,8 +54,8 @@ public class RemoteEventStore<T> implements EventStore<T> {
 
     private void startEmbeddedServer(int remotePort) {
         int nextPort = remotePort;
-        for (int times = 0; times < 20; times++, ++nextPort) {
-
+        nextPort++;
+        for (int times = 0; times < 20; times++, nextPort++) {
             System.out.println("Starting on " + nextPort);
             this.embedServer = new NettyRPCServer(nextPort);
             this.embedServer.onMessage(onMessageReceived());
@@ -73,22 +73,27 @@ public class RemoteEventStore<T> implements EventStore<T> {
 
     private BiConsumer<MessageHeader, byte[]> onMessageReceived() {
         return (header, rawMessage) -> {
-            //System.out.println("Header :" + header);
             if (header.format == MessageFormat.String.ordinal()) {
                 System.out.println("On Message :" + new String(rawMessage));
             } else {
-                Gson gson = new Gson();
-                RequestMessage requestMessage = gson.fromJson(new String(rawMessage), RequestMessage.class);
-                System.out.println(String.format("Received Message from %s , Message Id : %s", requestMessage.clientInfo.key(), requestMessage.messageId));
-
-                T messageToPublish = decodeMessage(requestMessage);
-
-                consumers.forEach(($, c) -> {
-                    c.accept(messageToPublish);
-                });
+                processAsJson(rawMessage);
 
             }
         };
+    }
+
+    private void processAsJson(byte[] rawMessage) {
+        Gson gson = new Gson();
+        RequestMessage requestMessage = gson.fromJson(new String(rawMessage), RequestMessage.class);
+        System.out.println(String.format("Received Message from %s , Message Id : %s", requestMessage.clientInfo.key(), requestMessage.messageId));
+        T messageToPublish = decodeMessage(requestMessage);
+        sendToConsumer(messageToPublish);
+    }
+
+    private void sendToConsumer(T messageToPublish) {
+        consumers.forEach(($, c) -> {
+            c.accept(messageToPublish);
+        });
     }
 
     private T decodeMessage(RequestMessage map) {
@@ -101,7 +106,6 @@ public class RemoteEventStore<T> implements EventStore<T> {
 
     @Override
     public void publish(T event) {
-
         RequestMessage message = new RequestMessage(localServerClientInfo, UUID.randomUUID().toString(), "/publish", event);
         rpcClient.send(toJson(message), MessageFormat.Json);
 
