@@ -16,6 +16,8 @@ public class RPCServerApp {
 
         int port = Integer.parseInt(args[0]);
         RPCServer server = new NettyRPCServer(port);
+
+
         server.onMessage((header, message) -> {
 
             System.out.println("Header :" + header);
@@ -23,7 +25,12 @@ public class RPCServerApp {
 
             switch (messageFormat) {
                 case String -> System.out.println("String Message :" + new String(message));
-                case Json -> System.out.println("Json Message :" + new Gson().fromJson(new String(message), Map.class));
+                case Json -> {
+                    RequestMessage map = new Gson().fromJson(new String(message), RequestMessage.class);
+                    System.out.println("Json Message :" + new Gson().toJson(map));
+                    processMessage(map);
+
+                }
             }
 
 
@@ -42,4 +49,9 @@ public class RPCServerApp {
             }
         });
     }
+
+    private static void processMessage(RequestMessage message) {
+
+    }
+
 }
