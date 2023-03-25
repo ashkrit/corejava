@@ -1,6 +1,6 @@
 package proxy.fx.impl;
 
-import org.jetbrains.annotations.NotNull;
+
 import proxy.fx.FXService;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class FXServiceAPI implements FXService {
 
     }
 
-    @NotNull
+
     private HttpURLConnection createConnection(String from, String to, int amount) throws IOException {
         URL u = new URL(String.format("%s?from=%s&to=%s&amount=%s&format=tsv", ratesApi, from, to, amount));
         HttpURLConnection con = (HttpURLConnection) u.openConnection();
@@ -46,7 +46,7 @@ public class FXServiceAPI implements FXService {
         return con;
     }
 
-    @NotNull
+
     private static StringBuilder connect(HttpURLConnection con) throws IOException {
         InputStream in = con.getInputStream();
         int b = -1;
