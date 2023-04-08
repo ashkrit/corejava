@@ -6,7 +6,9 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Experiment<T> {
     private final String name;
@@ -15,6 +17,7 @@ public class Experiment<T> {
 
     private final ConcurrentMap<Long, ExperimentResult> results = new ConcurrentSkipListMap<>();
     private final List<BiFunction<T, T, Object>> resultComparator = new CopyOnWriteArrayList<>();
+    private List<Object> compareResults;
     private final AtomicLong sequence = new AtomicLong();
 
     public Experiment(String name) {
@@ -37,7 +40,9 @@ public class Experiment<T> {
 
         ExperimentResult<T> result = results.get(seq);
 
-        resultComparator.forEach(c -> c.apply(result.control, result.candidate));
+        compareResults = resultComparator.stream()
+                .map(c -> c.apply(result.control, result.candidate))
+                .collect(Collectors.toList());
 
     }
 
@@ -47,4 +52,11 @@ public class Experiment<T> {
         return this;
     }
 
+    public void publish(Consumer<Object> consumer) {
+        compareResults.forEach(consumer::accept);
+    }
+
+    public void publish() {
+        publish(System.out::println);
+    }
 }
