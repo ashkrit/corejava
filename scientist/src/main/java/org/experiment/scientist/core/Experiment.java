@@ -9,16 +9,18 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Experiment<T> {
     private final String name;
     private Supplier<T> control;
     private Supplier<T> candidate;
 
-    private final ConcurrentMap<Long, ExperimentResult> results = new ConcurrentSkipListMap<>();
     private final List<BiFunction<T, T, Object>> resultComparator = new CopyOnWriteArrayList<>();
-    private List<Object> compareResults;
+    private ConcurrentMap<Long, List<Object>> compareResults = new ConcurrentSkipListMap<>();
     private final AtomicLong sequence = new AtomicLong();
+    private int times = 1;
+    private boolean parallel;
 
     public Experiment(String name) {
         this.name = name;
@@ -34,16 +36,29 @@ public class Experiment<T> {
         return this;
     }
 
-    public void run() {
-        long seq = sequence.incrementAndGet();
-        results.put(seq, new ExperimentResult<>(control.get(), candidate.get()));
+    public Experiment<T> run() {
 
-        ExperimentResult<T> result = results.get(seq);
+        compareResults.clear();
 
-        compareResults = resultComparator.stream()
-                .map(c -> c.apply(result.control, result.candidate))
-                .collect(Collectors.toList());
 
+        IntStream stream = IntStream.range(0, times);
+
+        if (parallel) {
+            stream = stream.parallel();
+        }
+
+        stream.forEach($ -> _execute());
+
+        return this;
+
+    }
+
+    private void _execute() {
+        ExperimentResult<T> result = new ExperimentResult<>(control.get(), candidate.get());
+        long nextSeq = sequence.incrementAndGet();
+        List<Object> results = resultComparator.stream().map(c -> c.apply(result.control, result.candidate)).collect(Collectors.toList());
+
+        compareResults.put(nextSeq, results);
     }
 
 
@@ -52,11 +67,24 @@ public class Experiment<T> {
         return this;
     }
 
-    public void publish(Consumer<Object> consumer) {
-        compareResults.forEach(consumer::accept);
+    public Experiment<T> publish(Consumer<Object> consumer) {
+        consumer.accept(name);
+        compareResults.values().forEach(consumer);
+        return this;
     }
 
-    public void publish() {
+    public Experiment<T> publish() {
         publish(System.out::println);
+        return this;
+    }
+
+    public Experiment<T> times(int times) {
+        this.times = times;
+        return this;
+    }
+
+    public Experiment<T> parallel() {
+        this.parallel = true;
+        return this;
     }
 }
