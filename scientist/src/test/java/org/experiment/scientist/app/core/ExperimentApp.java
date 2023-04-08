@@ -23,22 +23,22 @@ public class ExperimentApp {
         };
 
         experiment
-                .withTest(() -> currentImpl())
-                .withControl(() -> newImpl())
-                .compare(c)
+                .withControl(ExperimentApp::controlLogic)
+                .withCandidate(ExperimentApp::candidateLogic)
+                .compareResult(c)
                 .run();
 
 
     }
 
-    private static String[] newImpl() {
+    private static String[] candidateLogic() {
         String[] strings = {"Z", "A", "C", "B"};
         Sorting<String> sort = new LanguageSort<>();
         sort.sort(strings);
         return strings;
     }
 
-    private static String[] currentImpl() {
+    private static String[] controlLogic() {
         String[] strings = {"Z", "A", "C", "B"};
         Sorting<String> sort = new BubbleSort<>();
         sort.sort(strings);
