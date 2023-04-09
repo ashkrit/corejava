@@ -6,7 +6,13 @@ import org.experiment.scientist.app.algorithim.Sorting;
 import org.experiment.scientist.core.Experiment;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,17 +20,45 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ExperimentApp {
 
     public static void main(String[] args) {
-        Experiment<String[]> experiment = new Experiment("Sorting Experiment");
+        Experiment<String[], String[]> experiment = new Experiment("Sorting Experiment");
 
 
         experiment
                 .withControl(ExperimentApp::controlLogic)
                 .withCandidate(ExperimentApp::candidateLogic)
+                .withParamGenerator(() -> itemsToSort())
                 .compareResult(compareArray())
                 .compareResult(compareLength())
-                .times(10)
+                .times(1000)
                 .parallel()
-                .run().publish();
+                .run()
+                .publish();
+
+
+    }
+
+    private static String[] itemsToSort() {
+        List<String> original = toAlphabets();
+        Collections.shuffle(original);
+
+        int fixedItem = 0;
+        int seed = ThreadLocalRandom.current().nextInt(original.size() - fixedItem);
+        String[] shuffleItems = original.toArray(new String[]{});
+        return Arrays.copyOf(shuffleItems, fixedItem + seed);
+    }
+
+    private static List<String> toAlphabets() {
+        Stream<Character> lowerCase = Stream
+                .iterate((char) 97, i -> (char) (i + 1))
+                .limit(26);
+
+        Stream<Character> upperCase = Stream
+                .iterate((char) 65, i -> (char) (i + 1))
+                .limit(26);
+
+        return Stream.concat(upperCase, lowerCase)
+                .map(String::valueOf)
+                .collect(Collectors.toList());
 
 
     }
@@ -51,17 +85,18 @@ public class ExperimentApp {
         };
     }
 
-    private static String[] candidateLogic() {
-        String[] strings = {"Z", "A", "C", "B"};
+    private static String[] candidateLogic(String[] param) {
+
+        String[] cloneValue = Arrays.copyOf(param, param.length);
         Sorting<String> sort = new LanguageSort<>();
-        sort.sort(strings);
-        return strings;
+        sort.sort(cloneValue);
+        return cloneValue;
     }
 
-    private static String[] controlLogic() {
-        String[] strings = {"Z", "A", "C", "B"};
+    private static String[] controlLogic(String[] param) {
+        String[] cloneValue = Arrays.copyOf(param, param.length);
         Sorting<String> sort = new BubbleSort<>();
-        sort.sort(strings);
-        return strings;
+        sort.sort(cloneValue);
+        return cloneValue;
     }
 }
