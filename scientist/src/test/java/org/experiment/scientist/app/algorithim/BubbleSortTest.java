@@ -28,8 +28,8 @@ public class BubbleSortTest {
         String[] langSortInputValues = values.toArray(new String[]{});
         String[] bubbleSortInputValues = values.toArray(new String[]{});
 
-        Sorting<String> langSort = new LanguageSort<String>();
-        Sorting<String> bubbleSort = new BubbleSort<String>();
+        Sorting<String> langSort = new LanguageSort<>();
+        Sorting<String> bubbleSort = new BubbleSort<>();
 
 
         langSort.sort(langSortInputValues);
