@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,13 +21,39 @@ public class ExperimentApp {
     public static void main(String[] args) {
         Experiment<String[], String[]> experiment = new Experiment("Sorting Experiment");
 
-
         experiment
-                .withControl(ExperimentApp::controlLogic)
-                .withCandidate(ExperimentApp::candidateLogic)
+                .withControl("bubble sort", param -> {
+                    String[] cloneValue = Arrays.copyOf(param, param.length);
+                    Sorting<String> sort = new BubbleSort<>();
+                    sort.sort(cloneValue);
+                    return cloneValue;
+                })
+                .withCandidate("System sort", param -> {
+
+                    String[] cloneValue = Arrays.copyOf(param, param.length);
+                    Sorting<String> sort = new LanguageSort<>();
+                    sort.sort(cloneValue);
+                    return cloneValue;
+                })
+
                 .withParamGenerator(() -> itemsToSort())
-                .compareResult("Array Length", compareLength())
-                .compareResult("Array Content", compareArray())
+
+                .compareResult("Array Length", (control, candidate) -> {
+                    try {
+                        assertEquals(control.length, candidate.length);
+                        return String.format(LocalDateTime.now() + " - Matched Length %s = %s", control.length, candidate.length);
+                    } catch (Exception e) {
+                        return e.getMessage();
+                    }
+                })
+                .compareResult("Array Content", (control1, candidate1) -> {
+                    try {
+                        assertArrayEquals(control1, candidate1);
+                        return String.format(LocalDateTime.now() + " - Matched Content Head (%s,%s) , Tail  (%s,%s) ", control1[0], candidate1[0], control1[control1.length - 1], candidate1[candidate1.length - 1]);
+                    } catch (Exception e1) {
+                        return e1.getMessage();
+                    }
+                })
                 .times(1000)
                 .parallel()
                 .run()
@@ -63,40 +88,4 @@ public class ExperimentApp {
 
     }
 
-    private static BiFunction<String[], String[], Object> compareArray() {
-        return (control, candidate) -> {
-            try {
-                assertArrayEquals(control, candidate);
-                return String.format(LocalDateTime.now() + " - Matched Content Head (%s,%s) , Tail  (%s,%s) ", control[0], candidate[0], control[control.length - 1], candidate[candidate.length - 1]);
-            } catch (Exception e) {
-                return e.getMessage();
-            }
-        };
-    }
-
-    private static BiFunction<String[], String[], Object> compareLength() {
-        return (control, candidate) -> {
-            try {
-                assertEquals(control.length, candidate.length);
-                return String.format(LocalDateTime.now() + " - Matched Length %s = %s", control.length, candidate.length);
-            } catch (Exception e) {
-                return e.getMessage();
-            }
-        };
-    }
-
-    private static String[] candidateLogic(String[] param) {
-
-        String[] cloneValue = Arrays.copyOf(param, param.length);
-        Sorting<String> sort = new LanguageSort<>();
-        sort.sort(cloneValue);
-        return cloneValue;
-    }
-
-    private static String[] controlLogic(String[] param) {
-        String[] cloneValue = Arrays.copyOf(param, param.length);
-        Sorting<String> sort = new BubbleSort<>();
-        sort.sort(cloneValue);
-        return cloneValue;
-    }
 }

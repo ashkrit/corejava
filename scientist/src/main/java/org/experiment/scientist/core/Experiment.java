@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 
 public class Experiment<I, O> {
     private final String name;
-    private Function<I, O> control;
-    private Function<I, O> candidate;
+    private ExperimentFunction<I, O> control;
+    private ExperimentFunction<I, O> candidate;
 
     private final Map<String, BiFunction<O, O, Object>> resultComparator = new HashMap<>();
     private final ConcurrentMap<Long, List<ExperimentCompareResult>> compareResults = new ConcurrentSkipListMap<>();
@@ -31,13 +31,13 @@ public class Experiment<I, O> {
         this.name = name;
     }
 
-    public Experiment<I, O> withControl(Function<I, O> control) {
-        this.control = control;
+    public Experiment<I, O> withControl(String name, Function<I, O> control) {
+        this.control = new ExperimentFunction<>(name, control);
         return this;
     }
 
-    public Experiment<I, O> withCandidate(Function<I, O> candidate) {
-        this.candidate = candidate;
+    public Experiment<I, O> withCandidate(String name, Function<I, O> candidate) {
+        this.candidate = new ExperimentFunction(name, candidate);
         return this;
     }
 
@@ -60,8 +60,9 @@ public class Experiment<I, O> {
     }
 
     private void _execute(I input) {
-        ExperimentResult<O> result = new ExperimentResult<>(control.apply(input), candidate.apply(input));
+        ExperimentResult<O> result = new ExperimentResult<>(control.fn.apply(input), candidate.fn.apply(input));
         long nextSeq = sequence.incrementAndGet();
+
         List<ExperimentCompareResult> results = resultComparator
                 .entrySet()
                 .stream()
@@ -91,13 +92,17 @@ public class Experiment<I, O> {
 
     public Experiment<I, O> publish() {
         System.out.println("Result for " + name);
-        publish(r -> {
+        publish(consoleLog());
+        return this;
+    }
+
+    private static Consumer<List<ExperimentCompareResult>> consoleLog() {
+        return r -> {
             String result = r.stream()
                     .map(v -> String.format("%s -> %s", v.name, v.value))
                     .collect(Collectors.joining(";"));
             System.out.println(result);
-        });
-        return this;
+        };
     }
 
     public Experiment<I, O> times(int times) {
