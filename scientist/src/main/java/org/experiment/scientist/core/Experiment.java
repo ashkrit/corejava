@@ -1,9 +1,10 @@
 package org.experiment.scientist.core;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -18,13 +19,13 @@ public class Experiment<I, T> {
     private Function<I, T> control;
     private Function<I, T> candidate;
 
-    private final List<BiFunction<T, T, Object>> resultComparator = new CopyOnWriteArrayList<>();
-    private ConcurrentMap<Long, List<Object>> compareResults = new ConcurrentSkipListMap<>();
+    private final Map<String, BiFunction<T, T, Object>> resultComparator = new HashMap<>();
+    private ConcurrentMap<Long, List<ExperimentCompareResult>> compareResults = new ConcurrentSkipListMap<>();
     private final AtomicLong sequence = new AtomicLong();
     private int times = 1;
     private boolean parallel;
 
-    private Supplier<I> param;
+    private Supplier<I> paramSupplier;
 
     public Experiment(String name) {
         this.name = name;
@@ -44,8 +45,7 @@ public class Experiment<I, T> {
 
         compareResults.clear();
 
-
-        Stream<I> stream = IntStream.range(0, times).mapToObj($ -> param.get());
+        Stream<I> stream = IntStream.range(0, times).mapToObj($ -> paramSupplier.get());
 
         if (parallel) {
             stream = stream.parallel();
@@ -60,25 +60,41 @@ public class Experiment<I, T> {
     private void _execute(I input) {
         ExperimentResult<T> result = new ExperimentResult<>(control.apply(input), candidate.apply(input));
         long nextSeq = sequence.incrementAndGet();
-        List<Object> results = resultComparator.stream().map(c -> c.apply(result.control, result.candidate)).collect(Collectors.toList());
+        List<ExperimentCompareResult> results = resultComparator
+                .entrySet()
+                .stream()
+                .map(c -> _toExperimentResult(c.getKey(), c.getValue(), result))
+                .collect(Collectors.toList());
 
         compareResults.put(nextSeq, results);
     }
 
+    private ExperimentCompareResult _toExperimentResult(String name, BiFunction<T, T, Object> fn, ExperimentResult<T> result) {
+        return new ExperimentCompareResult(name, fn.apply(result.control, result.candidate));
+    }
 
-    public Experiment<I, T> compareResult(BiFunction<T, T, Object> compare) {
-        resultComparator.add(compare);
+
+    public Experiment<I, T> compareResult(String name, BiFunction<T, T, Object> compare) {
+        resultComparator.put(name, compare);
         return this;
     }
 
-    public Experiment<I, T> publish(Consumer<Object> consumer) {
-        consumer.accept(name);
-        compareResults.values().forEach(consumer);
+    public Experiment<I, T> publish(Consumer<List<ExperimentCompareResult>> consumer) {
+
+        compareResults
+                .values()
+                .forEach(consumer);
         return this;
     }
 
     public Experiment<I, T> publish() {
-        publish(System.out::println);
+        System.out.println("Result for " + name);
+        publish(r -> {
+            String result = r.stream()
+                    .map(v -> String.format("%s -> %s", v.name, v.value))
+                    .collect(Collectors.joining(";"));
+            System.out.println(result);
+        });
         return this;
     }
 
@@ -92,13 +108,8 @@ public class Experiment<I, T> {
         return this;
     }
 
-    public Experiment<I, T> withParam(I param) {
-        withParamGenerator(() -> param);
-        return this;
-    }
-
-    public Experiment<I, T> withParamGenerator(Supplier<I> o) {
-        this.param = o;
+    public Experiment<I, T> withParamGenerator(Supplier<I> paramSupplier) {
+        this.paramSupplier = paramSupplier;
         return this;
     }
 }
