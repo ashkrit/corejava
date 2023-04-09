@@ -2,6 +2,7 @@
 
 Scientist based on the ideas of the [Github Scientist](https://github.com/github/scientist/) implementation.
 
+This project contains source code for blog [safe refactoring using scientist](https://ashkrit.blogspot.com/2023/04/safe-refactoring-using-scientist.html)
 
 ### Simple Example
 ```
