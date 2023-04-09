@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class Experiment<I, T> {
+public class Experiment<I, O> {
     private final String name;
-    private Function<I, T> control;
-    private Function<I, T> candidate;
+    private Function<I, O> control;
+    private Function<I, O> candidate;
 
-    private final Map<String, BiFunction<T, T, Object>> resultComparator = new HashMap<>();
-    private ConcurrentMap<Long, List<ExperimentCompareResult>> compareResults = new ConcurrentSkipListMap<>();
+    private final Map<String, BiFunction<O, O, Object>> resultComparator = new HashMap<>();
+    private final ConcurrentMap<Long, List<ExperimentCompareResult>> compareResults = new ConcurrentSkipListMap<>();
     private final AtomicLong sequence = new AtomicLong();
     private int times = 1;
     private boolean parallel;
@@ -31,21 +31,23 @@ public class Experiment<I, T> {
         this.name = name;
     }
 
-    public Experiment<I, T> withControl(Function<I, T> control) {
+    public Experiment<I, O> withControl(Function<I, O> control) {
         this.control = control;
         return this;
     }
 
-    public Experiment<I, T> withCandidate(Function<I, T> candidate) {
+    public Experiment<I, O> withCandidate(Function<I, O> candidate) {
         this.candidate = candidate;
         return this;
     }
 
-    public Experiment<I, T> run() {
+    public Experiment<I, O> run() {
 
         compareResults.clear();
 
-        Stream<I> stream = IntStream.range(0, times).mapToObj($ -> paramSupplier.get());
+        Stream<I> stream = IntStream
+                .range(0, times)
+                .mapToObj($ -> paramSupplier.get());
 
         if (parallel) {
             stream = stream.parallel();
@@ -58,7 +60,7 @@ public class Experiment<I, T> {
     }
 
     private void _execute(I input) {
-        ExperimentResult<T> result = new ExperimentResult<>(control.apply(input), candidate.apply(input));
+        ExperimentResult<O> result = new ExperimentResult<>(control.apply(input), candidate.apply(input));
         long nextSeq = sequence.incrementAndGet();
         List<ExperimentCompareResult> results = resultComparator
                 .entrySet()
@@ -69,17 +71,17 @@ public class Experiment<I, T> {
         compareResults.put(nextSeq, results);
     }
 
-    private ExperimentCompareResult _toExperimentResult(String name, BiFunction<T, T, Object> fn, ExperimentResult<T> result) {
+    private ExperimentCompareResult _toExperimentResult(String name, BiFunction<O, O, Object> fn, ExperimentResult<O> result) {
         return new ExperimentCompareResult(name, fn.apply(result.control, result.candidate));
     }
 
 
-    public Experiment<I, T> compareResult(String name, BiFunction<T, T, Object> compare) {
+    public Experiment<I, O> compareResult(String name, BiFunction<O, O, Object> compare) {
         resultComparator.put(name, compare);
         return this;
     }
 
-    public Experiment<I, T> publish(Consumer<List<ExperimentCompareResult>> consumer) {
+    public Experiment<I, O> publish(Consumer<List<ExperimentCompareResult>> consumer) {
 
         compareResults
                 .values()
@@ -87,7 +89,7 @@ public class Experiment<I, T> {
         return this;
     }
 
-    public Experiment<I, T> publish() {
+    public Experiment<I, O> publish() {
         System.out.println("Result for " + name);
         publish(r -> {
             String result = r.stream()
@@ -98,17 +100,17 @@ public class Experiment<I, T> {
         return this;
     }
 
-    public Experiment<I, T> times(int times) {
+    public Experiment<I, O> times(int times) {
         this.times = times;
         return this;
     }
 
-    public Experiment<I, T> parallel() {
+    public Experiment<I, O> parallel() {
         this.parallel = true;
         return this;
     }
 
-    public Experiment<I, T> withParamGenerator(Supplier<I> paramSupplier) {
+    public Experiment<I, O> withParamGenerator(Supplier<I> paramSupplier) {
         this.paramSupplier = paramSupplier;
         return this;
     }
