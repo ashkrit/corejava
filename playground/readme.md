@@ -19,3 +19,6 @@ http://ashkrit.blogspot.com/2022/12/dynamic-proxy.html
 
 ## More on Dynamic proxy
 http://ashkrit.blogspot.com/2022/12/more-on-dynamic-proxy.html
+
+## Distributed Context Propagation
+http://ashkrit.blogspot.com/2023/05/distributed-context-propgation.html
