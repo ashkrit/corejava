@@ -5,8 +5,7 @@ import org.refactoring.Plays.Play;
 
 public class RefactoredStatementGenerator implements StatementGenerator {
 
-    public static final String COMEDY = "comedy";
-    public static final String TRAGEDY = "tragedy";
+    public static final String COMEDY = PlayType.COMEDY.typeName;
 
     @Override
     public String generate(Invoices.Order order, Plays plays) {
@@ -50,7 +49,8 @@ public class RefactoredStatementGenerator implements StatementGenerator {
 
     private static double calculateAmount(Performance performance, Play performancePlay) {
         double thisAmount;
-        switch (performancePlay.type) {
+        PlayType playType = PlayType.toType(performancePlay.type);
+        switch (playType) {
 
             case TRAGEDY: {
                 thisAmount = 40000;
