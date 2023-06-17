@@ -8,7 +8,8 @@ public class App {
         Invoices invoices = GsonMessage.fromClasspath("/invoices.json", Invoices.class);
         Plays plays = GsonMessage.fromClasspath("/plays.json", Plays.class);
 
-        String statement = StatementGenerator.generate(invoices.orders.get(0), plays);
+        StatementGenerator generator = new LegacyStatementGenerator();
+        String statement = generator.generate(invoices.orders.get(0), plays);
 
         System.out.println(statement);
     }
