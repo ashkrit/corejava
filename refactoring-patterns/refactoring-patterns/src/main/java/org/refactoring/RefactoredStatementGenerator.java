@@ -53,18 +53,11 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         switch (play.playType()) {
 
             case TRAGEDY: {
-                thisAmount = 40000;
-                if (performance.audience > DEFAULT_AUDIENCE_THRESHHOLD) {
-                    thisAmount += 1000 * (performance.audience - DEFAULT_AUDIENCE_THRESHHOLD);
-                }
+                thisAmount = tradegyCharge(performance);
                 break;
             }
             case COMEDY: {
-                thisAmount = 30000;
-                if (performance.audience > COMEDY_AUDIENCE_THRESHHOLD) {
-                    thisAmount += 10000 + 500 * (performance.audience - COMEDY_AUDIENCE_THRESHHOLD);
-                }
-                thisAmount += 300 * performance.audience;
+                thisAmount = commedyCharge(performance);
                 break;
             }
             default:
@@ -72,6 +65,25 @@ public class RefactoredStatementGenerator implements StatementGenerator {
 
         }
         return thisAmount / 100;
+    }
+
+    private static double commedyCharge(Performance performance) {
+        double thisAmount;
+        thisAmount = 30000;
+        if (performance.audience > COMEDY_AUDIENCE_THRESHHOLD) {
+            thisAmount += 10000 + 500 * (performance.audience - COMEDY_AUDIENCE_THRESHHOLD);
+        }
+        thisAmount += 300 * performance.audience;
+        return thisAmount;
+    }
+
+    private static double tradegyCharge(Performance performance) {
+        double thisAmount;
+        thisAmount = 40000;
+        if (performance.audience > DEFAULT_AUDIENCE_THRESHHOLD) {
+            thisAmount += 1000 * (performance.audience - DEFAULT_AUDIENCE_THRESHHOLD);
+        }
+        return thisAmount;
     }
 
     private static Play findPlay(Plays plays, String playId) {
