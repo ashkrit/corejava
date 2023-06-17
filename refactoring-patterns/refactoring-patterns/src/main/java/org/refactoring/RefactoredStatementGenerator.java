@@ -3,7 +3,18 @@ package org.refactoring;
 import org.refactoring.Invoices.Order.Performance;
 import org.refactoring.Plays.Play;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
 public class RefactoredStatementGenerator implements StatementGenerator {
+
+    private final Map<PlayType, Function<Performance, Double>> planTypeCalculator = new HashMap<>();
+
+    public RefactoredStatementGenerator() {
+        planTypeCalculator.put(PlayType.COMEDY, PlayTypeCalculator::comedyCharge);
+        planTypeCalculator.put(PlayType.TRAGEDY, PlayTypeCalculator::tradeCharge);
+    }
 
     @Override
     public String generate(Invoices.Order order, Plays plays) {
@@ -55,23 +66,17 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         return PlayType.COMEDY.typeName.equals(performancePlay.type);
     }
 
-    private static double calculateAmount(Performance performance, Play play) {
-        double thisAmount;
-        switch (play.playType()) {
+    private double calculateAmount(Performance performance, Play play) {
 
-            case TRAGEDY: {
-                thisAmount = PlayTypeCalculator.tradeCharge(performance);
-                break;
-            }
-            case COMEDY: {
-                thisAmount = PlayTypeCalculator.comedyCharge(performance);
-                break;
-            }
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported Play type %s", play.type));
-
+        Function<Performance, Double> fn = planTypeCalculator.get(play.playType());
+        if (fn == null) {
+            throw new IllegalArgumentException(String.format("Unsupported Play type %s", play.type));
         }
-        return thisAmount / 100;
+        return fn
+                .andThen(v -> v / 100)
+                .apply(performance);
+
+
     }
 
 
