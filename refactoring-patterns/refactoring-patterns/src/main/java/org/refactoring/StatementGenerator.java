@@ -53,13 +53,13 @@ public class StatementGenerator {
             }
 
             // print line for this order
-            result += String.format("%s: %s %s seats \n", performancePlay.name, thisAmount / 100, performance.audience);
+            result += String.format("%s: %.2f %s seats \n", performancePlay.name, thisAmount / 100, performance.audience);
             totalAmount += thisAmount;
 
         }
 
-        result += String.format("Amount owed is %s \n", totalAmount / 100);
-        result += String.format("You earned %s credits \n", volumeCredits);
+        result += String.format("Amount owed is %.2f \n", totalAmount / 100);
+        result += String.format("You earned %.2f credits \n", volumeCredits);
 
         return result;
     }
