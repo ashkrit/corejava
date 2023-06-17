@@ -20,12 +20,12 @@ public class RefactoredStatementGenerator implements StatementGenerator {
             volumeCredits = calculateVolumnCredit(volumeCredits, performance, play);
 
             // print line for this order
-            result += String.format("%s: %.2f %s seats \n", play.name, thisAmount / 100, performance.audience);
+            result += String.format("%s: %.2f %s seats \n", play.name, thisAmount , performance.audience);
             totalAmount += thisAmount;
 
         }
 
-        result += String.format("Amount owed is %.2f \n", totalAmount / 100);
+        result += String.format("Amount owed is %.2f \n", totalAmount );
         result += String.format("You earned %.2f credits \n", volumeCredits);
 
         return result;
@@ -64,7 +64,7 @@ public class RefactoredStatementGenerator implements StatementGenerator {
                 throw new IllegalArgumentException(String.format("Unsupported Play type %s", performancePlay.type));
 
         }
-        return thisAmount;
+        return thisAmount/100;
     }
 
     private static Play findPlay(Plays plays, String playId) {
