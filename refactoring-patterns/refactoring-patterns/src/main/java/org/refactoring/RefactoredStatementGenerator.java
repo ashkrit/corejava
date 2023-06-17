@@ -35,14 +35,24 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         return result.toString();
     }
 
-    private static double calculateVolumeCredit(Performance performance, Play performancePlay) {
+    private static double calculateVolumeCredit(Performance performance, Play play) {
         // add volume calculateAmount
         double volumeCredit = Math.max(performance.audience - PlayTypeCalculator.DEFAULT_AUDIENCE_THRESHOLD, 0);
         // add extra credit for every ten comedy attendees
-        if (PlayType.COMEDY.typeName.equals(performancePlay.type)) {
-            volumeCredit += Math.floor(performance.audience / 5);
-        }
+        volumeCredit += addExtraVolumeCredit(performance, play);
         return volumeCredit;
+    }
+
+    private static double addExtraVolumeCredit(Performance performance, Play play) {
+        if (isComedy(play)) {
+            int reducedAudience = performance.audience / 5;
+            return Math.floor(reducedAudience);
+        }
+        return 0;
+    }
+
+    private static boolean isComedy(Play performancePlay) {
+        return PlayType.COMEDY.typeName.equals(performancePlay.type);
     }
 
     private static double calculateAmount(Performance performance, Play play) {
