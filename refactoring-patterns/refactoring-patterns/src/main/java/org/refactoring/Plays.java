@@ -30,10 +30,12 @@ public class Plays {
 
         public final String name;
         public final String type;
+        public final String playID;
 
-        public Play(String name, String type) {
+        public Play(String name, String type, String playID) {
             this.name = name;
             this.type = type;
+            this.playID = playID;
         }
 
 
