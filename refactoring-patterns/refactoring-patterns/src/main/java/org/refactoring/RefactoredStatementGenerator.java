@@ -17,8 +17,8 @@ public class RefactoredStatementGenerator implements StatementGenerator {
 
 
             Play play = findPlay(plays, performance.playID);
-            double thisAmount = caluclateAmount(performance, play);
-            volumeCredits = calculateVolumnCredit(volumeCredits, performance, play);
+            double thisAmount = calculateAmount(performance, play);
+            volumeCredits += calculateVolumeCredit(performance, play);
 
             // print line for this order
             result.append(String.format("%s: %.2f %s seats \n", play.name, thisAmount, performance.audience));
@@ -33,17 +33,17 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         return result.toString();
     }
 
-    private static double calculateVolumnCredit(double volumeCredits, Performance performance, Play performancePlay) {
-        // add volume credits
-        volumeCredits += Math.max(performance.audience - 30, 0);
+    private static double calculateVolumeCredit(Performance performance, Play performancePlay) {
+        // add volume calculateAmount
+        double volumeCredit = Math.max(performance.audience - 30, 0);
         // add extra credit for every ten comedy attendees
         if ("comedy".equals(performancePlay.type)) {
-            volumeCredits += Math.floor(performance.audience / 5);
+            volumeCredit += Math.floor(performance.audience / 5);
         }
-        return volumeCredits;
+        return volumeCredit;
     }
 
-    private static double caluclateAmount(Performance performance, Play performancePlay) {
+    private static double calculateAmount(Performance performance, Play performancePlay) {
         double thisAmount;
         switch (performancePlay.type) {
 
