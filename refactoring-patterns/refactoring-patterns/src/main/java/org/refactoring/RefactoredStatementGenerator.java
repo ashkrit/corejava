@@ -5,6 +5,9 @@ import org.refactoring.Plays.Play;
 
 public class RefactoredStatementGenerator implements StatementGenerator {
 
+    public static final String COMEDY = "comedy";
+    public static final String TRAGEDY = "tragedy";
+
     @Override
     public String generate(Invoices.Order order, Plays plays) {
 
@@ -21,7 +24,9 @@ public class RefactoredStatementGenerator implements StatementGenerator {
             volumeCredits += calculateVolumeCredit(performance, play);
 
             // print line for this order
-            result.append(String.format("%s: %.2f %s seats \n", play.name, thisAmount, performance.audience));
+            result
+                    .append(String.format("%s: %.2f %s seats \n", play.name, thisAmount, performance.audience));
+
             totalAmount += thisAmount;
 
         }
@@ -37,7 +42,7 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         // add volume calculateAmount
         double volumeCredit = Math.max(performance.audience - 30, 0);
         // add extra credit for every ten comedy attendees
-        if ("comedy".equals(performancePlay.type)) {
+        if (COMEDY.equals(performancePlay.type)) {
             volumeCredit += Math.floor(performance.audience / 5);
         }
         return volumeCredit;
@@ -47,14 +52,14 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         double thisAmount;
         switch (performancePlay.type) {
 
-            case "tragedy": {
+            case TRAGEDY: {
                 thisAmount = 40000;
                 if (performance.audience > 30) {
                     thisAmount += 1000 * (performance.audience - 30);
                 }
                 break;
             }
-            case "comedy": {
+            case COMEDY: {
                 thisAmount = 30000;
                 if (performance.audience > 20) {
                     thisAmount += 10000 + 500 * (performance.audience - 20);
