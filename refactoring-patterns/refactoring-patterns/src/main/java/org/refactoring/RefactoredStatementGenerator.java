@@ -15,18 +15,12 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         for (Performance performance : order.performances) {
 
 
-            Play performancePlay = findPlay(plays, performance.playID);
-            double thisAmount = caluclateAmount(performance, performancePlay);
-
-            // add volume credits
-            volumeCredits += Math.max(performance.audience - 30, 0);
-            // add extra credit for every ten comedy attendees
-            if ("comedy".equals(performancePlay.type)) {
-                volumeCredits += Math.floor(performance.audience / 5);
-            }
+            Play play = findPlay(plays, performance.playID);
+            double thisAmount = caluclateAmount(performance, play);
+            volumeCredits = calculateVolumnCredit(volumeCredits, performance, play);
 
             // print line for this order
-            result += String.format("%s: %.2f %s seats \n", performancePlay.name, thisAmount / 100, performance.audience);
+            result += String.format("%s: %.2f %s seats \n", play.name, thisAmount / 100, performance.audience);
             totalAmount += thisAmount;
 
         }
@@ -35,6 +29,16 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         result += String.format("You earned %.2f credits \n", volumeCredits);
 
         return result;
+    }
+
+    private static double calculateVolumnCredit(double volumeCredits, Performance performance, Play performancePlay) {
+        // add volume credits
+        volumeCredits += Math.max(performance.audience - 30, 0);
+        // add extra credit for every ten comedy attendees
+        if ("comedy".equals(performancePlay.type)) {
+            volumeCredits += Math.floor(performance.audience / 5);
+        }
+        return volumeCredits;
     }
 
     private static double caluclateAmount(Performance performance, Play performancePlay) {
