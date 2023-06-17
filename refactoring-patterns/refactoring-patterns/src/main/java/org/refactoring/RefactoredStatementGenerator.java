@@ -15,13 +15,7 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         for (Performance performance : order.performances) {
 
             double thisAmount = 0;
-            String playId = performance.playID;
-            Play performancePlay = null;
-            for (Play play : plays.plays) {
-                if (play.playID.equals(playId)) {
-                    performancePlay = play;
-                }
-            }
+            Play performancePlay = findPlay(plays, performance.playID);
 
 
             switch (performancePlay.type) {
@@ -63,6 +57,15 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         result += String.format("You earned %.2f credits \n", volumeCredits);
 
         return result;
+    }
+
+    private static Play findPlay(Plays plays, String playId) {
+        return plays
+                .plays
+                .stream()
+                .filter(p -> p.playID.equals(playId))
+                .findFirst()
+                .get();
     }
 
 }
