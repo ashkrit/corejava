@@ -14,31 +14,9 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         String result = String.format("Statement for %s \n", order.customer);
         for (Performance performance : order.performances) {
 
-            double thisAmount = 0;
+
             Play performancePlay = findPlay(plays, performance.playID);
-
-
-            switch (performancePlay.type) {
-
-                case "tragedy": {
-                    thisAmount = 40000;
-                    if (performance.audience > 30) {
-                        thisAmount += 1000 * (performance.audience - 30);
-                    }
-                    break;
-                }
-                case "comedy": {
-                    thisAmount = 30000;
-                    if (performance.audience > 20) {
-                        thisAmount += 10000 + 500 * (performance.audience - 20);
-                    }
-                    thisAmount += 300 * performance.audience;
-                    break;
-                }
-                default:
-                    throw new IllegalArgumentException(String.format("Unsupported Play type %s", performancePlay.type));
-
-            }
+            double thisAmount = caluclateAmount(performance, performancePlay);
 
             // add volume credits
             volumeCredits += Math.max(performance.audience - 30, 0);
@@ -57,6 +35,32 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         result += String.format("You earned %.2f credits \n", volumeCredits);
 
         return result;
+    }
+
+    private static double caluclateAmount(Performance performance, Play performancePlay) {
+        double thisAmount;
+        switch (performancePlay.type) {
+
+            case "tragedy": {
+                thisAmount = 40000;
+                if (performance.audience > 30) {
+                    thisAmount += 1000 * (performance.audience - 30);
+                }
+                break;
+            }
+            case "comedy": {
+                thisAmount = 30000;
+                if (performance.audience > 20) {
+                    thisAmount += 10000 + 500 * (performance.audience - 20);
+                }
+                thisAmount += 300 * performance.audience;
+                break;
+            }
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported Play type %s", performancePlay.type));
+
+        }
+        return thisAmount;
     }
 
     private static Play findPlay(Plays plays, String playId) {
