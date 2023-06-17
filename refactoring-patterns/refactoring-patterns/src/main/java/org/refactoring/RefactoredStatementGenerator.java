@@ -11,7 +11,8 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         double totalAmount = 0;
         double volumeCredits = 0;
 
-        String result = String.format("Statement for %s \n", order.customer);
+        StringBuilder result = new StringBuilder();
+        result.append(String.format("Statement for %s \n", order.customer));
         for (Performance performance : order.performances) {
 
 
@@ -20,15 +21,16 @@ public class RefactoredStatementGenerator implements StatementGenerator {
             volumeCredits = calculateVolumnCredit(volumeCredits, performance, play);
 
             // print line for this order
-            result += String.format("%s: %.2f %s seats \n", play.name, thisAmount , performance.audience);
+            result.append(String.format("%s: %.2f %s seats \n", play.name, thisAmount, performance.audience));
             totalAmount += thisAmount;
 
         }
 
-        result += String.format("Amount owed is %.2f \n", totalAmount );
-        result += String.format("You earned %.2f credits \n", volumeCredits);
+        result
+                .append(String.format("Amount owed is %.2f \n", totalAmount))
+                .append(String.format("You earned %.2f credits \n", volumeCredits));
 
-        return result;
+        return result.toString();
     }
 
     private static double calculateVolumnCredit(double volumeCredits, Performance performance, Play performancePlay) {
@@ -64,7 +66,7 @@ public class RefactoredStatementGenerator implements StatementGenerator {
                 throw new IllegalArgumentException(String.format("Unsupported Play type %s", performancePlay.type));
 
         }
-        return thisAmount/100;
+        return thisAmount / 100;
     }
 
     private static Play findPlay(Plays plays, String playId) {
