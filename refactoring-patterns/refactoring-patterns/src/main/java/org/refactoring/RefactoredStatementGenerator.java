@@ -5,8 +5,6 @@ import org.refactoring.Plays.Play;
 
 public class RefactoredStatementGenerator implements StatementGenerator {
 
-    public static final String COMEDY = PlayType.COMEDY.typeName;
-
     @Override
     public String generate(Invoices.Order order, Plays plays) {
 
@@ -41,16 +39,15 @@ public class RefactoredStatementGenerator implements StatementGenerator {
         // add volume calculateAmount
         double volumeCredit = Math.max(performance.audience - 30, 0);
         // add extra credit for every ten comedy attendees
-        if (COMEDY.equals(performancePlay.type)) {
+        if (PlayType.COMEDY.typeName.equals(performancePlay.type)) {
             volumeCredit += Math.floor(performance.audience / 5);
         }
         return volumeCredit;
     }
 
-    private static double calculateAmount(Performance performance, Play performancePlay) {
+    private static double calculateAmount(Performance performance, Play play) {
         double thisAmount;
-        PlayType playType = PlayType.toType(performancePlay.type);
-        switch (playType) {
+        switch (play.playType()) {
 
             case TRAGEDY: {
                 thisAmount = 40000;
@@ -68,7 +65,7 @@ public class RefactoredStatementGenerator implements StatementGenerator {
                 break;
             }
             default:
-                throw new IllegalArgumentException(String.format("Unsupported Play type %s", performancePlay.type));
+                throw new IllegalArgumentException(String.format("Unsupported Play type %s", play.type));
 
         }
         return thisAmount / 100;

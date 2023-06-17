@@ -39,5 +39,10 @@ public class Plays {
         }
 
 
+        public PlayType playType() {
+            return PlayType.toType(type);
+        }
+
+
     }
 }
