@@ -6,6 +6,7 @@ import org.refactoring.Plays.Play;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RefactoredStatementGenerator implements StatementGenerator {
 
@@ -19,29 +20,41 @@ public class RefactoredStatementGenerator implements StatementGenerator {
     @Override
     public String generate(Invoices.Order order, Plays plays) {
 
-        double totalAmount = 0;
-        double volumeCredits = 0;
 
+        String lineBreak = "\n";
         StringBuilder result = new StringBuilder();
-        result.append(String.format("Statement for %s \n", order.customer));
-        for (Performance performance : order.performances) {
+        result
+                .append(String.format("Statement for %s", order.customer))
+                .append(lineBreak);
 
 
-            Play play = findPlay(plays, performance.playID);
-            double thisAmount = calculateAmount(performance, play);
-            volumeCredits += calculateVolumeCredit(performance, play);
+        String billText = order.performances
+                .stream()
+                .map(performance -> new PerformanceCharges(performance, findPlay(plays, performance.playID), 0.0d))
+                .map(performanceCharges -> new PerformanceCharges(performanceCharges.performance, performanceCharges.play, calculateAmount(performanceCharges.performance, performanceCharges.play)))
+                .map(performanceCharges -> String.format("%s: %.2f %s seats ", performanceCharges.play.name, performanceCharges.amount, performanceCharges.performance.audience))
+                .collect(Collectors.joining(lineBreak));
 
-            // print line for this order
-            result
-                    .append(String.format("%s: %.2f %s seats \n", play.name, thisAmount, performance.audience));
 
-            totalAmount += thisAmount;
+        double totalAmount = order.performances
+                .stream()
+                .map(performance -> calculateAmount(performance, findPlay(plays, performance.playID)))
+                .mapToDouble(Double::doubleValue)
+                .sum();
 
-        }
+        double creditAmount = order.performances
+                .stream()
+                .map(performance -> calculateVolumeCredit(performance, findPlay(plays, performance.playID)))
+                .mapToDouble(Double::doubleValue)
+                .sum();
+
 
         result
-                .append(String.format("Amount owed is %.2f \n", totalAmount))
-                .append(String.format("You earned %.2f credits \n", volumeCredits));
+                .append(billText)
+                .append(lineBreak)
+                .append(String.format("Amount owed is %.2f", totalAmount))
+                .append(lineBreak)
+                .append(String.format("You earned %.2f credits", creditAmount));
 
         return result.toString();
     }
@@ -87,6 +100,19 @@ public class RefactoredStatementGenerator implements StatementGenerator {
                 .filter(p -> p.playID.equals(playId))
                 .findFirst()
                 .get();
+    }
+
+    static class PerformanceCharges {
+        public final Performance performance;
+        public final Play play;
+
+        public final double amount;
+
+        PerformanceCharges(Performance performance, Play play, double amount) {
+            this.performance = performance;
+            this.play = play;
+            this.amount = amount;
+        }
     }
 
 }
