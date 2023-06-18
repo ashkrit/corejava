@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 public class RefactoredStatementGenerator implements StatementGenerator {
 
+    String lineBreak = "\n";
     private final Map<PlayType, Function<Performance, Double>> planTypeCalculator = new HashMap<>();
 
     public RefactoredStatementGenerator() {
@@ -21,42 +22,48 @@ public class RefactoredStatementGenerator implements StatementGenerator {
     public String generate(Invoices.Order order, Plays plays) {
 
 
-        String lineBreak = "\n";
-        StringBuilder result = new StringBuilder();
-        result
+        String billText = buildBillText(order, plays);
+        double totalAmount = calculateTotal(order, plays);
+        double creditAmount = calculateCredit(order, plays);
+
+        return formatMessage(order, billText, totalAmount, creditAmount);
+    }
+
+    private String formatMessage(Invoices.Order order, String billText, double totalAmount, double creditAmount) {
+
+        return new StringBuilder()
                 .append(String.format("Statement for %s", order.customer))
-                .append(lineBreak);
+                .append(lineBreak)
+                .append(billText)
+                .append(lineBreak)
+                .append(String.format("Amount owed is %.2f", totalAmount))
+                .append(lineBreak)
+                .append(String.format("You earned %.2f credits", creditAmount)).toString();
+    }
 
-
-        String billText = order.performances
+    private String buildBillText(Invoices.Order order, Plays plays) {
+        return order.performances
                 .stream()
                 .map(performance -> new PerformanceCharges(performance, findPlay(plays, performance.playID), 0.0d))
                 .map(performanceCharges -> new PerformanceCharges(performanceCharges.performance, performanceCharges.play, calculateAmount(performanceCharges.performance, performanceCharges.play)))
                 .map(performanceCharges -> String.format("%s: %.2f %s seats ", performanceCharges.play.name, performanceCharges.amount, performanceCharges.performance.audience))
                 .collect(Collectors.joining(lineBreak));
+    }
 
-
-        double totalAmount = order.performances
-                .stream()
-                .map(performance -> calculateAmount(performance, findPlay(plays, performance.playID)))
-                .mapToDouble(Double::doubleValue)
-                .sum();
-
-        double creditAmount = order.performances
+    private static double calculateCredit(Invoices.Order order, Plays plays) {
+        return order.performances
                 .stream()
                 .map(performance -> calculateVolumeCredit(performance, findPlay(plays, performance.playID)))
                 .mapToDouble(Double::doubleValue)
                 .sum();
+    }
 
-
-        result
-                .append(billText)
-                .append(lineBreak)
-                .append(String.format("Amount owed is %.2f", totalAmount))
-                .append(lineBreak)
-                .append(String.format("You earned %.2f credits", creditAmount));
-
-        return result.toString();
+    private double calculateTotal(Invoices.Order order, Plays plays) {
+        return order.performances
+                .stream()
+                .map(performance -> calculateAmount(performance, findPlay(plays, performance.playID)))
+                .mapToDouble(Double::doubleValue)
+                .sum();
     }
 
     private static double calculateVolumeCredit(Performance performance, Play play) {

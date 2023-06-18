@@ -10,3 +10,6 @@ the company performs: tragedies and comedies. As well as providing a bill for th
 its customers “volume credits” which they can use for discounts on future performances—think of it as a customer loyalty mechanism.
 ```
 
+## Patterns 
+
+### Extract Function
