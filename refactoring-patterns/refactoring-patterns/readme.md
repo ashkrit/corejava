@@ -13,3 +13,6 @@ its customers “volume credits” which they can use for discounts on future pe
 ## Patterns 
 
 ### Extract Function
+### Replace condition with polymorphism
+### Either call or pass 
+### 2 hats - Adding code and refactoring 
