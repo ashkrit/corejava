@@ -19,7 +19,7 @@ public interface Treep<K, V> {
 
     V takeTop(String attributeName);
 
-    V remove(K key);
+    V delete(K key);
 
     Iterator<K> keys();
 

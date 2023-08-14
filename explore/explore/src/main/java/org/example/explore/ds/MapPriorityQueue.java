@@ -68,7 +68,7 @@ public class MapPriorityQueue<K,V> implements Treep<K, V> {
     }
 
     @Override
-    public V remove(K key) {
+    public V delete(K key) {
         V value = items.remove(key);
         _delete(key, value);
         return value;

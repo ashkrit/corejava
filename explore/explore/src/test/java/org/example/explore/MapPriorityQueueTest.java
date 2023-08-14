@@ -48,6 +48,24 @@ public class MapPriorityQueueTest {
     }
 
     @Test
+    public void delete_top_discounted_product() {
+
+        Map<String, Comparator<Product>> orderCols = Map.of(
+                "discount", Comparator.comparing(Product::discount).reversed()
+        );
+        Treep<String, Product> stores = new MapPriorityQueue<>(Product::name, orderCols);
+
+
+        items.forEach(stores::add);
+
+        Product product = stores.top("discount");
+        stores.delete(product.name);
+
+        assertEquals( Product.of("Fuji Apple", 3.14f, .11f), stores.top("discount"));
+
+    }
+
+    @Test
     public void remove_top_discounted_products() {
 
         Map<String, Comparator<Product>> orderCols = Map.of(
