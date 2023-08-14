@@ -2,12 +2,9 @@ package org.example.explore;
 
 import org.example.explore.ds.MapPriorityQueue;
 import org.example.explore.ds.Treep;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -31,6 +28,40 @@ public class MapPriorityQueueTest {
         items.forEach(stores::add);
 
         assertEquals(Product.of("Red Onion", 1.19f, 0.07f), stores.get("red onion"));
+
+    }
+
+
+    @Test
+    public void peek_at_top_discounted_product() {
+
+        Map<String, Comparator<Product>> orderCols = Map.of(
+                "discount", Comparator.comparing(Product::discount).reversed()
+        );
+        Treep<String, Product> stores = new MapPriorityQueue<>(Product::name, orderCols);
+
+
+        items.forEach(stores::add);
+
+        assertEquals(Product.of("Banana", 3.58f, .12f), stores.top("discount"));
+
+    }
+
+    @Test
+    public void remove_top_discounted_products() {
+
+        Map<String, Comparator<Product>> orderCols = Map.of(
+                "discount", Comparator.comparing(Product::discount).reversed()
+        );
+        Treep<String, Product> stores = new MapPriorityQueue<>(Product::name, orderCols);
+
+
+        items.forEach(stores::add);
+
+        Product first = stores.takeTop("discount");
+        Product second = stores.takeTop("discount");
+        assertEquals(Product.of("Banana", 3.58f, .12f), first);
+        assertEquals(Product.of("Fuji Apple", 3.14f, .11f), second);
 
     }
 
