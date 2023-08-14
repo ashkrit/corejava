@@ -65,6 +65,25 @@ public class MapPriorityQueueTest {
 
     }
 
+    @Test
+    public void peek_at_top_product_by_discount_and_price() {
+
+        Map<String, Comparator<Product>> orderCols = Map.of(
+                "discount", Comparator.comparing(Product::discount).reversed(),
+                "price", Comparator.comparing(Product::price).reversed()
+        );
+        Treep<String, Product> stores = new MapPriorityQueue<>(Product::name, orderCols);
+
+
+        items.forEach(stores::add);
+
+        assertEquals(Product.of("Banana", 3.58f, .12f), stores.top("discount"));
+        assertEquals(Product.of("Meji Fresh Milk 2L", 6.9f, 0.0f), stores.top("price"));
+
+    }
+
+
+
     record Product(String name, float price, float discount) {
 
 
