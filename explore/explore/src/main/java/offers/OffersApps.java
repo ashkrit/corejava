@@ -7,7 +7,10 @@ import offers.OffersApps.OffersPayload.PerkRequests.PerkArguments;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OffersApps {
 
@@ -23,13 +26,18 @@ public class OffersApps {
 
         HttpResponse<String> response = new RpcClient().send(api, payload);
 
-        System.out.println(response.statusCode());
-        System.out.println(response.body());
-
-        var offers = new Gson().fromJson(response.body(),Offers.class);
+        var offers = new Gson().fromJson(response.body(), Offers.class);
 
 
-        System.out.println(offers);
+        //System.out.println(offers);
+
+        String blob = offers
+                .offers()
+                .stream()
+                .map(Offers.PerksGroups.Offer::asString)
+                .collect(Collectors.joining("\n"));
+
+        Files.write(Paths.get("/Users/ashkrit/_tmp/offers/ap_offer.tsv"), blob.getBytes());
 
 
     }

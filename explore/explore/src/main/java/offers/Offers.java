@@ -5,8 +5,11 @@ import offers.Offers.PerksGroups.Offer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Offers {
     public List<PerksGroups> perksGroups;
@@ -110,6 +113,29 @@ public class Offers {
                 Double value = (Double) input.get(name);
                 var time = Instant.ofEpochMilli(value.longValue());
                 return LocalDate.ofInstant(time, ZoneId.systemDefault());
+            }
+
+            public String asString() {
+
+                return String.join("\t",
+                        sourceId(),
+                        shortDescription(),
+                        title(),
+                        merchantName(),
+                        startDate().toString(),
+                        endDate().toString(),
+                        String.join(",", tags()),
+                        String.join(",", categories()),
+                        String.join(",", cardProductTypes()),
+                        String.join(",", cardPaymentTypes()),
+                        String.join(",", redemptionChannels()),
+                        String.join(",", redemptionCountries()),
+                        String.join(",", businessSegments()),
+                        (String) customAttributes().get("programName"),
+                        (String) customAttributes().get("offerCopy")
+
+                );
+
             }
         }
 
