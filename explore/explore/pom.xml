@@ -15,6 +15,48 @@
   <dependencies>
 
     <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.10.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.medallia.word2vec</groupId>
+      <artifactId>Word2VecJava</artifactId>
+      <version>0.10.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>9.7.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queryparser</artifactId>
+      <version>9.7.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queries</artifactId>
+      <version>9.7.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-spellchecker</artifactId>
+      <version>3.6.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.googlecode.concurrent-trees</groupId>
+      <artifactId>concurrent-trees</artifactId>
+      <version>2.6.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <version>${junit.jupiter.version}</version>
@@ -28,6 +70,25 @@
       <artifactId>junit-jupiter-params</artifactId>
       <version>${junit.jupiter.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jelmerk</groupId>
+      <artifactId>hnswlib-core</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jelmerk</groupId>
+      <artifactId>hnswlib-utils</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.jelmerk</groupId>
+      <artifactId>hnswlib-parent-pom</artifactId>
+      <version>1.1.0</version>
+      <type>pom</type>
     </dependency>
 
   </dependencies>
