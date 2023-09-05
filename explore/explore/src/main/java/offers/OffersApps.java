@@ -16,6 +16,7 @@ public class OffersApps {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
+        var output = args[0];
         var api = "https://www.visa.com.sg/gateway/api/portal/portal/perks/";
 
         var pageRequest = new PageRequest(0, 700);
@@ -24,12 +25,11 @@ public class OffersApps {
         var payload = new OffersPayload("www.visa.com.sg", List.of(perkRequests));
 
 
-        HttpResponse<String> response = new RpcClient().send(api, payload);
+        HttpResponse<String> response = new RpcClient()
+                .send(api, payload);
 
-        var offers = new Gson().fromJson(response.body(), Offers.class);
-
-
-        //System.out.println(offers);
+        var offers = new Gson()
+                .fromJson(response.body(), Offers.class);
 
         String blob = offers
                 .offers()
@@ -37,7 +37,10 @@ public class OffersApps {
                 .map(Offers.PerksGroups.Offer::asString)
                 .collect(Collectors.joining("\n"));
 
-        Files.write(Paths.get("/Users/ashkrit/_tmp/offers/ap_offer.tsv"), blob.getBytes());
+        Files
+                .write(Paths.get(output), blob.getBytes());
+
+        System.out.println(output);
 
 
     }

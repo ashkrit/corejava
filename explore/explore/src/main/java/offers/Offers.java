@@ -77,23 +77,52 @@ public class Offers {
             }
 
             public List<String> categories() {
-                return asList(metaData(), "categories");
+                Map<String, String> cache = Cache.cache("category");
+                return
+                        asList(metaData(), "categories")
+                                .stream()
+                                .map(value -> cache.getOrDefault(value.trim(), value.trim()))
+                                .toList();
             }
 
             public List<String> cardProductTypes() {
-                return asList(metaData(), "cardProductTypes");
+
+                Map<String, String> cache = Cache.cache("card_types");
+                return
+                        asList(metaData(), "cardProductTypes")
+                                .stream()
+                                .map(value -> cache.getOrDefault(value.trim(), value.trim()))
+                                .toList();
             }
 
             public List<String> cardPaymentTypes() {
-                return asList(metaData(), "cardPaymentTypes");
+
+                Map<String, String> cache = Cache.cache("payment_type");
+                return
+                        asList(metaData(), "cardPaymentTypes")
+                                .stream()
+                                .map(value -> cache.getOrDefault(value.trim(), value.trim()))
+                                .toList();
             }
 
             public List<String> redemptionChannels() {
-                return asList(metaData(), "redemptionChannels");
+
+                Map<String, String> cache = Cache.cache("redem_channel");
+                return
+                        asList(metaData(), "redemptionChannels")
+                                .stream()
+                                .map(value -> cache.getOrDefault(value.trim(), value.trim()))
+                                .toList();
             }
 
             public List<String> redemptionCountries() {
-                return asList(metaData(), "redemptionCountries");
+
+                Map<String, String> cache = Cache.cache("country");
+                return
+                        asList(metaData(), "redemptionCountries")
+                                .stream()
+                                .map(value -> cache.getOrDefault(value.trim(), value.trim()))
+                                .toList();
             }
 
             public List<String> businessSegments() {
