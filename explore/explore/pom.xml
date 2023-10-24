@@ -92,6 +92,12 @@
       <type>pom</type>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.vinhkhuc</groupId>
+      <artifactId>jfasttext</artifactId>
+      <version>0.5</version>
+    </dependency>
+
 
 
   </dependencies>

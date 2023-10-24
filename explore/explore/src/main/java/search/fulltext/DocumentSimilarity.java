@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.medallia.word2vec.Searcher;
 import com.medallia.word2vec.Word2VecModel;
+import com.medallia.word2vec.Word2VecTrainerBuilder;
 import com.medallia.word2vec.neuralnetwork.NeuralNetworkType;
 
 import java.nio.file.Files;
@@ -13,11 +14,15 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.medallia.word2vec.Word2VecModel.trainer;
 
 public class DocumentSimilarity {
+
+    public static int EMBEDDING_SIZE = 100;
 
     public static void main(String[] args) throws Exception {
         String file = args[0];
@@ -32,12 +37,16 @@ public class DocumentSimilarity {
                 .toList();
 
 
-        Word2VecModel model = trainer()
+        Word2VecTrainerBuilder trainer = trainer()
                 .type(NeuralNetworkType.SKIP_GRAM)
                 .setMinVocabFrequency(1)
                 //.setWindowSize(5)
+                .setLayerSize(EMBEDDING_SIZE)
                 .useHierarchicalSoftmax()
-                .setNumIterations(1)
+                .setNumIterations(1);
+
+
+        Word2VecModel model = trainer
                 .train(Iterables.partition(tokens, 1000));
 
 
@@ -94,36 +103,33 @@ public class DocumentSimilarity {
     }
 
     private static double[] mean(String[] tokens, Searcher searcher) {
-        double[] vector = new double[0];
-        int matchCount = 0;
+        double[] vector = new double[EMBEDDING_SIZE];
 
-        for (String s : tokens) {
-            if (!searcher.contains(s)) {
-                System.out.println("Miss " + s);
-                continue;
-            }
-            try {
-                ImmutableList<Double> d = searcher.getRawVector(s);
-                if (vector.length == 0) {
-                    vector = new double[d.size()];
-                }
-                matchCount++;
-                for (int index = 0; index < d.size(); index++) {
-                    vector[index] = d.get(index);
-                }
+        var wordVectors = Arrays.stream(tokens)
+                .filter(searcher::contains)
+                .map(token -> getVector(searcher, token))
+                .toList();
 
-            } catch (Searcher.UnknownWordException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        wordVectors
+                .forEach(d ->
+                        IntStream.range(0, d.size())
+                                .forEach(i -> vector[i] += d.get(i))
+                );
 
-        //mean
-        for (int index = 0; index < vector.length; index++) {
-            vector[index] = vector[index] / matchCount;
-        }
-
+        final int matchedWordCount = wordVectors.size();
+        IntStream
+                .range(0, vector.length)
+                .forEach(index -> vector[index] = vector[index] / matchedWordCount);
 
         return vector;
+    }
+
+    private static ImmutableList<Double> getVector(Searcher searcher, String token) {
+        try {
+            return searcher.getRawVector(token);
+        } catch (Searcher.UnknownWordException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
