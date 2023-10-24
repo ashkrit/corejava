@@ -38,7 +38,7 @@ public class LuceneSearcher {
             Query query = parser.parse(queryString);
 
 
-            TopDocs results = searcher.search(query, 5);
+            TopDocs results = searcher.search(query, 10);
             for (ScoreDoc scoreDoc : results.scoreDocs) {
 
                 var doc = searcher.doc(scoreDoc.doc);

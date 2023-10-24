@@ -60,7 +60,7 @@ public class DocumentSimilarity {
                     .stream()
                     .map(doc -> new MatchResult(doc, calculateCosineSimilarity(searchVector, doc.vector)))
                     .sorted(comparator.reversed())
-                    .limit(5)
+                    .limit(10)
                     .forEach(v -> {
                         System.out.println(v.doc.value);
                     });
