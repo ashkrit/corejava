@@ -1,6 +1,13 @@
 package com.org.jdbcproxy;
 
 import com.org.lang.MoreLang;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.util.TablesNamesFinder;
+
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -11,7 +18,10 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+
+import static com.org.lang.MoreLang.safeExecuteV;
 
 public class SQLStatementProxy implements InvocationHandler {
 
@@ -28,11 +38,29 @@ public class SQLStatementProxy implements InvocationHandler {
     private ResultSet _executeQuery(Object[] param) {
         String sql = (String) param[0];
 
+        _parse(sql);
+
         List<Map<Object, Object>> rows = SQLCache.result(sql);
         if (rows != null) {
-            return SQLCacheResultSetProxy.create(sql,rows);
+            return SQLCacheResultSetProxy.create(sql, rows);
         }
         return SQLResultSetProxy.create(MoreLang.safeExecute(() -> target.executeQuery(sql)), sql, true);
+    }
+
+    private static void _parse(String sql) {
+        safeExecuteV(() -> {
+
+            PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+
+            Table tableName = (Table) select.getFromItem();
+            System.out.printf("Querying %s \n", tableName);
+
+            Expression where = select.getWhere();
+            System.out.printf("Where %s \n", where);
+
+            Set<String> tableNames = TablesNamesFinder.findTables(sql);
+            System.out.printf("Table names %s \n", tableNames);
+        });
     }
 
 

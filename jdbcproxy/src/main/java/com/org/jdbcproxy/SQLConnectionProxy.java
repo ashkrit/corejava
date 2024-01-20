@@ -29,7 +29,7 @@ public class SQLConnectionProxy implements InvocationHandler {
 
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
         Function<Object[], Object> fn = functions.getOrDefault(method.getName(), _wrap(method, args));
         return fn.apply(args);
     }
