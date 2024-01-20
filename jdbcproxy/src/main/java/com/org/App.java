@@ -55,7 +55,7 @@ public class App {
         while (rs.next()) {
             // read the result set
             System.out.println("name = " + rs.getString("name"));
-            System.out.println("name = " + rs.getString(1));
+            System.out.println("id = " + rs.getString(1));
             System.out.println("id = " + rs.getInt("id"));
         }
 
