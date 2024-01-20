@@ -12,8 +12,6 @@ import java.sql.DriverManager;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.org.lang.MoreLang.safeExecute;
-
 public class SQLDriverProxy implements InvocationHandler {
 
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
