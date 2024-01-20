@@ -1,9 +1,12 @@
 package com.org;
 
 
+import com.org.jdbcproxy.SQLCache;
 import com.org.jdbcproxy.SQLDriverProxy;
 
 import java.sql.*;
+import java.util.List;
+import java.util.Map;
 
 public class App {
 
@@ -50,8 +53,13 @@ public class App {
         while (rs.next()) {
             // read the result set
             System.out.println("name = " + rs.getString("name"));
+            System.out.println("name = " + rs.getString(1));
             System.out.println("id = " + rs.getInt("id"));
         }
+
+        List<Map<Object, Object>> result = SQLCache.result(sql);
+
+        System.out.println(result);
     }
 
 
