@@ -22,7 +22,10 @@ public class App {
 
         SQLDriver.register();
 
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
+        String sqlLiteConnectionString = "jdbc:sqlite:" + dbPath;
+
+
+        Connection connection = DriverManager.getConnection(sqlLiteConnectionString);
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
@@ -39,6 +42,9 @@ public class App {
         }
 
         connection.close();
+
+        Connection c1 = DriverManager.getConnection("jdbc/proxy/key=" + sqlLiteConnectionString);
+        System.out.println("Connection :" + c1);
 
     }
 

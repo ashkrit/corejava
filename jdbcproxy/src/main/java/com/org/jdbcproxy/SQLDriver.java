@@ -5,28 +5,53 @@ import com.org.lang.MoreLang;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 
 public class SQLDriver implements InvocationHandler {
 
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
+    private final String driverUrl;
 
-    public SQLDriver() {
+    public SQLDriver(String driverUrl) {
+        this.driverUrl = driverUrl;
         functions.put("toString", param -> this.toString());
+        functions.put("connect", param -> _connect(param));
+    }
+
+    private Connection _connect(Object[] param) {
+        int index = 0;
+        String url = (String) param[index++];
+        Properties properties = (Properties) param[index++];
+
+        if (!url.startsWith(driverUrl)) {
+            return null;
+        }
+
+        String updatedUrl = url.replace(driverUrl, "");
+        System.out.println("Params " + updatedUrl);
+
+        try {
+            return DriverManager.getConnection(updatedUrl);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        // System.out.printf("Calling method %s(%s) \n", method.getName(), args);
+        System.out.printf("Calling method %s(%s) \n", method.getName(), args);
         Function<Object[], Object> fn = functions.getOrDefault(method.getName(), $ -> null);
         return fn.apply(args);
     }
 
     public static Driver create() {
-        return (Driver) Proxy.newProxyInstance(SQLDriver.class.getClassLoader(), new Class<?>[]{Driver.class}, new SQLDriver());
+        return (Driver) Proxy.newProxyInstance(SQLDriver.class.getClassLoader(), new Class<?>[]{Driver.class}, new SQLDriver("jdbc/proxy/key="));
     }
 
 
