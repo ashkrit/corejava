@@ -25,7 +25,8 @@ public class SQLStatementProxy implements InvocationHandler {
     }
 
     private ResultSet _executeQuery(Object[] param) {
-        return SQLResultSetProxy.create(MoreLang.safeExecute(() -> target.executeQuery((String) param[0])));
+        String sql = (String) param[0];
+        return SQLResultSetProxy.create(MoreLang.safeExecute(() -> target.executeQuery(sql)) , sql, true);
     }
 
 
