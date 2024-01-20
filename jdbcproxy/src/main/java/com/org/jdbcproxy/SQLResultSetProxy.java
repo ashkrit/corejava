@@ -42,10 +42,15 @@ public class SQLResultSetProxy implements InvocationHandler {
                 return target.getInt((Integer) colReference);
             }
         });
+
+        _cache(colReference, value);
+        return value;
+    }
+
+    private void _cache(Object colReference, Object value) {
         if (cache) {
             results.get(index).put(colReference, value);
         }
-        return value;
     }
 
     private Object _getString(Method method, Object[] objects) {
@@ -58,18 +63,17 @@ public class SQLResultSetProxy implements InvocationHandler {
                 return target.getString((Integer) colReference);
             }
         });
-        if (cache) {
-            results.get(index).put(colReference, value);
-        }
+        _cache(colReference, value);
         return value;
     }
 
     private Object _next(Method method, Object[] objects) {
-        if (cache) {
+        boolean hasValue = MoreLang.safeExecute(target::next);
+        if (cache && hasValue) {
             results.add(new HashMap<>());
             index++;
         }
-        return MoreLang.safeExecute(target::next);
+        return hasValue;
     }
 
     @Override

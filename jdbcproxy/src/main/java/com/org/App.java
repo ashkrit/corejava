@@ -42,6 +42,8 @@ public class App {
 
         execute(proxyConnection, "select * from person");
 
+        execute(proxyConnection, "select * from person");
+
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {

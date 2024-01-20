@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -26,7 +27,12 @@ public class SQLStatementProxy implements InvocationHandler {
 
     private ResultSet _executeQuery(Object[] param) {
         String sql = (String) param[0];
-        return SQLResultSetProxy.create(MoreLang.safeExecute(() -> target.executeQuery(sql)) , sql, true);
+
+        List<Map<Object, Object>> rows = SQLCache.result(sql);
+        if (rows != null) {
+            return SQLCacheResultSetProxy.create(sql,rows);
+        }
+        return SQLResultSetProxy.create(MoreLang.safeExecute(() -> target.executeQuery(sql)), sql, true);
     }
 
 
