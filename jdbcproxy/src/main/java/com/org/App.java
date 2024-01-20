@@ -1,12 +1,9 @@
 package com.org;
 
 
-import com.org.jdbcproxy.SQLDriver;
+import com.org.jdbcproxy.SQLDriverProxy;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
 
 public class App {
 
@@ -20,7 +17,7 @@ public class App {
         Class.forName(driver.getName());
 
 
-        SQLDriver.register();
+        SQLDriverProxy.register();
 
         String sqlLiteConnectionString = "jdbc:sqlite:" + dbPath;
 
@@ -34,18 +31,24 @@ public class App {
         statement.executeUpdate("insert into person values(1, 'leo')");
         statement.executeUpdate("insert into person values(2, 'yui')");
 
-        ResultSet rs = statement.executeQuery("select * from person");
+        execute(connection, "select * from person");
+
+        connection.close();
+
+        Connection proxyConnection = DriverManager.getConnection("jdbc/proxy/key=" + sqlLiteConnectionString);
+
+        execute(proxyConnection, "select * from person");
+
+    }
+
+    private static void execute(Connection connection, String sql) throws SQLException {
+        System.out.println("Connection  Class:" + connection);
+        ResultSet rs = connection.createStatement().executeQuery(sql);
         while (rs.next()) {
             // read the result set
             System.out.println("name = " + rs.getString("name"));
             System.out.println("id = " + rs.getInt("id"));
         }
-
-        connection.close();
-
-        Connection c1 = DriverManager.getConnection("jdbc/proxy/key=" + sqlLiteConnectionString);
-        System.out.println("Connection :" + c1);
-
     }
 
 

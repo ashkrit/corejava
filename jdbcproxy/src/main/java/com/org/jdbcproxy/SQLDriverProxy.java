@@ -12,15 +12,15 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
 
-public class SQLDriver implements InvocationHandler {
+public class SQLDriverProxy implements InvocationHandler {
 
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
     private final String driverUrl;
 
-    public SQLDriver(String driverUrl) {
+    public SQLDriverProxy(String driverUrl) {
         this.driverUrl = driverUrl;
         functions.put("toString", param -> this.toString());
-        functions.put("connect", param -> _connect(param));
+        functions.put("connect", this::_connect);
     }
 
     private Connection _connect(Object[] param) {
@@ -36,7 +36,7 @@ public class SQLDriver implements InvocationHandler {
         System.out.println("Params " + updatedUrl);
 
         try {
-            return DriverManager.getConnection(updatedUrl);
+            return SQLConnectionProxy.create(DriverManager.getConnection(updatedUrl));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -51,7 +51,7 @@ public class SQLDriver implements InvocationHandler {
     }
 
     public static Driver create() {
-        return (Driver) Proxy.newProxyInstance(SQLDriver.class.getClassLoader(), new Class<?>[]{Driver.class}, new SQLDriver("jdbc/proxy/key="));
+        return (Driver) Proxy.newProxyInstance(SQLDriverProxy.class.getClassLoader(), new Class<?>[]{Driver.class}, new SQLDriverProxy("jdbc/proxy/key="));
     }
 
 
