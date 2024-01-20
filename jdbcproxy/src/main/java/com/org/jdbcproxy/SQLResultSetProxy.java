@@ -5,29 +5,23 @@ import com.org.lang.MoreLang;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class SQLStatementProxy implements InvocationHandler {
+public class SQLResultSetProxy implements InvocationHandler {
 
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
 
-    private final Statement target;
+    private final ResultSet target;
 
-    public SQLStatementProxy(Statement target) {
+    public SQLResultSetProxy(ResultSet target) {
         this.target = target;
         functions.put("toString", param -> String.format("%s ( %s )", this.getClass().getName(), target.toString()));
-        functions.put("executeQuery", this::_executeQuery);
+        //functions.put("executeQuery", this::_executeQuery);
     }
-
-    private ResultSet _executeQuery(Object[] param) {
-        return SQLResultSetProxy.create(MoreLang.safeExecute(() -> target.executeQuery((String) param[0])));
-    }
-
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -39,8 +33,8 @@ public class SQLStatementProxy implements InvocationHandler {
         return $ -> MoreLang.safeExecute(() -> method.invoke(target, args));
     }
 
-    public static Statement create(Statement statement) {
-        return (Statement) Proxy.newProxyInstance(SQLStatementProxy.class.getClassLoader(), new Class<?>[]{Statement.class},
-                new SQLStatementProxy(statement));
+    public static ResultSet create(ResultSet rs) {
+        return (ResultSet) Proxy.newProxyInstance(SQLResultSetProxy.class.getClassLoader(), new Class<?>[]{ResultSet.class},
+                new SQLResultSetProxy(rs));
     }
 }
