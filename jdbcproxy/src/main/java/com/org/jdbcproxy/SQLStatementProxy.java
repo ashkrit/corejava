@@ -11,20 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class SQLConnectionProxy implements InvocationHandler {
+public class SQLStatementProxy implements InvocationHandler {
 
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
 
-    private final Connection target;
+    private final Statement target;
 
-    public SQLConnectionProxy(Connection target) {
+    public SQLStatementProxy(Statement target) {
         this.target = target;
         functions.put("toString", param -> String.format("%s ( %s )", this.getClass().getName(), target.toString()));
-        functions.put("createStatement", this::_createStatement);
-    }
-
-    private Statement _createStatement(Object[] param) {
-        return SQLStatementProxy.create(MoreLang.safeExecute(target::createStatement));
     }
 
 
@@ -38,8 +33,8 @@ public class SQLConnectionProxy implements InvocationHandler {
         return $ -> MoreLang.safeExecute(() -> method.invoke(target, args));
     }
 
-    public static Connection create(Connection connection) {
-        return (Connection) Proxy.newProxyInstance(SQLConnectionProxy.class.getClassLoader(), new Class<?>[]{Connection.class},
-                new SQLConnectionProxy(connection));
+    public static Statement create(Statement statement) {
+        return (Statement) Proxy.newProxyInstance(SQLStatementProxy.class.getClassLoader(), new Class<?>[]{Statement.class},
+                new SQLStatementProxy(statement));
     }
 }

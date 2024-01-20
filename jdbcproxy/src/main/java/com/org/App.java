@@ -43,7 +43,10 @@ public class App {
 
     private static void execute(Connection connection, String sql) throws SQLException {
         System.out.println("Connection  Class:" + connection);
-        ResultSet rs = connection.createStatement().executeQuery(sql);
+        Statement statement = connection.createStatement();
+        System.out.println("Statement Class " + statement);
+        ResultSet rs = statement.executeQuery(sql);
+        System.out.println("ResultSet Class " + rs);
         while (rs.next()) {
             // read the result set
             System.out.println("name = " + rs.getString("name"));
