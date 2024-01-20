@@ -1,5 +1,6 @@
 package com.org.jdbcproxy;
 
+import com.org.jdbcproxy.SQLFactory.SQLObjects;
 import com.org.lang.MoreLang;
 
 import java.lang.reflect.InvocationHandler;
@@ -8,9 +9,10 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
+
+import static com.org.lang.MoreLang.safeExecute;
 
 public class SQLDriverProxy implements InvocationHandler {
 
@@ -35,16 +37,13 @@ public class SQLDriverProxy implements InvocationHandler {
         String updatedUrl = url.replace(driverUrl, "");
         System.out.println("Params " + updatedUrl);
 
-        try {
-            return SQLConnectionProxy.create(DriverManager.getConnection(updatedUrl));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        SQLObjects sqlObjects = SQLFactory.factory.get("default");
+        return sqlObjects.connection.apply(updatedUrl);
 
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
         System.out.printf("Calling method %s(%s) \n", method.getName(), args);
         Function<Object[], Object> fn = functions.getOrDefault(method.getName(), $ -> null);
         return fn.apply(args);
