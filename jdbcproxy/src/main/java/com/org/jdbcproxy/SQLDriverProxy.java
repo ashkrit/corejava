@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 public class SQLDriverProxy implements InvocationHandler {
 
+    public static final String JDBC_PROXY_KEY = "jdbc/proxy/key=";
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
     private final String driverUrl;
 
@@ -48,7 +49,8 @@ public class SQLDriverProxy implements InvocationHandler {
     }
 
     public static Driver create() {
-        return (Driver) Proxy.newProxyInstance(SQLDriverProxy.class.getClassLoader(), new Class<?>[]{Driver.class}, new SQLDriverProxy("jdbc/proxy/key="));
+        return (Driver) Proxy.newProxyInstance(SQLDriverProxy.class.getClassLoader(), new Class<?>[]{Driver.class},
+                new SQLDriverProxy(JDBC_PROXY_KEY));
     }
 
 

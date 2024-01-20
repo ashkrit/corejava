@@ -38,7 +38,7 @@ public class App {
 
         connection.close();
 
-        Connection proxyConnection = DriverManager.getConnection("jdbc/proxy/key=" + sqlLiteConnectionString);
+        Connection proxyConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + sqlLiteConnectionString);
 
         execute(proxyConnection, "select * from person");
         execute(proxyConnection, "select * from person");
