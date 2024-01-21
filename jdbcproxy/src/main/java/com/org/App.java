@@ -35,7 +35,7 @@ public class App {
         //_rdbms(dbPath);
 
 
-        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:/Users/ashkrit/_tmp/db");
+        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:/Users/ashkrit/_tmp");
         System.out.println("Connection :" + fsConnection);
         Statement fsstatement = fsConnection.createStatement();
         System.out.println("Statement :" + fsstatement);
@@ -45,10 +45,12 @@ public class App {
 
 
             String name = r.getString("name");
-            long lastModified = r.getLong("last_modified");
             long size = r.getLong("size");
             Date d = r.getDate("last_modified");
-            System.out.println(name + " " + lastModified + " " + size + " \t " + d);
+            boolean isFile = r.getBoolean("is_file");
+            boolean isFolder = r.getBoolean("is_folder");
+            Object isHidden = r.getObject("is_hidden");
+            System.out.printf("Name %s , size %s , last modified %s , is_file %s , is_folder %s , is_hidden %s %n", name, size, d, isFile, isFolder, isHidden);
         }
 
     }

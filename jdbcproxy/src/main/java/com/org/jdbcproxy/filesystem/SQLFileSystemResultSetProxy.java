@@ -50,7 +50,10 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         this.functions.put("getInt", this::_getInt);
         this.functions.put("getLong", this::_getLong);
         this.functions.put("getDate", this::_getDate);
+        this.functions.put("getBoolean", this::_getBoolean);
+        this.functions.put("getObject", this::_getObject);
     }
+
 
 
     private void _configureColumnsExtractor() {
@@ -77,6 +80,14 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private static boolean isRoot(Table tableName) {
         return tableName.getName().equalsIgnoreCase("root");
+    }
+
+    private Object _getObject(Method method, Object[] objects) {
+        return _readValue(objects);
+    }
+
+    private Object _getBoolean(Method method, Object[] objects) {
+        return _readValue(objects);
     }
 
     private Object _getDate(Method method, Object[] objects) {
@@ -114,8 +125,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         if (!currentRow.containsKey(fieldName)) {
             throw new IllegalArgumentException("Field " + fieldName + " is not present in the result set ( " + currentRow.keySet() + " )");
         }
-        Object value = currentRow.get(fieldName);
-        return value;
+        return currentRow.get(fieldName);
     }
 
     private Object _next(Method $, Object[] param) {
@@ -156,5 +166,8 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         container.put(FILE_NAME, file.getName());
         container.put(LAST_MODIFIED_TS, file.lastModified());
         container.put(FILE_SIZE, file.length());
+        container.put(IS_FILE, file.isFile());
+        container.put(IS_FOLDER, file.isDirectory());
+        container.put(IS_HIDDEN, file.isHidden());
     };
 }
