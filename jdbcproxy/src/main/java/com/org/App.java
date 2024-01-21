@@ -37,8 +37,7 @@ public class App {
 
         Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:");
         Statement fsstatement = fsConnection.createStatement();
-        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp') order by size");
-        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/model') order by size");
+        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/offers/') order by size");
 
     }
 
@@ -55,7 +54,9 @@ public class App {
             boolean isFile = r.getBoolean("is_file");
             boolean isFolder = r.getBoolean("is_folder");
             Object isHidden = r.getObject("is_hidden");
-            System.out.printf("fullPath %s Name %s , size %s , last modified %s , is_file %s , is_folder %s , is_hidden %s %n", fullPath, name, size, d, isFile, isFolder, isHidden);
+            byte[] fileContent = r.getBytes("content");
+            System.out.printf("fullPath %s Name %s , size %s , last modified %s , is_file %s , is_folder %s , is_hidden %s , File Peek %s %n",
+                    fullPath, name, size, d, isFile, isFolder, isHidden, fileContent.length);
         }
     }
 

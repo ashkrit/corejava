@@ -1,11 +1,9 @@
 package com.org.jdbcproxy.filesystem;
 
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.TableFunction;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -33,6 +31,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private static final AtomicInteger sequence = new AtomicInteger();
     private final Map<String, BiFunction<Method, Object[], Object>> functions = new HashMap<>();
+    private final Map<String, BiFunction<Method, Object[], Object>> columnValues = new HashMap<>();
 
     private final int currentSequence;
     private final Connection connection;
@@ -44,6 +43,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         this.connection = EmbedDatabase.open();
         createTables(connection, String.valueOf(currentSequence));
         this._addFunctions(statement);
+        this._addFieldFunctions();
 
         this._loadTable(sql);
         this.rs = _executeQuery(sql);
@@ -60,6 +60,47 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private void _addFunctions(SQLFileSystemStatementProxy statement) {
         this.functions.put("toString", ($, param) -> String.format("%s ( %s )", this.getClass().getName(), statement.toString()));
+        this.functions.put("getString", this::_getString);
+        this.functions.put("getBytes", this::_getBytes);
+    }
+
+
+    private void _addFieldFunctions() {
+
+        this.columnValues.put("content", this::_getFileContent);
+        this.columnValues.put("content_bytes", this::_getFileContentAsBytes);
+    }
+
+    private Object _getBytes(Method method, Object[] args) {
+        String columnName = (String) args[0];
+        BiFunction<Method, Object[], Object> fn = columnValues.get(columnName.toLowerCase() + "_bytes");
+        if (fn != null) {
+            return fn.apply(method, args);
+        }
+        return safeExecute(() -> method.invoke(rs, args));
+    }
+
+    private Object _getFileContentAsBytes(Method $, Object[] $$) {
+        return safeExecute(() -> {
+            String fullPath = rs.getString(FileSystemFields.FULL_PATH);
+            return Files.readAllBytes(Paths.get(fullPath));
+        });
+    }
+
+    private Object _getFileContent(Method $, Object[] $$) {
+        return safeExecute(() -> {
+            String fullPath = rs.getString(FileSystemFields.FULL_PATH);
+            return new String(Files.readAllBytes(Paths.get(fullPath)));
+        });
+    }
+
+    private Object _getString(Method method, Object[] args) {
+        String columnName = (String) args[0];
+        BiFunction<Method, Object[], Object> fn = columnValues.get(columnName.toLowerCase());
+        if (fn != null) {
+            return fn.apply(method, args);
+        }
+        return safeExecute(() -> method.invoke(rs, args));
     }
 
 
