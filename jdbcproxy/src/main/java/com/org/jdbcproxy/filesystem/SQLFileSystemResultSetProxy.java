@@ -6,6 +6,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -55,7 +56,6 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
 
-
     private void _configureColumnsExtractor() {
         columnSelections.put("*", allFields);
     }
@@ -71,11 +71,25 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
                     System.out.printf("Where %s \n", where);
 
                     if (isRoot(tableName)) {
-                        results = Files.list(Paths.get(statement.connection.target)).collect(Collectors.toList());
+                        _asRoot(statement);
+                    } else {
+                        _asSubFolder(statement, tableName);
                     }
 
                 }
         );
+    }
+
+    private void _asSubFolder(SQLFileSystemStatementProxy statement, Table tableName) throws IOException {
+        String name = tableName.toString();
+        String updatedTableName = name.replace(".", File.separator);
+        String fullPath = updatedTableName.replace("root", statement.connection.target);
+        System.out.println("Loading files from " + fullPath);
+        results = Files.list(Paths.get(fullPath)).collect(Collectors.toList());
+    }
+
+    private void _asRoot(SQLFileSystemStatementProxy statement) throws IOException {
+        results = Files.list(Paths.get(statement.connection.target)).collect(Collectors.toList());
     }
 
     private static boolean isRoot(Table tableName) {
