@@ -1,9 +1,9 @@
-package com.org;
+package com.org.jdbcproxy.custom;
 
-import com.org.jdbcproxy.custom.RowInfo;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -14,14 +14,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class InsertApp {
+public class InsertStatement {
 
-    public static void main(String[] args) throws JSQLParserException {
-        RowInfo value = createRowInfo("insert into merchant(key,value, total) values('k1','v1',99)");
-        System.out.printf("Table %s , Values %s%n", value.tableName, value.values);
-    }
-
-    private static RowInfo createRowInfo(String sql) throws JSQLParserException {
+    public static RowInfo createRowInfo(String sql) throws JSQLParserException {
         Insert stmt = (Insert) CCJSqlParserUtil.parse(sql);
         ExpressionList<?> v = stmt.getValues().getExpressions();
         ExpressionList<Column> cols = stmt.getColumns();
@@ -36,13 +31,14 @@ public class InsertApp {
         return cols.get(index).getColumnName();
     }
 
-    private static Object columnValue(Expression o) {
-        if (o instanceof StringValue) {
-            return ((StringValue) o).getValue();
-        } else if (o instanceof LongValue) {
-            return ((LongValue) o).getValue();
+    private static Object columnValue(Expression expression) {
+        if (expression instanceof StringValue) {
+            return ((StringValue) expression).getValue();
+        } else if (expression instanceof LongValue) {
+            return ((LongValue) expression).getValue();
+        } else if (expression instanceof Parenthesis) {
+            return columnValue(((Parenthesis) expression).getExpression());
         }
-        return o.toString();
+        return expression.toString();
     }
-
 }
