@@ -15,6 +15,11 @@ public class EmbedDatabase {
         return MoreLang.safeExecute(() -> DriverManager.getConnection(CONNECTION_STRING));
     }
 
+    public static Connection open(String connectionUrl) {
+        MoreLang.safeExecuteV(() -> Class.forName(driver.getName()));
+        return MoreLang.safeExecute(() -> DriverManager.getConnection(connectionUrl));
+    }
+
     public static void close(Connection connection) {
 
     }
