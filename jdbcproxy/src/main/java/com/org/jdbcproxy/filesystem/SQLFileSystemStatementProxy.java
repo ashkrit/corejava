@@ -1,11 +1,5 @@
 package com.org.jdbcproxy.filesystem;
 
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.util.TablesNamesFinder;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -13,10 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
-
-import static com.org.lang.MoreLang.safeExecuteV;
 
 public class SQLFileSystemStatementProxy implements InvocationHandler {
 
@@ -32,8 +23,10 @@ public class SQLFileSystemStatementProxy implements InvocationHandler {
 
     private ResultSet _executeQuery(Object[] param) {
         String sql = (String) param[0];
-
-        return SQLFileSystemResultSetProxy.create(this, sql);
+        if (SQLFileSystemResultSetProxy.canProcess(sql)) {
+            return SQLFileSystemResultSetProxy.create(this, sql);
+        }
+        throw new IllegalArgumentException(String.format("Unable to execute %s", sql));
     }
 
     @Override

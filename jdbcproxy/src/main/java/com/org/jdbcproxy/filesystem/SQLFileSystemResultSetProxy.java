@@ -1,5 +1,6 @@
 package com.org.jdbcproxy.filesystem;
 
+import com.org.lang.MoreLang;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.TableFunction;
@@ -30,6 +31,7 @@ import static com.org.lang.MoreLang.safeExecuteV;
 public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private static final AtomicInteger sequence = new AtomicInteger();
+    public static final String FILESYSTEM_PATTERN = "fs\\('([^']+)'\\)";
     private final Map<String, BiFunction<Method, Object[], Object>> functions = new HashMap<>();
     private final Map<String, BiFunction<Method, Object[], Object>> columnValues = new HashMap<>();
 
@@ -109,8 +111,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
                     PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
                     TableFunction tableName = (TableFunction) select.getFromItem();
                     String name = tableName.toString();
-                    Pattern namePattern = Pattern.compile("fs\\('([^']+)'\\)");
-                    Matcher matcher = namePattern.matcher(name);
+                    Matcher matcher = _match(name);
                     if (matcher.matches()) {
                         _asFolder(matcher.group(1));
                     } else {
@@ -151,5 +152,23 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     @Override
     public String toString() {
         return this.getClass().getName();
+    }
+
+
+    public static boolean canProcess(String sql) {
+
+        return MoreLang.safeExecute(() -> {
+                    PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+                    TableFunction tableName = (TableFunction) select.getFromItem();
+                    String name = tableName.toString();
+                    return _match(name).matches();
+                }
+
+        );
+    }
+
+    private static Matcher _match(String name) {
+        Pattern namePattern = Pattern.compile(FILESYSTEM_PATTERN);
+        return namePattern.matcher(name);
     }
 }
