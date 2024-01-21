@@ -8,11 +8,11 @@ import java.util.function.Supplier;
 public class CustomDataSourceContext {
 
     public final Supplier<Connection> connection;
-    public final Map<String, BiConsumer<Connection, RowInfo>> tables;
+    public final Map<String, BiConsumer<Connection, RowInfo>> loadFunctions;
 
 
-    public CustomDataSourceContext(Supplier<Connection> connection, Map<String, BiConsumer<Connection, RowInfo>> tables) {
+    public CustomDataSourceContext(Supplier<Connection> connection, Map<String, BiConsumer<Connection, RowInfo>> loadFunctions) {
         this.connection = connection;
-        this.tables = tables;
+        this.loadFunctions = loadFunctions;
     }
 }

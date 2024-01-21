@@ -22,6 +22,10 @@ public class SQLCustomStatementProxy implements InvocationHandler {
     public SQLCustomStatementProxy(SQLCustomConnectionProxy connection, SQLFactory.SQLObjects sqlObject) {
         this.connection = connection;
         this.sqlObject = sqlObject;
+        _registerFunctions(connection);
+    }
+
+    private void _registerFunctions(SQLCustomConnectionProxy connection) {
         functions.put("toString", param -> String.format("%s ( %s )", this.getClass().getName(), connection));
         functions.put("executeQuery", this::_executeQuery);
         functions.put("executeUpdate", this::_executeUpdate);
@@ -43,7 +47,7 @@ public class SQLCustomStatementProxy implements InvocationHandler {
             CustomDataSourceContext context = this.sqlObject.context.get();
             Connection innerConnection = context.connection.get();
             System.out.printf("Insert In table %s , Values %s%n", row.tableName, row.values);
-            context.tables.get(row.tableName.toLowerCase()).accept(innerConnection, row);
+            context.loadFunctions.get(row.tableName.toLowerCase()).accept(innerConnection, row);
         });
         return 1;
     }

@@ -23,13 +23,13 @@ public class LoadData {
         SQLDriverProxy.register();
 
         Map<String, BiConsumer<Connection, RowInfo>> tables = new HashMap<>();
-
         tables.put("merchant", (conn, rowInfo) -> {
             MerchantSQL.createTables(conn);
             MerchantSQL.insert(conn, rowInfo);
         });
 
         CustomDataSourceContext context = new CustomDataSourceContext(() -> EmbedDatabase.open("jdbc:sqlite:merchant.db"), tables);
+
         SQLFactory.register(SQLCustomConnectionProxy.URL_PREFIX, new SQLObjects(SQLCustomConnectionProxy::create, () -> context) {
             @Override
             public boolean accept(String value) {
@@ -46,6 +46,8 @@ public class LoadData {
 
 
         ResultSet rs = statement.executeQuery("select * from merchant order by location");
+        System.out.println("Merchant" + rs);
+        System.out.println("Merchant" + statement);
         while (rs.next()) {
             String name = rs.getString("name");
             String desc = rs.getString("desc");
