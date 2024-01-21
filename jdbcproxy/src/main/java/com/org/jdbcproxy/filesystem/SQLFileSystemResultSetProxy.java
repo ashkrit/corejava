@@ -1,13 +1,9 @@
 package com.org.jdbcproxy.filesystem;
 
-import com.org.jdbcproxy.SQLCache;
-import com.org.lang.MoreLang;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
@@ -20,12 +16,11 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.org.lang.MoreLang.safeExecuteV;
 
 public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
@@ -40,15 +35,28 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     public SQLFileSystemResultSetProxy(SQLFileSystemStatementProxy statement, String sql) {
         this.statement = statement;
+        this._configureColumnsExtractor();
+        this._parseQuery(statement, sql);
+        this._addFunctions(statement);
+
+
+    }
+
+    private void _addFunctions(SQLFileSystemStatementProxy statement) {
         this.functions.put("toString", ($, param) -> String.format("%s ( %s )", this.getClass().getName(), statement.toString()));
         this.functions.put("next", this::_next);
         this.functions.put("getString", this::_getString);
+        this.functions.put("getInt", this::_getInt);
+        this.functions.put("getLong", this::_getLong);
+    }
 
-        System.out.println(statement.connection.target);
 
+    private void _configureColumnsExtractor() {
         columnSelections.put("*", allFields);
+    }
 
-        MoreLang.safeExecuteV(() -> {
+    private void _parseQuery(SQLFileSystemStatementProxy statement, String sql) {
+        safeExecuteV(() -> {
                     PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
 
                     Table tableName = (Table) select.getFromItem();
@@ -57,23 +65,38 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
                     Expression where = select.getWhere();
                     System.out.printf("Where %s \n", where);
 
-                    List<SelectItem<?>> columns = select.getSelectItems();
-                    System.out.printf("Columns %s \n", columns);
-
-                    Set<String> tableNames = TablesNamesFinder.findTables(sql);
-                    System.out.printf("Table names %s \n", tableNames);
-
-                    if (tableName.getName().equalsIgnoreCase("root")) {
+                    if (isRoot(tableName)) {
                         results = Files.list(Paths.get(statement.connection.target)).collect(Collectors.toList());
                     }
 
                 }
         );
+    }
 
+    private static boolean isRoot(Table tableName) {
+        return tableName.getName().equalsIgnoreCase("root");
+    }
+
+    private Object _getLong(Method method, Object[] objects) {
+        Object value = currentRow.get(objects[0]);
+        if (value instanceof Integer) {
+            return ((Integer) value).longValue();
+        }
+        return value;
+    }
+
+    private Object _getInt(Method method, Object[] objects) {
+        Object value = currentRow.get(objects[0]);
+        if (value instanceof Long) {
+            return ((Long) value).intValue();
+        }
+
+        return value;
     }
 
     private Object _getString(Method method, Object[] objects) {
-        return currentRow.get(objects[0]);
+        Object value = currentRow.get(objects[0]);
+        return value != null ? value.toString() : null;
     }
 
     private Object _next(Method $, Object[] param) {

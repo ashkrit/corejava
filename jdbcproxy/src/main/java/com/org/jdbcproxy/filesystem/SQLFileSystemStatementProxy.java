@@ -32,26 +32,9 @@ public class SQLFileSystemStatementProxy implements InvocationHandler {
 
     private ResultSet _executeQuery(Object[] param) {
         String sql = (String) param[0];
-        _parse(sql);
+
         return SQLFileSystemResultSetProxy.create(this, sql);
     }
-
-    private static void _parse(String sql) {
-        safeExecuteV(() -> {
-
-            PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
-
-            Table tableName = (Table) select.getFromItem();
-            System.out.printf("Querying %s \n", tableName);
-
-            Expression where = select.getWhere();
-            System.out.printf("Where %s \n", where);
-
-            Set<String> tableNames = TablesNamesFinder.findTables(sql);
-            System.out.printf("Table names %s \n", tableNames);
-        });
-    }
-
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {

@@ -42,7 +42,13 @@ public class App {
         ResultSet r = fsstatement.executeQuery("select * from root");
         System.out.println("result Set:" + r);
         while (r.next()) {
-            System.out.println(r.getString("name"));
+
+
+            String name = r.getString("name");
+            long lastModified = r.getLong("last_modified");
+            long size = r.getLong("size");
+
+            System.out.println(name + " " + lastModified + " " + size);
         }
 
     }
