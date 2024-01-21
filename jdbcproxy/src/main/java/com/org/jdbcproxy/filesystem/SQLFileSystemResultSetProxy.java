@@ -1,9 +1,15 @@
 package com.org.jdbcproxy.filesystem;
 
-import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.arithmetic.*;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.expression.operators.conditional.XorExpression;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,24 +79,34 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
                     System.out.printf("Where %s \n", where);
 
                     if (isRoot(tableName)) {
-                        _asRoot(statement);
+                        _asRoot(statement, where);
                     } else {
-                        _asSubFolder(statement, tableName);
+                        _asSubFolder(statement, tableName, where);
                     }
 
                 }
         );
     }
 
-    private void _asSubFolder(SQLFileSystemStatementProxy statement, Table tableName) throws IOException {
+    private void _asSubFolder(SQLFileSystemStatementProxy statement, Table tableName, Expression where) throws IOException {
         String name = tableName.toString();
         String updatedTableName = name.replace(".", File.separator);
         String fullPath = updatedTableName.replace("root", statement.connection.target);
         System.out.println("Loading files from " + fullPath);
+
+        if (where instanceof GreaterThan) {
+            GreaterThan gt = (GreaterThan) where;
+            Expression left = gt.getLeftExpression();
+            Expression right = gt.getLeftExpression();
+
+            System.out.println("Left -> " + left + " -> " + right);
+        }
+
+
         results = Files.list(Paths.get(fullPath)).collect(Collectors.toList());
     }
 
-    private void _asRoot(SQLFileSystemStatementProxy statement) throws IOException {
+    private void _asRoot(SQLFileSystemStatementProxy statement, Expression where) throws IOException {
         results = Files.list(Paths.get(statement.connection.target)).collect(Collectors.toList());
     }
 
