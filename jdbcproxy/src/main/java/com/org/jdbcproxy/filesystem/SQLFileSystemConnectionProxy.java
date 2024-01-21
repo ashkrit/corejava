@@ -1,6 +1,5 @@
 package com.org.jdbcproxy.filesystem;
 
-import com.org.jdbcproxy.rdbms.SQLStatementProxy;
 import com.org.lang.MoreLang;
 
 import java.lang.reflect.InvocationHandler;
@@ -14,18 +13,21 @@ import java.util.function.Function;
 
 public class SQLFileSystemConnectionProxy implements InvocationHandler {
 
+
+    public static final String URL_PREFIX = "filesystem:";
+
     private final Map<String, Function<Object[], Object>> functions = new HashMap<>();
 
-    private final Connection target;
+    public final String target;
 
-    public SQLFileSystemConnectionProxy(Connection target) {
-        this.target = target;
-        functions.put("toString", param -> String.format("%s ( %s )", this.getClass().getName(), target.toString()));
+    public SQLFileSystemConnectionProxy(String connectionUrl) {
+        this.target = connectionUrl;
+        functions.put("toString", param -> String.format("%s ( %s )", this.getClass().getName(), target));
         functions.put("createStatement", this::_createStatement);
     }
 
     private Statement _createStatement(Object[] param) {
-        return SQLStatementProxy.create(MoreLang.safeExecute(target::createStatement));
+        return SQLFileSystemStatementProxy.create(this);
     }
 
 
@@ -39,8 +41,14 @@ public class SQLFileSystemConnectionProxy implements InvocationHandler {
         return $ -> MoreLang.safeExecute(() -> method.invoke(target, args));
     }
 
-    public static Connection create(Connection connection) {
+    public static Connection create(String connectionUrl) {
+        String cleanUrl = connectionUrl.replace(SQLFileSystemConnectionProxy.URL_PREFIX, "");
         return (Connection) Proxy.newProxyInstance(SQLFileSystemConnectionProxy.class.getClassLoader(), new Class<?>[]{Connection.class},
-                new SQLFileSystemConnectionProxy(connection));
+                new SQLFileSystemConnectionProxy(cleanUrl));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s ( %s )", this.getClass().getName(), target);
     }
 }

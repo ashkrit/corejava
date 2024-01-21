@@ -3,6 +3,9 @@ package com.org;
 
 import com.org.jdbcproxy.SQLCache;
 import com.org.jdbcproxy.SQLDriverProxy;
+import com.org.jdbcproxy.SQLFactory;
+import com.org.jdbcproxy.SQLFactory.SQLObjects;
+import com.org.jdbcproxy.filesystem.SQLFileSystemConnectionProxy;
 
 import java.sql.*;
 import java.util.List;
@@ -21,10 +24,31 @@ public class App {
 
 
         SQLDriverProxy.register();
+        SQLFactory.register("filesystem", new SQLObjects(SQLFileSystemConnectionProxy::create) {
+            @Override
+            public boolean accept(String value) {
+                return value.startsWith(SQLFileSystemConnectionProxy.URL_PREFIX);
+            }
 
+        });
+
+        //_rdbms(dbPath);
+
+
+        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:/Users/ashkrit/_tmp/db");
+        System.out.println("Connection :" + fsConnection);
+        Statement fsstatement = fsConnection.createStatement();
+        System.out.println("Statement :" + fsstatement);
+        ResultSet r = fsstatement.executeQuery("select * from root");
+        System.out.println("result Set:" + r);
+        while (r.next()) {
+            System.out.println(r.getString("name"));
+        }
+
+    }
+
+    private static void _rdbms(String dbPath) throws SQLException {
         String sqlLiteConnectionString = "jdbc:sqlite:" + dbPath;
-
-
         Connection connection = DriverManager.getConnection(sqlLiteConnectionString);
         Statement statement = connection.createStatement();
         statement.setQueryTimeout(30);  // set timeout to 30 sec.
@@ -42,7 +66,6 @@ public class App {
 
         execute(proxyConnection, "select * from person");
         execute(proxyConnection, "select * from person");
-
     }
 
     private static void execute(Connection connection, String sql) throws SQLException {
