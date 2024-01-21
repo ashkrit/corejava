@@ -39,7 +39,7 @@ public class App {
         System.out.println("Connection :" + fsConnection);
         Statement fsstatement = fsConnection.createStatement();
         System.out.println("Statement :" + fsstatement);
-        ResultSet r = fsstatement.executeQuery("select * from root.model where size > 100");
+        ResultSet r = fsstatement.executeQuery("select * from root.model");
         System.out.println("result Set:" + r);
         while (r.next()) {
 

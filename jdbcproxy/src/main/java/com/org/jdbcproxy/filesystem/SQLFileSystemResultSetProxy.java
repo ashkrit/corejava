@@ -1,13 +1,10 @@
 package com.org.jdbcproxy.filesystem;
 
+import com.org.lang.MoreLang;
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.*;
-import net.sf.jsqlparser.expression.operators.arithmetic.*;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.conditional.XorExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 
@@ -19,11 +16,14 @@ import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -33,9 +33,13 @@ import static com.org.lang.MoreLang.safeExecuteV;
 
 public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
+    private static AtomicInteger sequence = new AtomicInteger();
     private final Map<String, BiFunction<Method, Object[], Object>> functions = new HashMap<>();
 
     private final SQLFileSystemStatementProxy statement;
+    private final int currentSequence;
+    private final Connection connection;
+    private final ResultSet rs;
     private List<Path> results;
     private final Map<Object, Object> currentRow = new HashMap<>();
     private int index = -1;
@@ -43,16 +47,29 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     private final Map<String, BiConsumer<Path, Map<Object, Object>>> columnSelections = new HashMap<>();
 
     public SQLFileSystemResultSetProxy(SQLFileSystemStatementProxy statement, String sql) {
+        this.currentSequence = sequence.incrementAndGet();
+        this.connection = EmbedDatabase.open();
+        FileSystemSQL.createTables(connection, String.valueOf(currentSequence));
+
         this.statement = statement;
         this._configureColumnsExtractor();
         this._parseQuery(statement, sql);
         this._addFunctions(statement);
+        this.rs = _executeQuery(sql);
+    }
 
-
+    private ResultSet _executeQuery(String sql) {
+        return MoreLang.safeExecute(() -> {
+            PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+            String tableName = select.getFromItem().toString();
+            String updatedSql = sql.replace(tableName, String.format("files_%s", currentSequence));
+            return this.connection.createStatement().executeQuery(updatedSql);
+        });
     }
 
     private void _addFunctions(SQLFileSystemStatementProxy statement) {
         this.functions.put("toString", ($, param) -> String.format("%s ( %s )", this.getClass().getName(), statement.toString()));
+        /*
         this.functions.put("next", this::_next);
         this.functions.put("getString", this::_getString);
         this.functions.put("getInt", this::_getInt);
@@ -61,6 +78,8 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         this.functions.put("getBoolean", this::_getBoolean);
         this.functions.put("getTimestamp", this::_getTimestamp);
         this.functions.put("getObject", this::_getObject);
+
+         */
     }
 
 
@@ -104,10 +123,13 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
 
         results = Files.list(Paths.get(fullPath)).collect(Collectors.toList());
+        FileSystemSQL.loadFiles(connection, String.valueOf(currentSequence), results);
+
     }
 
     private void _asRoot(SQLFileSystemStatementProxy statement, Expression where) throws IOException {
         results = Files.list(Paths.get(statement.connection.target)).collect(Collectors.toList());
+        FileSystemSQL.loadFiles(connection, String.valueOf(currentSequence), results);
     }
 
     private static boolean isRoot(Table tableName) {
@@ -154,6 +176,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     private Object _getString(Method method, Object[] objects) {
         Object value = _readValue(objects);
         return value != null ? value.toString() : null;
+
     }
 
     private Object _readValue(Object[] objects) {
@@ -165,6 +188,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
     private Object _next(Method $, Object[] param) {
+        /*
         index++;
         boolean result = index < results.size();
         if (result) {
@@ -172,6 +196,9 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
             columnSelections.get("*").accept(results.get(index), currentRow);
         }
         return result;
+
+         */
+        return MoreLang.safeExecute(rs::next);
     }
 
 
@@ -182,9 +209,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
     private BiFunction<Method, Object[], Object> _wrap(Method method, Object[] args) {
-        return (v1, v2) -> {
-            throw new IllegalArgumentException("Method " + method.getName() + " is not supported");
-        };
+        return (v1, v2) -> MoreLang.safeExecute(() -> method.invoke(rs, args));
     }
 
     public static ResultSet create(SQLFileSystemStatementProxy statement, String sql) {
