@@ -1,5 +1,6 @@
 package com.org.jdbcproxy;
 
+import com.org.jdbcproxy.rdbms.SQLConnectionProxy;
 import com.org.lang.MoreLang;
 
 import java.sql.Connection;
