@@ -47,8 +47,8 @@ public class App {
             String name = r.getString("name");
             long lastModified = r.getLong("last_modified");
             long size = r.getLong("size");
-
-            System.out.println(name + " " + lastModified + " " + size);
+            Date d = r.getDate("last_modified");
+            System.out.println(name + " " + lastModified + " " + size + " \t " + d);
         }
 
     }

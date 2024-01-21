@@ -20,6 +20,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static com.org.jdbcproxy.filesystem.FileSystemFields.*;
 import static com.org.lang.MoreLang.safeExecuteV;
 
 public class SQLFileSystemResultSetProxy implements InvocationHandler {
@@ -28,7 +29,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private final SQLFileSystemStatementProxy statement;
     private List<Path> results;
-    private Map<Object, Object> currentRow = new HashMap<>();
+    private final Map<Object, Object> currentRow = new HashMap<>();
     private int index = -1;
 
     private final Map<String, BiConsumer<Path, Map<Object, Object>>> columnSelections = new HashMap<>();
@@ -48,6 +49,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         this.functions.put("getString", this::_getString);
         this.functions.put("getInt", this::_getInt);
         this.functions.put("getLong", this::_getLong);
+        this.functions.put("getDate", this::_getDate);
     }
 
 
@@ -77,8 +79,16 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         return tableName.getName().equalsIgnoreCase("root");
     }
 
+    private Object _getDate(Method method, Object[] objects) {
+        Object value = _readValue(objects);
+        if (value instanceof Long) {
+            return new java.sql.Date((Long) value);
+        }
+        return value;
+    }
+
     private Object _getLong(Method method, Object[] objects) {
-        Object value = currentRow.get(objects[0]);
+        Object value = _readValue(objects);
         if (value instanceof Integer) {
             return ((Integer) value).longValue();
         }
@@ -86,7 +96,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
     private Object _getInt(Method method, Object[] objects) {
-        Object value = currentRow.get(objects[0]);
+        Object value = _readValue(objects);
         if (value instanceof Long) {
             return ((Long) value).intValue();
         }
@@ -95,8 +105,17 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
     private Object _getString(Method method, Object[] objects) {
-        Object value = currentRow.get(objects[0]);
+        Object value = _readValue(objects);
         return value != null ? value.toString() : null;
+    }
+
+    private Object _readValue(Object[] objects) {
+        String fieldName = ((String) objects[0]).toLowerCase();
+        if (!currentRow.containsKey(fieldName)) {
+            throw new IllegalArgumentException("Field " + fieldName + " is not present in the result set ( " + currentRow.keySet() + " )");
+        }
+        Object value = currentRow.get(fieldName);
+        return value;
     }
 
     private Object _next(Method $, Object[] param) {
@@ -134,8 +153,8 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     static BiConsumer<Path, Map<Object, Object>> allFields = (p, container) -> {
         File file = p.toFile();
-        container.put("name", file.getName());
-        container.put("last_modified", file.lastModified());
-        container.put("size", file.length());
+        container.put(FILE_NAME, file.getName());
+        container.put(LAST_MODIFIED_TS, file.lastModified());
+        container.put(FILE_SIZE, file.length());
     };
 }
