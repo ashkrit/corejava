@@ -1,6 +1,7 @@
 package com.org;
 
 
+import com.org.jdbcproxy.fs.SQLFileSystemConnectionProxy;
 import com.org.jdbcproxy.rdbms.SQLCache;
 import com.org.jdbcproxy.SQLDriverProxy;
 
@@ -10,8 +11,8 @@ import java.util.Map;
 
 
 /**
- jdbc/proxy/key=jdbc:sqlite:/tmp/offers.db
- jdbc/proxy/key=filesystem:
+ * jdbc/proxy/key=jdbc:sqlite:/tmp/offers.db
+ * jdbc/proxy/key=filesystem:
  */
 
 public class App {
@@ -31,7 +32,7 @@ public class App {
         //_rdbms(dbPath);
 
 
-        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:");
+        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + SQLFileSystemConnectionProxy.URL_PREFIX);
         Statement fsstatement = fsConnection.createStatement();
         dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/offers/') order by size");
 

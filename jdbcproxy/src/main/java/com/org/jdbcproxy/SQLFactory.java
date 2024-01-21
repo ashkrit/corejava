@@ -16,7 +16,7 @@ public class SQLFactory {
 
 
     static {
-        register("filesystem", new SQLObjects(SQLFileSystemConnectionProxy::create) {
+        register(SQLFileSystemConnectionProxy.URL_PREFIX, new SQLObjects(SQLFileSystemConnectionProxy::create) {
             @Override
             public boolean accept(String value) {
                 return value.startsWith(SQLFileSystemConnectionProxy.URL_PREFIX);
