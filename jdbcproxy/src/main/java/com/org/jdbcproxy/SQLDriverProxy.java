@@ -34,11 +34,16 @@ public class SQLDriverProxy implements InvocationHandler {
         }
 
         String updatedUrl = url.replace(driverUrl, "");
-        System.out.println("Params " + updatedUrl);
 
-        SQLObjects sqlObjects = SQLFactory.factory.get("default");
+        SQLObjects sqlObjects = _search(updatedUrl);
+
         return sqlObjects.connection.apply(updatedUrl);
 
+    }
+
+    private static SQLObjects _search(String connectionString) {
+        System.out.println("Params " + connectionString);
+        return SQLFactory.search(connectionString);
     }
 
     @Override

@@ -6,19 +6,25 @@ import com.org.lang.MoreLang;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 public class SQLFactory {
 
-    public static Map<String, SQLObjects> factory = new HashMap<>();
+    public static Map<String, SQLObjects> factory = new LinkedHashMap<>();
 
 
-    static {
-        factory.put("default", new SQLObjects(url -> MoreLang.safeExecute(() -> {
+    public static void register(String name, SQLObjects sql) {
+        factory.put(name, sql);
+    }
+
+
+    private static SQLObjects rdbms() {
+        return new SQLObjects(url -> MoreLang.safeExecute(() -> {
             Connection con = DriverManager.getConnection(url);
             return SQLConnectionProxy.create(con);
-        })));
+        }));
     }
 
 
@@ -29,7 +35,20 @@ public class SQLFactory {
         public SQLObjects(Function<String, Connection> connection) {
             this.connection = connection;
         }
+
+        public boolean accept(String $) {
+            return true;
+        }
+
+
     }
 
 
+    public static SQLObjects search(String connectionString) {
+        return factory
+                .values()
+                .stream()
+                .filter(sql -> sql.accept(connectionString))
+                .findFirst().orElse(rdbms());
+    }
 }
