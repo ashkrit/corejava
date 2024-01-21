@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         this.functions.put("getLong", this::_getLong);
         this.functions.put("getDate", this::_getDate);
         this.functions.put("getBoolean", this::_getBoolean);
+        this.functions.put("getTimestamp", this::_getTimestamp);
         this.functions.put("getObject", this::_getObject);
     }
 
@@ -110,6 +112,10 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
             return new java.sql.Date((Long) value);
         }
         return value;
+    }
+
+    private Object _getTimestamp(Method method, Object[] objects) {
+        return new Timestamp((Long) _getLong(method, objects));
     }
 
     private Object _getLong(Method method, Object[] objects) {

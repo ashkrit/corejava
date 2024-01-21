@@ -39,14 +39,14 @@ public class App {
         System.out.println("Connection :" + fsConnection);
         Statement fsstatement = fsConnection.createStatement();
         System.out.println("Statement :" + fsstatement);
-        ResultSet r = fsstatement.executeQuery("select * from root.db");
+        ResultSet r = fsstatement.executeQuery("select * from root.model");
         System.out.println("result Set:" + r);
         while (r.next()) {
 
 
             String name = r.getString("name");
             long size = r.getLong("size");
-            Date d = r.getDate("last_modified");
+            Timestamp d = r.getTimestamp("last_modified");
             boolean isFile = r.getBoolean("is_file");
             boolean isFolder = r.getBoolean("is_folder");
             Object isHidden = r.getObject("is_hidden");
