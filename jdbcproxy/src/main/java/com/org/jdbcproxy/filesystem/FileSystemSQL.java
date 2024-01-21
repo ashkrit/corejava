@@ -20,7 +20,6 @@ public class FileSystemSQL {
 
         safeExecuteV(() -> {
             String ddlQuery = buildFilesTableQuery(suffix);
-            System.out.println(ddlQuery);
             Statement statement = connection.createStatement();
             statement.executeUpdate(String.format("drop table if exists files_%s", suffix));
             statement.executeUpdate(ddlQuery);

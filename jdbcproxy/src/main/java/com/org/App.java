@@ -35,12 +35,16 @@ public class App {
         //_rdbms(dbPath);
 
 
-        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:/Users/ashkrit/_tmp");
-        System.out.println("Connection :" + fsConnection);
+        Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + "filesystem:");
         Statement fsstatement = fsConnection.createStatement();
-        System.out.println("Statement :" + fsstatement);
-        ResultSet r = fsstatement.executeQuery("select * from root.model order by size");
-        System.out.println("result Set:" + r);
+        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp') order by size");
+        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/model') order by size");
+
+    }
+
+    private static void dumpResult(Statement fsstatement, String sql) throws SQLException {
+        System.out.println("Executing " + sql);
+        ResultSet r = fsstatement.executeQuery(sql);
         while (r.next()) {
 
 
@@ -52,7 +56,6 @@ public class App {
             Object isHidden = r.getObject("is_hidden");
             System.out.printf("Name %s , size %s , last modified %s , is_file %s , is_folder %s , is_hidden %s %n", name, size, d, isFile, isFolder, isHidden);
         }
-
     }
 
     private static void _rdbms(String dbPath) throws SQLException {

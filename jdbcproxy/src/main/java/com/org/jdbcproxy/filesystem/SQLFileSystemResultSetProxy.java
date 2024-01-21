@@ -3,6 +3,7 @@ package com.org.jdbcproxy.filesystem;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.TableFunction;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.org.jdbcproxy.filesystem.FileSystemSQL.createTables;
@@ -43,7 +46,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         createTables(connection, String.valueOf(currentSequence));
         this._addFunctions(statement);
 
-        this._loadTable(statement, sql);
+        this._loadTable(sql);
         this.rs = _executeQuery(sql);
     }
 
@@ -61,15 +64,17 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
 
-    private void _loadTable(SQLFileSystemStatementProxy statement, String sql) {
+    private void _loadTable(String sql) {
         safeExecuteV(() -> {
                     PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
-                    Table tableName = (Table) select.getFromItem();
-                    System.out.printf("Querying %s \n", tableName);
-                    if (isRoot(tableName)) {
-                        _asRoot(statement);
+                    TableFunction tableName = (TableFunction) select.getFromItem();
+                    String name = tableName.toString();
+                    Pattern namePattern = Pattern.compile("fs\\('([^']+)'\\)");
+                    Matcher matcher = namePattern.matcher(name);
+                    if (matcher.matches()) {
+                        _asFolder(matcher.group(1));
                     } else {
-                        _asSubFolder(statement, tableName);
+                        throw new IllegalArgumentException(String.format("Unable to find folder from %s , eg fs('/tmp/data')", name));
                     }
 
                 }
@@ -78,6 +83,15 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private void _asSubFolder(SQLFileSystemStatementProxy statement, Table tableName) throws IOException {
         Path fullPath = Paths.get(_toAbsPath(statement, tableName));
+        System.out.println("Loading files from " + fullPath);
+
+        List<Path> results = Files.list(fullPath).collect(Collectors.toList());
+        loadFiles(connection, String.valueOf(currentSequence), results);
+
+    }
+
+    private void _asFolder(String path) throws IOException {
+        Path fullPath = Paths.get(path);
         System.out.println("Loading files from " + fullPath);
 
         List<Path> results = Files.list(fullPath).collect(Collectors.toList());

@@ -48,7 +48,6 @@ public class SQLDriverProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        System.out.printf("Calling method %s(%s) \n", method.getName(), args);
         Function<Object[], Object> fn = functions.getOrDefault(method.getName(), $ -> null);
         return fn.apply(args);
     }
@@ -77,7 +76,6 @@ public class SQLDriverProxy implements InvocationHandler {
         while (drivers.hasMoreElements()) {
             Driver e = drivers.nextElement();
             driverList.add(e);
-            System.out.printf("%s -> %s%n", order, e);
             order++;
         }
         return driverList;
