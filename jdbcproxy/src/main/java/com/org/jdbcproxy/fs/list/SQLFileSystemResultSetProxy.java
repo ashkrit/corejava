@@ -1,8 +1,7 @@
-package com.org.jdbcproxy.filesystem.list;
+package com.org.jdbcproxy.fs.list;
 
-import com.org.jdbcproxy.filesystem.EmbedDatabase;
-import com.org.jdbcproxy.filesystem.SQLFileSystemStatementProxy;
-import com.org.lang.MoreLang;
+import com.org.jdbcproxy.fs.EmbedDatabase;
+import com.org.jdbcproxy.fs.SQLFileSystemStatementProxy;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -26,8 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.org.jdbcproxy.filesystem.list.FileSystemSQL.createTables;
-import static com.org.jdbcproxy.filesystem.list.FileSystemSQL.loadFiles;
+import static com.org.jdbcproxy.fs.list.FileSystemSQL.createTables;
+import static com.org.jdbcproxy.fs.list.FileSystemSQL.loadFiles;
 import static com.org.lang.MoreLang.safeExecute;
 import static com.org.lang.MoreLang.safeExecuteV;
 
@@ -47,6 +46,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         this.currentSequence = sequence.incrementAndGet();
         this.connection = EmbedDatabase.open();
         createTables(connection, String.valueOf(currentSequence));
+
         this._addFunctions(statement);
         this._addFieldFunctions();
 
@@ -64,7 +64,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     }
 
     private void _addFunctions(SQLFileSystemStatementProxy statement) {
-        this.functions.put("toString", ($, param) -> String.format("%s ( %s )", this.getClass().getName(), statement.toString()));
+        this.functions.put("toString", ($, $$) -> String.format("%s ( %s )", this.getClass().getName(), statement.toString()));
         this.functions.put("getString", this::_getString);
         this.functions.put("getBytes", this::_getBytes);
     }

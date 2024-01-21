@@ -1,6 +1,5 @@
 package com.org.jdbcproxy.rdbms;
 
-import com.org.jdbcproxy.SQLCache;
 import com.org.lang.MoreLang;
 
 import java.lang.reflect.InvocationHandler;

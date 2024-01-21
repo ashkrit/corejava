@@ -1,4 +1,4 @@
-package com.org.jdbcproxy.filesystem;
+package com.org.jdbcproxy.fs;
 
 import com.org.lang.MoreLang;
 

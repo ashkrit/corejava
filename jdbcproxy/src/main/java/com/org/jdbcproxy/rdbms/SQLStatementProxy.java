@@ -1,6 +1,5 @@
 package com.org.jdbcproxy.rdbms;
 
-import com.org.jdbcproxy.SQLCache;
 import com.org.lang.MoreLang;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;

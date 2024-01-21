@@ -1,15 +1,18 @@
 package com.org;
 
 
-import com.org.jdbcproxy.SQLCache;
+import com.org.jdbcproxy.rdbms.SQLCache;
 import com.org.jdbcproxy.SQLDriverProxy;
-import com.org.jdbcproxy.SQLFactory;
-import com.org.jdbcproxy.SQLFactory.SQLObjects;
-import com.org.jdbcproxy.filesystem.SQLFileSystemConnectionProxy;
 
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
+
+
+/**
+ jdbc/proxy/key=jdbc:sqlite:/tmp/offers.db
+ jdbc/proxy/key=filesystem:
+ */
 
 public class App {
 
@@ -24,13 +27,6 @@ public class App {
 
 
         SQLDriverProxy.register();
-        SQLFactory.register("filesystem", new SQLObjects(SQLFileSystemConnectionProxy::create) {
-            @Override
-            public boolean accept(String value) {
-                return value.startsWith(SQLFileSystemConnectionProxy.URL_PREFIX);
-            }
-
-        });
 
         //_rdbms(dbPath);
 

@@ -1,5 +1,6 @@
 package com.org.jdbcproxy;
 
+import com.org.jdbcproxy.fs.SQLFileSystemConnectionProxy;
 import com.org.jdbcproxy.rdbms.SQLConnectionProxy;
 import com.org.lang.MoreLang;
 
@@ -12,6 +13,16 @@ import java.util.function.Function;
 public class SQLFactory {
 
     public static Map<String, SQLObjects> factory = new LinkedHashMap<>();
+
+
+    static {
+        register("filesystem", new SQLObjects(SQLFileSystemConnectionProxy::create) {
+            @Override
+            public boolean accept(String value) {
+                return value.startsWith(SQLFileSystemConnectionProxy.URL_PREFIX);
+            }
+        });
+    }
 
 
     public static void register(String name, SQLObjects sql) {

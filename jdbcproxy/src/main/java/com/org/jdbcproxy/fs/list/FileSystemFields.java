@@ -1,4 +1,4 @@
-package com.org.jdbcproxy.filesystem.list;
+package com.org.jdbcproxy.fs.list;
 
 public class FileSystemFields {
 

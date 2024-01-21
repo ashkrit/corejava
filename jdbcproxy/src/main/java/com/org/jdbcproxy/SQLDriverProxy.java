@@ -53,8 +53,8 @@ public class SQLDriverProxy implements InvocationHandler {
     }
 
     public static Driver create() {
-        return (Driver) Proxy.newProxyInstance(SQLDriverProxy.class.getClassLoader(), new Class<?>[]{Driver.class},
-                new SQLDriverProxy(JDBC_PROXY_KEY));
+        SQLDriverProxy driver = new SQLDriverProxy(JDBC_PROXY_KEY);
+        return (Driver) Proxy.newProxyInstance(SQLDriverProxy.class.getClassLoader(), new Class<?>[]{Driver.class}, driver);
     }
 
 

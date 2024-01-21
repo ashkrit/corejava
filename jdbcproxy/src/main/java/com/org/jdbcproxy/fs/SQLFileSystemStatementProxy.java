@@ -1,6 +1,6 @@
-package com.org.jdbcproxy.filesystem;
+package com.org.jdbcproxy.fs;
 
-import com.org.jdbcproxy.filesystem.list.SQLFileSystemResultSetProxy;
+import com.org.jdbcproxy.fs.list.SQLFileSystemResultSetProxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -37,15 +37,16 @@ public class SQLFileSystemStatementProxy implements InvocationHandler {
         return fn.apply(args);
     }
 
-    private Function<Object[], Object> _wrap(Method method, Object[] args) {
-        return $ -> {
+    private Function<Object[], Object> _wrap(Method method, Object[] $) {
+        return $$ -> {
             throw new IllegalArgumentException("Method " + method.getName() + " is not supported");
         };
     }
 
     public static Statement create(SQLFileSystemConnectionProxy connection) {
-        return (Statement) Proxy.newProxyInstance(SQLFileSystemStatementProxy.class.getClassLoader(), new Class<?>[]{Statement.class},
-                new SQLFileSystemStatementProxy(connection));
+        SQLFileSystemStatementProxy statement = new SQLFileSystemStatementProxy(connection);
+        return (Statement) Proxy.newProxyInstance(
+                SQLFileSystemStatementProxy.class.getClassLoader(), new Class<?>[]{Statement.class}, statement);
     }
 
     @Override

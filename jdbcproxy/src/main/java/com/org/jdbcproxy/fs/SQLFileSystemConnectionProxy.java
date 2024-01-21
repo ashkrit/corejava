@@ -1,4 +1,4 @@
-package com.org.jdbcproxy.filesystem;
+package com.org.jdbcproxy.fs;
 
 import com.org.lang.MoreLang;
 
@@ -43,8 +43,10 @@ public class SQLFileSystemConnectionProxy implements InvocationHandler {
 
     public static Connection create(String connectionUrl) {
         String cleanUrl = connectionUrl.replace(SQLFileSystemConnectionProxy.URL_PREFIX, "");
-        return (Connection) Proxy.newProxyInstance(SQLFileSystemConnectionProxy.class.getClassLoader(), new Class<?>[]{Connection.class},
-                new SQLFileSystemConnectionProxy(cleanUrl));
+        SQLFileSystemConnectionProxy connection = new SQLFileSystemConnectionProxy(cleanUrl);
+        return (Connection) Proxy.newProxyInstance(SQLFileSystemConnectionProxy.class.getClassLoader(),
+                new Class<?>[]{Connection.class},
+                connection);
     }
 
     @Override
