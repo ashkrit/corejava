@@ -88,14 +88,20 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     private Object _getFileContentAsBytes(Method $, Object[] $$) {
         return safeExecute(() -> {
             String fullPath = rs.getString(FileSystemFields.FULL_PATH);
-            return Files.readAllBytes(Paths.get(fullPath));
+            if (rs.getBoolean(FileSystemFields.IS_FILE)) {
+                return Files.readAllBytes(Paths.get(fullPath));
+            }
+            return new byte[0];
         });
     }
 
     private Object _getFileContent(Method $, Object[] $$) {
         return safeExecute(() -> {
             String fullPath = rs.getString(FileSystemFields.FULL_PATH);
-            return new String(Files.readAllBytes(Paths.get(fullPath)));
+            if (rs.getBoolean(FileSystemFields.IS_FILE)) {
+                return new String(Files.readAllBytes(Paths.get(fullPath)));
+            }
+            return "";
         });
     }
 

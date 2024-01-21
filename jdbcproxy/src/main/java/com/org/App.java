@@ -34,7 +34,7 @@ public class App {
 
         Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + SQLFileSystemConnectionProxy.URL_PREFIX);
         Statement fsstatement = fsConnection.createStatement();
-        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/offers/') order by size");
+        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/data') order by size");
 
     }
 
