@@ -15,7 +15,7 @@ import java.util.Map;
  * jdbc/proxy/key=filesystem:
  */
 
-public class App {
+public class SelectApp {
 
     static Class<?> driver = org.sqlite.JDBC.class;
 
