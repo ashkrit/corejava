@@ -1,4 +1,4 @@
-package com.org.jdbcproxy.filesystem;
+package com.org.jdbcproxy.filesystem.list;
 
 public class FileSystemFields {
 
@@ -10,4 +10,6 @@ public class FileSystemFields {
     public static final String IS_HIDDEN = "is_hidden";
     public static final String FULL_PATH = "full_path";
 
+    public static final String CONTENT = "content";
+    public static final String BYTES = "_bytes";
 }

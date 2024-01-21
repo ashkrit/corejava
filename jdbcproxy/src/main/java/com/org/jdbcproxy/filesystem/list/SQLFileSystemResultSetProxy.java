@@ -1,6 +1,9 @@
-package com.org.jdbcproxy.filesystem;
+package com.org.jdbcproxy.filesystem.list;
 
+import com.org.jdbcproxy.filesystem.EmbedDatabase;
+import com.org.jdbcproxy.filesystem.SQLFileSystemStatementProxy;
 import com.org.lang.MoreLang;
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.TableFunction;
@@ -23,8 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.org.jdbcproxy.filesystem.FileSystemSQL.createTables;
-import static com.org.jdbcproxy.filesystem.FileSystemSQL.loadFiles;
+import static com.org.jdbcproxy.filesystem.list.FileSystemSQL.createTables;
+import static com.org.jdbcproxy.filesystem.list.FileSystemSQL.loadFiles;
 import static com.org.lang.MoreLang.safeExecute;
 import static com.org.lang.MoreLang.safeExecuteV;
 
@@ -33,7 +36,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
     private static final AtomicInteger sequence = new AtomicInteger();
     public static final String FILESYSTEM_PATTERN = "fs\\('([^']+)'\\)";
     private final Map<String, BiFunction<Method, Object[], Object>> functions = new HashMap<>();
-    private final Map<String, BiFunction<Method, Object[], Object>> columnValues = new HashMap<>();
+    private final Map<String, BiFunction<Method, Object[], Object>> virtualColumns = new HashMap<>();
 
     private final int currentSequence;
     private final Connection connection;
@@ -69,13 +72,13 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private void _addFieldFunctions() {
 
-        this.columnValues.put("content", this::_getFileContent);
-        this.columnValues.put("content_bytes", this::_getFileContentAsBytes);
+        this.virtualColumns.put(FileSystemFields.CONTENT, this::_getFileContent);
+        this.virtualColumns.put(FileSystemFields.CONTENT + FileSystemFields.BYTES, this::_getFileContentAsBytes);
     }
 
     private Object _getBytes(Method method, Object[] args) {
         String columnName = (String) args[0];
-        BiFunction<Method, Object[], Object> fn = columnValues.get(columnName.toLowerCase() + "_bytes");
+        BiFunction<Method, Object[], Object> fn = virtualColumns.get(columnName.toLowerCase() + FileSystemFields.BYTES);
         if (fn != null) {
             return fn.apply(method, args);
         }
@@ -98,7 +101,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private Object _getString(Method method, Object[] args) {
         String columnName = (String) args[0];
-        BiFunction<Method, Object[], Object> fn = columnValues.get(columnName.toLowerCase());
+        BiFunction<Method, Object[], Object> fn = virtualColumns.get(columnName.toLowerCase());
         if (fn != null) {
             return fn.apply(method, args);
         }
@@ -108,9 +111,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private void _loadTable(String sql) {
         safeExecuteV(() -> {
-                    PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
-                    TableFunction tableName = (TableFunction) select.getFromItem();
-                    String name = tableName.toString();
+                    String name = _tableName(sql);
                     Matcher matcher = _match(name);
                     if (matcher.matches()) {
                         _asFolder(matcher.group(1));
@@ -120,6 +121,12 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
                 }
         );
+    }
+
+    private static String _tableName(String sql) throws JSQLParserException {
+        PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+        TableFunction tableName = (TableFunction) select.getFromItem();
+        return tableName.toString();
     }
 
     private void _asFolder(String path) throws IOException {
@@ -156,15 +163,7 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
 
     public static boolean canProcess(String sql) {
-
-        return MoreLang.safeExecute(() -> {
-                    PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
-                    TableFunction tableName = (TableFunction) select.getFromItem();
-                    String name = tableName.toString();
-                    return _match(name).matches();
-                }
-
-        );
+        return safeExecute(() -> _match(_tableName(sql)).matches());
     }
 
     private static Matcher _match(String name) {

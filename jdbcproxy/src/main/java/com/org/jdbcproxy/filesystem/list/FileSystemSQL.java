@@ -1,4 +1,4 @@
-package com.org.jdbcproxy.filesystem;
+package com.org.jdbcproxy.filesystem.list;
 
 import com.org.lang.MoreLang;
 
@@ -38,13 +38,14 @@ public class FileSystemSQL {
 
     private static List<String[]> tableColumns() {
         List<String[]> cols = new ArrayList<>();
-        cols.add(new String[]{"name", "string"});
-        cols.add(new String[]{"last_modified", "integer"});
-        cols.add(new String[]{"size", "integer"});
-        cols.add(new String[]{"is_file", "string"});
-        cols.add(new String[]{"is_folder", "string"});
-        cols.add(new String[]{"is_hidden", "string"});
-        cols.add(new String[]{"full_path", "string"});
+        cols.add(new String[]{FileSystemFields.FILE_NAME, "string"});
+        cols.add(new String[]{FileSystemFields.LAST_MODIFIED_TS, "integer"});
+        cols.add(new String[]{FileSystemFields.FILE_SIZE, "integer"});
+        cols.add(new String[]{FileSystemFields.IS_FILE, "string"});
+        cols.add(new String[]{FileSystemFields.IS_FOLDER, "string"});
+        cols.add(new String[]{FileSystemFields.IS_HIDDEN, "string"});
+        cols.add(new String[]{FileSystemFields.FULL_PATH, "string"});
+        cols.add(new String[]{FileSystemFields.CONTENT, "content"});
         return cols;
     }
 
@@ -68,6 +69,7 @@ public class FileSystemSQL {
                     stmt.setBoolean(index++, file.isDirectory());
                     stmt.setBoolean(index++, file.isHidden());
                     stmt.setString(index++, file.getAbsolutePath());
+                    stmt.setString(index++, "VIRTUAL");
                     stmt.executeUpdate();
                 });
             });

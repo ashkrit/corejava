@@ -1,5 +1,7 @@
 package com.org.jdbcproxy.filesystem;
 
+import com.org.jdbcproxy.filesystem.list.SQLFileSystemResultSetProxy;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
