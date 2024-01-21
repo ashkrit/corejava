@@ -32,7 +32,6 @@ import static com.org.lang.MoreLang.safeExecuteV;
 public class SQLFileSystemResultSetProxy implements InvocationHandler {
 
     private static final AtomicInteger sequence = new AtomicInteger();
-    public static final String ROOT = "root";
     private final Map<String, BiFunction<Method, Object[], Object>> functions = new HashMap<>();
 
     private final int currentSequence;
@@ -81,15 +80,6 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         );
     }
 
-    private void _asSubFolder(SQLFileSystemStatementProxy statement, Table tableName) throws IOException {
-        Path fullPath = Paths.get(_toAbsPath(statement, tableName));
-        System.out.println("Loading files from " + fullPath);
-
-        List<Path> results = Files.list(fullPath).collect(Collectors.toList());
-        loadFiles(connection, String.valueOf(currentSequence), results);
-
-    }
-
     private void _asFolder(String path) throws IOException {
         Path fullPath = Paths.get(path);
         System.out.println("Loading files from " + fullPath);
@@ -97,21 +87,6 @@ public class SQLFileSystemResultSetProxy implements InvocationHandler {
         List<Path> results = Files.list(fullPath).collect(Collectors.toList());
         loadFiles(connection, String.valueOf(currentSequence), results);
 
-    }
-
-    private static String _toAbsPath(SQLFileSystemStatementProxy statement, Table tableName) {
-        String name = tableName.toString();
-        String updatedTableName = name.replace(".", File.separator);
-        return updatedTableName.replace(ROOT, statement.connection.target);
-    }
-
-    private void _asRoot(SQLFileSystemStatementProxy statement) throws IOException {
-        List<Path> results = Files.list(Paths.get(statement.connection.target)).collect(Collectors.toList());
-        loadFiles(connection, String.valueOf(currentSequence), results);
-    }
-
-    private static boolean isRoot(Table tableName) {
-        return tableName.getName().equalsIgnoreCase(ROOT);
     }
 
     @Override

@@ -49,12 +49,13 @@ public class App {
 
 
             String name = r.getString("name");
+            String fullPath = r.getString("full_path");
             long size = r.getLong("size");
             Timestamp d = r.getTimestamp("last_modified");
             boolean isFile = r.getBoolean("is_file");
             boolean isFolder = r.getBoolean("is_folder");
             Object isHidden = r.getObject("is_hidden");
-            System.out.printf("Name %s , size %s , last modified %s , is_file %s , is_folder %s , is_hidden %s %n", name, size, d, isFile, isFolder, isHidden);
+            System.out.printf("fullPath %s Name %s , size %s , last modified %s , is_file %s , is_folder %s , is_hidden %s %n", fullPath, name, size, d, isFile, isFolder, isHidden);
         }
     }
 

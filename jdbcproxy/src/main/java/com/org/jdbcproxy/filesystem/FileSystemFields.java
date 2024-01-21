@@ -8,5 +8,6 @@ public class FileSystemFields {
     public static final String IS_FILE = "is_file";
     public static final String IS_FOLDER = "is_folder";
     public static final String IS_HIDDEN = "is_hidden";
+    public static final String FULL_PATH = "full_path";
 
 }

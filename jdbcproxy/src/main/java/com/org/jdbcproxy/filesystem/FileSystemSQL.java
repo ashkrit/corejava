@@ -44,6 +44,7 @@ public class FileSystemSQL {
         cols.add(new String[]{"is_file", "string"});
         cols.add(new String[]{"is_folder", "string"});
         cols.add(new String[]{"is_hidden", "string"});
+        cols.add(new String[]{"full_path", "string"});
         return cols;
     }
 
@@ -66,6 +67,7 @@ public class FileSystemSQL {
                     stmt.setBoolean(index++, file.isFile());
                     stmt.setBoolean(index++, file.isDirectory());
                     stmt.setBoolean(index++, file.isHidden());
+                    stmt.setString(index++, file.getAbsolutePath());
                     stmt.executeUpdate();
                 });
             });
