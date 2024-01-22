@@ -45,7 +45,7 @@ public class FileSystemSQL {
         cols.add(new String[]{FileSystemFields.IS_FOLDER, "string"});
         cols.add(new String[]{FileSystemFields.IS_HIDDEN, "string"});
         cols.add(new String[]{FileSystemFields.FULL_PATH, "string"});
-        cols.add(new String[]{FileSystemFields.CONTENT, "content"});
+        cols.add(new String[]{FileSystemFields.CONTENT, "string"});
         return cols;
     }
 

@@ -37,6 +37,7 @@ public class LoadData {
             }
         });
 
+
         Connection connection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + SQLCustomConnectionProxy.URL_PREFIX);
         Statement statement = connection.createStatement();
 
