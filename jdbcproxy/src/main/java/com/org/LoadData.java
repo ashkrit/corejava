@@ -7,7 +7,7 @@ import com.org.jdbcproxy.SQLFactory.SQLObjects;
 import com.org.jdbcproxy.custom.CustomDataSourceContext;
 import com.org.jdbcproxy.custom.RowInfo;
 import com.org.jdbcproxy.custom.SQLCustomConnectionProxy;
-import com.org.jdbcproxy.fs.EmbedDatabase;
+import com.org.jdbcproxy.EmbedDatabase;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

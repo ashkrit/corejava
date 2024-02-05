@@ -70,13 +70,11 @@ public class SQLDriverProxy implements InvocationHandler {
     }
 
     private static List<Driver> collectDrivers() {
-        int order = 0;
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         List<Driver> driverList = new ArrayList<>();
         while (drivers.hasMoreElements()) {
             Driver e = drivers.nextElement();
             driverList.add(e);
-            order++;
         }
         return driverList;
     }

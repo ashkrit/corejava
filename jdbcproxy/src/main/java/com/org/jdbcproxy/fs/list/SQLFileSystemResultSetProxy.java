@@ -1,6 +1,6 @@
 package com.org.jdbcproxy.fs.list;
 
-import com.org.jdbcproxy.fs.EmbedDatabase;
+import com.org.jdbcproxy.EmbedDatabase;
 import com.org.jdbcproxy.fs.SQLFileSystemStatementProxy;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;

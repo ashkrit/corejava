@@ -3,7 +3,7 @@ package com.org;
 import com.org.jdbcproxy.custom.CustomDataSourceContext;
 import com.org.jdbcproxy.custom.CustomDataSourceContext.CollectionTable;
 import com.org.jdbcproxy.custom.CustomDataSourceContext.CollectionTable.ColumnInfo;
-import com.org.jdbcproxy.fs.EmbedDatabase;
+import com.org.jdbcproxy.EmbedDatabase;
 
 import java.time.LocalDate;
 import java.util.*;
