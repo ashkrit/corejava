@@ -2,7 +2,6 @@ package com.org.jdbcproxy.collection;
 
 import com.org.jdbcproxy.SQLFactory;
 import com.org.jdbcproxy.SQLFactory.SQLObjects;
-import com.org.jdbcproxy.custom.SQLCustomStatementProxy;
 import com.org.lang.MoreLang;
 
 import java.lang.reflect.InvocationHandler;

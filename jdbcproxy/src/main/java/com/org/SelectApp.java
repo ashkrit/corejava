@@ -22,7 +22,7 @@ public class SelectApp {
     public static void main(String[] args) throws Exception {
 
         String dbPath = args[0];
-
+        
 
         Class.forName(driver.getName());
 
@@ -31,10 +31,9 @@ public class SelectApp {
 
         //_rdbms(dbPath);
 
-
         Connection fsConnection = DriverManager.getConnection(SQLDriverProxy.JDBC_PROXY_KEY + SQLFileSystemConnectionProxy.URL_PREFIX);
         Statement fsstatement = fsConnection.createStatement();
-        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/data') order by size");
+        dumpResult(fsstatement, "select * from fs('/Users/ashkrit/_tmp/data') where is_file=true and size > 10000 order by size");
 
     }
 

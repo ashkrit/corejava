@@ -1,2 +1,7 @@
-package com.org.database.ext;public class App {
+package com.org.database.ext;
+
+public class App {
+    public static void main(String[] args) {
+        System.out.println("Hello World!");
+    }
 }
