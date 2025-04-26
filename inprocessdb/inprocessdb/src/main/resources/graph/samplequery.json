@@ -1,0 +1,49 @@
+{
+  "query": [
+    {
+      "name": "Find users in Waterloo",
+      "description": "Find all users who live in Waterloo",
+      "query": "MATCH (u:User)-[:LivesIn]->(c:City {name: 'Waterloo'}) RETURN u.name, u.age"
+    },
+    {
+      "name": "Adam's followers",
+      "description": "Find users who follow Adam",
+      "query": "MATCH (u:User)-[:Follows]->(a:User {name: 'Adam'}) RETURN u.name, u.age"
+    },
+    {
+      "name": "Cities with older users",
+      "description": "Find cities with users older than 40",
+      "query": "MATCH (u:User)-[:LivesIn]->(c:City) WHERE u.age > 40 RETURN DISTINCT c.name, c.population"
+    },
+    {
+      "name": "Followers of Toronto residents",
+      "description": "Find users who follow users living in Toronto",
+      "query": "MATCH (a:User)-[:Follows]->(b:User)-[:LivesIn]->(c:City {name: 'Toronto'}) RETURN a.name AS follower, b.name AS followed_toronto_resident"
+    },
+    {
+      "name": "Followers count by city",
+      "description": "Count followers by city",
+      "query": "MATCH (followed:User)-[:LivesIn]->(c:City) MATCH (follower:User)-[:Follows]->(followed) RETURN c.name AS city, COUNT(DISTINCT follower) AS follower_count ORDER BY follower_count DESC"
+    },
+    {
+      "name": "New followers in 2022",
+      "description": "Find users who started following others in 2022",
+      "query": "MATCH (a:User)-[f:Follows]->(b:User) WHERE f.since = 2022 RETURN a.name AS follower, b.name AS followed, f.since"
+    },
+    {
+      "name": "Friends of friends",
+      "description": "Find friend-of-friend relationships",
+      "query": "MATCH (a:User)-[:Follows]->(b:User)-[:Follows]->(c:User) WHERE a.name <> c.name RETURN a.name AS user, c.name AS friend_of_friend, COUNT(b) AS common_connections ORDER BY common_connections DESC"
+    },
+    {
+      "name": "Cities with mutual follows",
+      "description": "Find cities where mutually following users live",
+      "query": "MATCH (a:User)-[:Follows]->(b:User)-[:Follows]->(a) MATCH (a)-[:LivesIn]->(city_a:City) MATCH (b)-[:LivesIn]->(city_b:City) RETURN a.name, city_a.name AS a_lives_in, b.name, city_b.name AS b_lives_in"
+    },
+    {
+      "name": "Popular users in large cities",
+      "description": "Find popular users (>3 followers) who live in cities with population over 500,000",
+      "query": "MATCH (followed:User)-[:LivesIn]->(c:City) WHERE c.population > 500000 MATCH (follower:User)-[:Follows]->(followed) WITH followed, c, COUNT(DISTINCT follower) AS follower_count WHERE follower_count > 2 RETURN followed.name AS popular_user, c.name AS city, follower_count ORDER BY follower_count DESC"
+    }
+  ]
+}
