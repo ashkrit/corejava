@@ -33,7 +33,7 @@
     {
       "name": "Friends of friends",
       "description": "Find friend-of-friend relationships",
-      "query": "MATCH (a:User)-[:Follows]->(b:User)-[:Follows]->(c:User) WHERE a.name <> c.name RETURN a.name AS user, c.name AS friend_of_friend, COUNT(b) AS common_connections ORDER BY common_connections DESC"
+      "query": "MATCH (a:User)-[:Follows]->(b:User)-[:Follows]->(c:User) WHERE a.name <> c.name RETURN a.name AS user, c.name AS friend_of_friend, COUNT(b) AS common_connections ORDER BY common_connections DESC LIMIT 20"
     },
     {
       "name": "Cities with mutual follows",
