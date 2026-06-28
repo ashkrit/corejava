@@ -12,8 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>25</maven.compiler.release>
-    <junit.version>5.11.4</junit.version>
+<junit.version>5.11.4</junit.version>
   </properties>
 
   <dependencies>
@@ -32,7 +31,13 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <release>25</release>
+          <source>25</source>
+          <target>25</target>
+          <compilerArgs>
+            <arg>--add-exports</arg>
+            <arg>java.base/jdk.internal.vm=ALL-UNNAMED</arg>
+            <arg>--enable-preview</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>

@@ -20,9 +20,10 @@ public class ImageProcessingExample {
     public static void main(String[] args) {
 
         //bruteForce();
-
         structureTask();
     }
+
+
 
     private static void structureTask() {
         try (var scope = StructuredTaskScope.open(); var client = HttpClient.newBuilder().build()) {
@@ -60,6 +61,7 @@ public class ImageProcessingExample {
      * @return map of URL -> ByteBuffer containing the raw image bytes
      */
     public static Map<String, ByteBuffer> downloadImages(List<String> urls) {
+
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor();
              var client = HttpClient.newBuilder()
