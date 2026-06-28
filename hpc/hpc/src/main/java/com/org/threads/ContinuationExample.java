@@ -3,6 +3,11 @@ package com.org.threads;
 import jdk.internal.vm.Continuation;
 import jdk.internal.vm.ContinuationScope;
 
+/**
+ * Add VM Options
+ *
+ * --add-exports java.base/jdk.internal.vm=ALL-UNNAMED --enable-preview
+ */
 public class ContinuationExample {
     public static void main(String[] args) {
 
