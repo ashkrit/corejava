@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.Map;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 import java.util.stream.Collectors;
 
 record ImageResult(String url, ByteBuffer buffer) {
@@ -18,6 +19,29 @@ public class ImageProcessingExample {
 
     public static void main(String[] args) {
 
+        //bruteForce();
+
+        structureTask();
+    }
+
+    private static void structureTask() {
+        try (var scope = StructuredTaskScope.open(); var client = HttpClient.newBuilder().build()) {
+
+
+            Subtask<ImageResult> subtask1 = scope.fork(() -> fetchImage(client, "https://fastly.picsum.photos/id/1/200/300.jpg?hmac=jH5bDkLr6Tgy3oAg5khKCHeunZMHq0ehBZr6vGifPLY"));
+            Subtask<ImageResult> subtask2 = scope.fork(() -> fetchImage(client, "https://fastly.picsum.photos/id/2/200/300.jpg?hmac=HiDjvfge5yCzj935PIMj1qOf4KtvrfqWX3j4z1huDaU"));
+
+            scope.join();
+
+            var result = subtask2.get().buffer().remaining() + subtask1.get().buffer().remaining();
+            System.out.println(result);
+
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void bruteForce() {
         var urls = List.of(
                 "https://fastly.picsum.photos/id/1/200/300.jpg?hmac=jH5bDkLr6Tgy3oAg5khKCHeunZMHq0ehBZr6vGifPLY",
                 "https://fastly.picsum.photos/id/2/200/300.jpg?hmac=HiDjvfge5yCzj935PIMj1qOf4KtvrfqWX3j4z1huDaU",
@@ -37,7 +61,7 @@ public class ImageProcessingExample {
      */
     public static Map<String, ByteBuffer> downloadImages(List<String> urls) {
 
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor();
              var client = HttpClient.newBuilder()
                      .executor(executor)
                      .build()) {
